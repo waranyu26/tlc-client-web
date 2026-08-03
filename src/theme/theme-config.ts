@@ -23,10 +23,10 @@ export const themeConfig: ThemeConfig = {
   /** **************************************
    * Base
    *************************************** */
-  defaultMode: 'light',
+  defaultMode: 'dark',
   modeStorageKey: 'theme-mode',
   direction: 'ltr',
-  classesPrefix: 'minimal',
+  classesPrefix: 'tlc',
   /** **************************************
    * Css variables
    *************************************** */
@@ -38,28 +38,28 @@ export const themeConfig: ThemeConfig = {
    * Typography
    *************************************** */
   fontFamily: {
-    primary: 'Public Sans Variable',
-    secondary: 'Barlow',
+    primary: 'Jost Variable',
+    secondary: 'Cormorant Garamond',
   },
   /** **************************************
    * Palette
    *************************************** */
   palette: {
     primary: {
-      lighter: '#C8FAD6',
-      light: '#5BE49B',
-      main: '#00A76F',
-      dark: '#007867',
-      darker: '#004B50',
-      contrastText: '#FFFFFF',
+      lighter: '#F6ECD1',
+      light: '#EFDCA9',
+      main: '#E7CE92',
+      dark: '#C9A94E',
+      darker: '#8A6D2F',
+      contrastText: '#0B0B0D',
     },
     secondary: {
-      lighter: '#EFD6FF',
-      light: '#C684FF',
-      main: '#8E33FF',
-      dark: '#5119B7',
-      darker: '#27097A',
-      contrastText: '#FFFFFF',
+      lighter: '#EED9A2',
+      light: '#E4C77E',
+      main: '#D9B45B',
+      dark: '#A8842F',
+      darker: '#6E5620',
+      contrastText: '#0B0B0D',
     },
     info: {
       lighter: '#CAFDF5',
@@ -70,12 +70,12 @@ export const themeConfig: ThemeConfig = {
       contrastText: '#FFFFFF',
     },
     success: {
-      lighter: '#D3FCD2',
-      light: '#77ED8B',
-      main: '#22C55E',
-      dark: '#118D57',
-      darker: '#065E49',
-      contrastText: '#ffffff',
+      lighter: '#D6F0DF',
+      light: '#9FD8B5',
+      main: '#6FBF8E',
+      dark: '#3E9A64',
+      darker: '#1F6B42',
+      contrastText: '#0B0B0D',
     },
     warning: {
       lighter: '#FFF5CC',
@@ -86,24 +86,24 @@ export const themeConfig: ThemeConfig = {
       contrastText: '#1C252E',
     },
     error: {
-      lighter: '#FFE9D5',
-      light: '#FFAC82',
-      main: '#FF5630',
-      dark: '#B71D18',
-      darker: '#7A0916',
+      lighter: '#F2D6D4',
+      light: '#DC938F',
+      main: '#C9605B',
+      dark: '#9B3E3A',
+      darker: '#6B2523',
       contrastText: '#FFFFFF',
     },
     grey: {
-      50: '#FCFDFD',
-      100: '#F9FAFB',
-      200: '#F4F6F8',
-      300: '#DFE3E8',
-      400: '#C4CDD5',
-      500: '#919EAB',
-      600: '#637381',
-      700: '#454F5B',
-      800: '#1C252E',
-      900: '#141A21',
+      50: '#F7F6F3',
+      100: '#EFEDE7',
+      200: '#D8D4CB',
+      300: '#B6B1A6',
+      400: '#8A857B',
+      500: '#635F58',
+      600: '#4A4844',
+      700: '#2B2A28',
+      800: '#1B1A1E',
+      900: '#111014',
     },
     common: {
       black: '#000000',

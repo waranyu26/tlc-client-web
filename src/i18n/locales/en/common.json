@@ -1,0 +1,33 @@
+{
+  "appName": "Tokyo Lucky Card",
+  "tagline": "Every card is a verified asset.",
+  "nav": {
+    "home": "Home",
+    "vault": "Vault",
+    "wallet": "Wallet",
+    "live": "Live"
+  },
+  "actions": {
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "back": "Back",
+    "retry": "Retry",
+    "close": "Close",
+    "signOut": "Sign out"
+  },
+  "state": {
+    "loading": "Loading…",
+    "empty": "Nothing here yet",
+    "error": "Something went wrong"
+  },
+  "currency": {
+    "symbol": "฿"
+  },
+  "trust": {
+    "footer": "Payments via Stripe · Audited pull rates · 100% authentic inventory",
+    "authenticated": "Authenticated inventory. All cards graded and vaulted before listing. Pull rates audited monthly."
+  }
+}

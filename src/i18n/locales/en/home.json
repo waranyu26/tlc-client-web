@@ -1,0 +1,23 @@
+{
+  "greeting": {
+    "morning": "Good morning, {{name}}",
+    "afternoon": "Good afternoon, {{name}}",
+    "evening": "Good evening, {{name}}",
+    "fallback": "Welcome back"
+  },
+  "balanceLabel": "Available balance",
+  "pullCta": "Pull a card",
+  "featured": "Featured pack",
+  "morePacks": "All packs",
+  "state": {
+    "loading": "Loading packs…",
+    "empty": "No packs available right now.",
+    "error": "Couldn't load packs."
+  },
+  "ticker": {
+    "fallback": "Live pulls will appear here.",
+    "event": "Someone just pulled {{card}} ({{rarity}})"
+  },
+  "stock": "{{count}} left",
+  "outOfStock": "Sold out"
+}

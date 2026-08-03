@@ -1,0 +1,9 @@
+{
+  "cta": {
+    "email": "Continue with email",
+    "google": "Continue with Google"
+  },
+  "ticker": {
+    "item": "{{user}} pulled {{card}} · {{rarity}}"
+  }
+}

@@ -1,37 +1,68 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosError, AxiosRequestConfig } from 'axios';
 
 import axios from 'axios';
 
 import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
+// Backend response envelope: { code, message, data }. Success => code "100000".
+// The response interceptor unwraps `data` so callers receive the payload directly,
+// and throws an `ApiError` (carrying `code`) on any non-success envelope.
+// ----------------------------------------------------------------------
+
+export const API_SUCCESS_CODE = '100000';
+
+export type ApiEnvelope<T = unknown> = {
+  code: string;
+  message: string;
+  data: T;
+};
+
+export class ApiError extends Error {
+  code: string;
+
+  status?: number;
+
+  data?: unknown;
+
+  constructor(message: string, code: string, status?: number, data?: unknown) {
+    super(message);
+    this.name = 'ApiError';
+    this.code = code;
+    this.status = status;
+    this.data = data;
+  }
+}
 
 const axiosInstance = axios.create({
   baseURL: CONFIG.serverUrl,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // SuperTokens uses header-based token transfer; credentials kept on for cookie fallback.
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
 });
-
-/**
- * Optional: Add token (if using auth)
- *
- axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-*
-*/
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const message = error?.response?.data?.message || error?.message || 'Something went wrong!';
-    console.error('Axios error:', message);
-    return Promise.reject(new Error(message));
+  (response) => {
+    const body = response.data as ApiEnvelope | undefined;
+
+    // Non-enveloped responses (e.g. SSE, raw) pass through untouched.
+    if (!body || typeof body !== 'object' || !('code' in body)) {
+      return response;
+    }
+
+    if (body.code !== API_SUCCESS_CODE) {
+      throw new ApiError(body.message || 'Request failed', body.code, response.status, body.data);
+    }
+
+    // Unwrap: callers get the inner payload as `response.data`.
+    response.data = body.data;
+    return response;
+  },
+  (error: AxiosError<ApiEnvelope>) => {
+    const body = error.response?.data;
+    const message = body?.message || error.message || 'Something went wrong!';
+    const code = body?.code || 'NETWORK_ERROR';
+    return Promise.reject(new ApiError(message, code, error.response?.status, body?.data));
   }
 );
 
@@ -39,46 +70,11 @@ export default axiosInstance;
 
 // ----------------------------------------------------------------------
 
+/** Thin GET helper returning the unwrapped payload. */
 export const fetcher = async <T = unknown>(
   args: string | [string, AxiosRequestConfig]
 ): Promise<T> => {
-  try {
-    const [url, config] = Array.isArray(args) ? args : [args, {}];
-
-    const res = await axiosInstance.get<T>(url, config);
-
-    return res.data;
-  } catch (error) {
-    console.error('Fetcher failed:', error);
-    throw error;
-  }
+  const [url, config] = Array.isArray(args) ? args : [args, {}];
+  const res = await axiosInstance.get<T>(url, config);
+  return res.data;
 };
-
-// ----------------------------------------------------------------------
-
-export const endpoints = {
-  chat: '/api/chat',
-  kanban: '/api/kanban',
-  calendar: '/api/calendar',
-  auth: {
-    me: '/api/auth/me',
-    signIn: '/api/auth/sign-in',
-    signUp: '/api/auth/sign-up',
-  },
-  mail: {
-    list: '/api/mail/list',
-    details: '/api/mail/details',
-    labels: '/api/mail/labels',
-  },
-  post: {
-    list: '/api/post/list',
-    details: '/api/post/details',
-    latest: '/api/post/latest',
-    search: '/api/post/search',
-  },
-  product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
-  },
-} as const;

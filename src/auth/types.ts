@@ -1,4 +1,6 @@
-export type UserType = Record<string, any> | null;
+import type { UserProfile } from 'src/api/types';
+
+export type UserType = UserProfile | null;
 
 export type AuthState = {
   user: UserType;

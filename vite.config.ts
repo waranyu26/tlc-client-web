@@ -5,7 +5,7 @@ import checker from 'vite-plugin-checker';
 
 // ----------------------------------------------------------------------
 
-const PORT = 8081;
+const PORT = 5173;
 
 // https://vite.dev/config/
 export default defineConfig({

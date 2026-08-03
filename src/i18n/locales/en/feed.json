@@ -1,0 +1,17 @@
+{
+  "title": "Live Feed",
+  "subtitle": "Real-time pulls from the vault, as they happen.",
+  "live": "Live",
+  "connecting": "Connecting…",
+  "pulled": "Someone pulled",
+  "empty": {
+    "title": "The feed is quiet",
+    "subtitle": "Live pulls will appear here the moment someone opens a pack."
+  },
+  "time": {
+    "justNow": "just now",
+    "m": "{{count}}m",
+    "h": "{{count}}h",
+    "d": "{{count}}d"
+  }
+}

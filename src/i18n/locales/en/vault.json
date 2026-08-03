@@ -1,0 +1,28 @@
+{
+  "title": "The Vault",
+  "portfolioLabel": "PORTFOLIO VALUE",
+  "cardCount_one": "{{count}} card",
+  "cardCount_other": "{{count}} cards",
+  "grade": "Grade {{value}}",
+  "buybackValue": "Buyback value",
+  "empty": {
+    "title": "Your vault is empty",
+    "subtitle": "Pull a pack to start building your authenticated collection.",
+    "cta": "Browse packs"
+  },
+  "error": {
+    "title": "Couldn't load your vault",
+    "retry": "Retry"
+  },
+  "sheet": {
+    "sellBack": "Sell back",
+    "requestDelivery": "Request delivery",
+    "cancel": "Cancel",
+    "confirmTitle": "Sell this card back?",
+    "confirmBody": "You'll receive {{amount}} in store credit instantly. This can't be undone.",
+    "confirmCta": "Confirm sale",
+    "selling": "Selling…",
+    "soldBody": "{{amount}} added to your wallet.",
+    "error": "Couldn't complete the sale. Please try again."
+  }
+}

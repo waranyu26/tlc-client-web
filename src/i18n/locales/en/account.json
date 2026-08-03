@@ -1,0 +1,21 @@
+{
+  "title": "Account",
+  "role": "Role",
+  "balance": "Balance",
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "th": "ไทย"
+  },
+  "danger": {
+    "heading": "Danger zone",
+    "deleteTitle": "Delete my account & data",
+    "deleteBody": "Permanently deletes your account, wallet balance, and card collection.",
+    "confirmTitle": "Delete account?",
+    "confirmBody": "This will permanently remove your account and all associated data, including your card collection and wallet balance. This action cannot be undone.",
+    "confirmAction": "Yes, delete my account",
+    "cancel": "Cancel",
+    "deleteError": "Something went wrong while deleting your account. Please try again."
+  },
+  "privacyNote": "Tokyo Lucky Card processes your personal data in accordance with the Thai Personal Data Protection Act (PDPA). You may request access, correction, or deletion of your data at any time."
+}

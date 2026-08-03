@@ -1,0 +1,49 @@
+{
+  "title": "Pull a Card",
+  "subtitle": "Every pull is a verified, graded asset.",
+  "pullCta": "Pull · {{price}}",
+  "insufficientBalance": "Insufficient balance",
+  "rateTable": {
+    "heading": "Audited Pull Rates",
+    "rarity": "Rarity",
+    "odds": "Odds",
+    "buyback": "Avg. Buyback",
+    "empty": "Rates unavailable right now."
+  },
+  "stage": {
+    "pulling": "Shuffling the vault…",
+    "glowing": "Something rare is surfacing…"
+  },
+  "reveal": {
+    "sellInstantly": "Sell Instantly",
+    "sellFor": "Sell Instantly for {{amount}}",
+    "addToVault": "Add to Vault",
+    "pullAgain": "Pull Again",
+    "viewVault": "View in Vault"
+  },
+  "buyback": {
+    "title": "Sold!",
+    "creditedLabel": "Credited to your wallet",
+    "newBalance": "New balance",
+    "done": "Done",
+    "pullAgain": "Pull Again"
+  },
+  "pending": {
+    "title": "Checking your pull",
+    "body": "Your last pull didn't confirm — this can happen if your connection dropped. You have not been charged twice; it's safe to check status or retry.",
+    "checkStatus": "Check status",
+    "retry": "Retry pull",
+    "checking": "Checking…",
+    "notCharged": "No charge went through. Safe to try again.",
+    "stillChecking": "Still working on it — check again in a moment.",
+    "resolvedSuccess": "Found it! Here's your card."
+  },
+  "topUp": {
+    "message": "Not enough balance for another pull.",
+    "cta": "Add funds"
+  },
+  "errors": {
+    "pullFailed": "Couldn't complete the pull.",
+    "buybackFailed": "Couldn't sell this card. Try again from your Vault."
+  }
+}

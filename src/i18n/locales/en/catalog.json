@@ -1,0 +1,33 @@
+{
+  "title": "Catalog",
+  "subtitle": "Every card audited and vaulted before listing.",
+  "filters": {
+    "setLabel": "Set",
+    "rarityLabel": "Rarity",
+    "allSets": "All sets",
+    "allRarities": "All"
+  },
+  "probabilityPanel": {
+    "title": "Pull probability",
+    "subtitle": "Audited monthly and disclosed for every rarity tier."
+  },
+  "card": {
+    "buyback": "Buyback",
+    "stock": "{{count}} in stock",
+    "outOfStock": "Out of stock"
+  },
+  "state": {
+    "loading": "Loading catalog…",
+    "empty": "No cards match these filters.",
+    "error": "Couldn't load the catalog."
+  },
+  "detail": {
+    "wonVia": "This card is won exclusively through gacha pulls — it isn't sold directly.",
+    "tryPull": "Try a pull",
+    "notFound": "Card not found.",
+    "buyback": "Buyback value",
+    "stock": "Stock remaining",
+    "set": "Set",
+    "back": "Back to catalog"
+  }
+}

@@ -10,73 +10,47 @@ export type ConfigValue = {
   serverUrl: string;
   assetsDir: string;
   auth: {
-    method: 'jwt' | 'amplify' | 'firebase' | 'supabase' | 'auth0';
+    method: 'supertokens';
     skip: boolean;
     redirectPath: string;
   };
-  firebase: {
-    appId: string;
-    apiKey: string;
-    projectId: string;
-    authDomain: string;
-    storageBucket: string;
-    measurementId: string;
-    messagingSenderId: string;
+  supertokens: {
+    apiDomain: string;
+    apiBasePath: string;
+    websiteDomain: string;
   };
-  amplify: { userPoolId: string; userPoolWebClientId: string; region: string };
-  auth0: { clientId: string; domain: string; callbackUrl: string };
-  supabase: { url: string; key: string };
+  stripe: {
+    publishableKey: string;
+  };
 };
 
 // ----------------------------------------------------------------------
 
 export const CONFIG: ConfigValue = {
-  appName: 'Minimal UI',
+  appName: 'Tokyo Lucky Card',
   appVersion: packageJson.version,
-  serverUrl: import.meta.env.VITE_SERVER_URL ?? '',
+  serverUrl: import.meta.env.VITE_SERVER_URL ?? 'http://localhost:3000',
   assetsDir: import.meta.env.VITE_ASSETS_DIR ?? '',
   /**
-   * Auth
-   * @method jwt | amplify | firebase | supabase | auth0
+   * Auth — SuperTokens session (email/password + Google), verified by the Go backend.
    */
   auth: {
-    method: 'jwt',
+    method: 'supertokens',
     skip: false,
-    redirectPath: paths.dashboard.root,
+    redirectPath: paths.home,
   },
   /**
-   * Firebase
+   * SuperTokens frontend SDK config. `apiBasePath` must match the backend (`/api/auth`).
    */
-  firebase: {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? '',
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? '',
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ?? '',
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ?? '',
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ?? '',
-    appId: import.meta.env.VITE_FIREBASE_APPID ?? '',
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID ?? '',
+  supertokens: {
+    apiDomain: import.meta.env.VITE_SERVER_URL ?? 'http://localhost:3000',
+    apiBasePath: import.meta.env.VITE_ST_API_BASE_PATH ?? '/api/auth',
+    websiteDomain: import.meta.env.VITE_WEBSITE_URL ?? window.location.origin,
   },
   /**
-   * Amplify
+   * Stripe — publishable key only; Stripe.js is loaded from the CDN, never bundled (PCI).
    */
-  amplify: {
-    userPoolId: import.meta.env.VITE_AWS_AMPLIFY_USER_POOL_ID ?? '',
-    userPoolWebClientId: import.meta.env.VITE_AWS_AMPLIFY_USER_POOL_WEB_CLIENT_ID ?? '',
-    region: import.meta.env.VITE_AWS_AMPLIFY_REGION ?? '',
-  },
-  /**
-   * Auth0
-   */
-  auth0: {
-    clientId: import.meta.env.VITE_AUTH0_CLIENT_ID ?? '',
-    domain: import.meta.env.VITE_AUTH0_DOMAIN ?? '',
-    callbackUrl: import.meta.env.VITE_AUTH0_CALLBACK_URL ?? '',
-  },
-  /**
-   * Supabase
-   */
-  supabase: {
-    url: import.meta.env.VITE_SUPABASE_URL ?? '',
-    key: import.meta.env.VITE_SUPABASE_ANON_KEY ?? '',
+  stripe: {
+    publishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '',
   },
 };

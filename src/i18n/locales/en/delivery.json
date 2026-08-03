@@ -1,0 +1,58 @@
+{
+  "hub": {
+    "title": "Physical Delivery",
+    "subtitle": "Ship a vaulted card straight to your door.",
+    "warning": "Requesting delivery permanently removes this card from your digital collection — it can no longer be sold back or viewed in the Vault.",
+    "selectCard": "Select a card",
+    "noCards": "You don't have any cards to deliver yet.",
+    "goToVault": "Go to Vault",
+    "selectAddress": "Select a delivery address",
+    "noAddresses": "You haven't saved a delivery address yet.",
+    "addAddress": "Add an address",
+    "submit": "Request delivery",
+    "submitting": "Requesting…",
+    "successTitle": "Delivery requested",
+    "successSubtitle": "We're preparing your card for shipment. You'll be notified once it's on its way.",
+    "requestAnother": "Request another",
+    "backToVault": "Back to Vault"
+  },
+  "address": {
+    "title": "Delivery Addresses",
+    "subtitle": "Manage the addresses your physical cards ship to.",
+    "add": "Add address",
+    "edit": "Edit address",
+    "empty": "No saved addresses yet.",
+    "default": "Default",
+    "setDefault": "Set as default",
+    "deleteConfirmTitle": "Delete this address?",
+    "deleteConfirmBody": "This can't be undone.",
+    "form": {
+      "recipientName": "Recipient name",
+      "phone": "Phone number",
+      "line1": "Address line 1",
+      "line2": "Address line 2 (optional)",
+      "district": "District / Khet",
+      "province": "Province",
+      "postalCode": "Postal code",
+      "isDefault": "Set as default address"
+    },
+    "errors": {
+      "recipientNameRequired": "Recipient name is required",
+      "phoneRequired": "Phone number is required",
+      "phoneInvalid": "Enter a valid Thai phone number",
+      "line1Required": "Address line 1 is required",
+      "districtRequired": "District is required",
+      "provinceRequired": "Province is required",
+      "postalCodeInvalid": "Enter a valid 5-digit postal code"
+    }
+  },
+  "history": {
+    "title": "Your deliveries",
+    "empty": "No delivery requests yet. Cards you send stay listed here.",
+    "error": "Couldn't load your deliveries.",
+    "pending": "Preparing to ship",
+    "fulfilled": "Shipped",
+    "shippingTo": "To {{recipient}} · {{province}}",
+    "requestedOn": "Requested {{date}}"
+  }
+}

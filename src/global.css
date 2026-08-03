@@ -1,20 +1,18 @@
 /** **************************************
-* Fonts: app
+* Fonts: app (Premium Vault)
 *************************************** */
-@import '@fontsource-variable/public-sans';
+/* Body / UI */
+@import '@fontsource-variable/jost';
+/* Thai fallback for body/UI */
+@import '@fontsource-variable/noto-sans-thai';
+/* Data / PSA slab labels */
+@import '@fontsource-variable/space-grotesk';
 
-@import '@fontsource/barlow/400.css';
-@import '@fontsource/barlow/500.css';
-@import '@fontsource/barlow/600.css';
-@import '@fontsource/barlow/700.css';
-@import '@fontsource/barlow/800.css';
-
-/** **************************************
-* Fonts: options
-*************************************** */
-@import '@fontsource-variable/dm-sans';
-@import '@fontsource-variable/inter';
-@import '@fontsource-variable/nunito-sans';
+/* Display / headlines */
+@import '@fontsource/cormorant-garamond/400.css';
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/600.css';
+@import '@fontsource/cormorant-garamond/400-italic.css';
 
 /** **************************************
 * Plugins
@@ -36,6 +34,11 @@ body,
   flex: 1 1 auto;
   min-height: 100%;
   flex-direction: column;
+}
+body {
+  background-color: #0b0b0d;
+  background-image: radial-gradient(ellipse at 50% -10%, #1a1610 0%, #08080a 55%);
+  background-attachment: fixed;
 }
 img {
   max-width: 100%;

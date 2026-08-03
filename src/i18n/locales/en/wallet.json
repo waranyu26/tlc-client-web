@@ -1,0 +1,58 @@
+{
+  "title": "Wallet",
+  "balanceLabel": "AVAILABLE BALANCE",
+  "trustNote": "Backed by 100% authenticated inventory.",
+  "addFunds": "Add Funds",
+  "creditOnlyNote": "Funds are store credit for gacha pulls and packs only — no cash withdrawal.",
+  "recentActivity": "Recent Activity",
+  "viewAll": "View all",
+  "empty": "No transactions yet",
+  "error": {
+    "title": "Couldn't load your wallet",
+    "retry": "Retry"
+  },
+  "topup": {
+    "title": "Add Funds",
+    "subtitle": "Choose an amount to add to your wallet.",
+    "custom": "Custom amount",
+    "customPlaceholder": "Enter amount (฿)",
+    "continue": "Continue",
+    "back": "Back",
+    "payCta": "Pay {{amount}}",
+    "processing": "Processing…",
+    "notConfigured": "Payments aren't configured in this environment.",
+    "genericError": "Something went wrong. Please try again.",
+    "minAmount": "Enter at least ฿20."
+  },
+  "return": {
+    "successTitle": "Payment successful",
+    "successBody": "Your wallet balance has been updated.",
+    "processingTitle": "Payment processing",
+    "processingBody": "We're confirming your payment — this can take a moment. Your balance will update automatically.",
+    "failedTitle": "Payment failed",
+    "failedBody": "Your card wasn't charged. Please try again.",
+    "unknownTitle": "Payment status unknown",
+    "unknownBody": "We couldn't confirm your payment status. Check your transaction history shortly.",
+    "goHome": "Go home",
+    "goWallet": "Back to wallet"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "empty": "No transactions found",
+    "filterAll": "All",
+    "balanceAfter": "Balance",
+    "loadMore": "Load more",
+    "status": {
+      "completed": "Completed",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "type": {
+      "topup": "Top-up",
+      "buyback": "Sell back",
+      "pull": "Card pull",
+      "pack_purchase": "Pack purchase",
+      "promo_credit": "Promo credit"
+    }
+  }
+}

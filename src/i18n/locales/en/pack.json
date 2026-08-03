@@ -1,0 +1,29 @@
+{
+  "pullRates": {
+    "title": "Audited pull rates",
+    "rarity": "Rarity",
+    "probability": "Probability",
+    "buyback": "Avg. buyback"
+  },
+  "purchase": "Purchase",
+  "purchasing": "Purchasing…",
+  "insufficientBalance": {
+    "title": "Not enough balance",
+    "body": "Top up your wallet to purchase this pack.",
+    "cta": "Top up wallet"
+  },
+  "reveal": {
+    "title": "Pack opened!",
+    "contents": "Contents",
+    "newBalance": "New balance",
+    "pullAgain": "Open another",
+    "backHome": "Back to home"
+  },
+  "state": {
+    "loading": "Loading pack…",
+    "notFound": "Pack not found.",
+    "error": "Couldn't load this pack."
+  },
+  "stock": "{{count}} left",
+  "outOfStock": "Sold out"
+}
