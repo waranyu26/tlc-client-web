@@ -15,7 +15,15 @@ import { useRouter } from 'src/routes/hooks';
 import { useBuybackMutation } from 'src/api/buyback.api';
 
 import { Iconify } from 'src/components/iconify';
-import { ThbAmount, GhostButton, RarityBadge, BuybackButton } from 'src/components/vault';
+import {
+  CardFrame,
+  ThbAmount,
+  GhostButton,
+  RarityBadge,
+  HdImageButton,
+  BuybackButton,
+  CardImageViewer,
+} from 'src/components/vault';
 
 // ----------------------------------------------------------------------
 
@@ -33,11 +41,13 @@ export function VaultActionsSheet({ item, open, onClose, onSold }: VaultActionsS
   const router = useRouter();
   const isDesktop = useMediaQuery((theme) => theme.breakpoints.up('md'));
   const [step, setStep] = useState<Step>('menu');
+  const [viewerOpen, setViewerOpen] = useState(false);
   const buybackMutation = useBuybackMutation();
 
   useEffect(() => {
     if (open) {
       setStep('menu');
+      setViewerOpen(false);
       buybackMutation.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,6 +106,19 @@ export function VaultActionsSheet({ item, open, onClose, onSold }: VaultActionsS
           margin: '0 auto 16px',
         }}
       />
+
+      {/* The sheet is where a card you already own gets inspected, so this is
+          the natural place to reach its full-resolution scan. */}
+      <Box sx={{ position: 'relative', width: 132, mx: 'auto', mb: '16px' }}>
+        <CardFrame
+          priority
+          thumbUrl={item.thumb_url}
+          imageUrl={item.image_url}
+          rarity={item.rarity}
+          alt={item.name}
+        />
+        <HdImageButton compact onOpen={() => setViewerOpen(true)} />
+      </Box>
 
       <Box
         sx={{
@@ -185,6 +208,14 @@ export function VaultActionsSheet({ item, open, onClose, onSold }: VaultActionsS
           </Box>
         </Box>
       )}
+
+      <CardImageViewer
+        open={viewerOpen}
+        onClose={() => setViewerOpen(false)}
+        thumbUrl={item.thumb_url}
+        imageUrl={item.image_url}
+        alt={item.name}
+      />
     </Drawer>
   );
 }

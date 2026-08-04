@@ -13,10 +13,14 @@ import { primaryFont, secondaryFont } from './core/typography';
 // ----------------------------------------------------------------------
 
 export const typeScale = {
-  /** Wallet / portfolio balance — the largest number on any screen. */
+  /**
+   * Wallet / portfolio balance — the largest number on any screen. Sans-serif
+   * to match the price treatment on pack cards (numerals, not a title — the
+   * serif's oldstyle figures read unevenly at this size).
+   */
   heroAmount: {
-    fontFamily: secondaryFont,
-    fontWeight: 600,
+    fontFamily: primaryFont,
+    fontWeight: 700,
     lineHeight: 1.05,
     fontSize: { xs: '44px', md: '56px', lg: '64px' },
   },

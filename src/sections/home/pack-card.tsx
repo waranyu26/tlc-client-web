@@ -85,6 +85,8 @@ export function PackCard({ pack, featured = false, sx, ...other }: PackCardProps
             component="img"
             src={pack.image_url}
             alt={pack.name}
+            loading="lazy"
+            decoding="async"
             sx={{
               position: 'absolute',
               inset: 0,

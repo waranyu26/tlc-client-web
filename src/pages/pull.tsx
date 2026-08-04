@@ -211,6 +211,7 @@ export default function PullPage() {
           set_name: newItem.set_name,
           rarity: newItem.rarity,
           image_url: newItem.image_url,
+          thumb_url: newItem.thumb_url,
           price_satang: price,
           new_balance_satang: newBalance,
           cards_remaining: packQuery.data?.cards_remaining ?? 0,

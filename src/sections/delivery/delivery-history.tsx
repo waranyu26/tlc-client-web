@@ -92,7 +92,12 @@ function DeliveryHistoryRow({ request }: { request: MyDeliveryRequest }) {
       }}
     >
       <Box sx={{ width: 52, flexShrink: 0 }}>
-        <CardFrame imageUrl={request.image_url} rarity={request.rarity} alt={request.card_name} />
+        <CardFrame
+          thumbUrl={request.thumb_url}
+          imageUrl={request.image_url}
+          rarity={request.rarity}
+          alt={request.card_name}
+        />
       </Box>
 
       <Box sx={{ minWidth: 0, flex: 1 }}>

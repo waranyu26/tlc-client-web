@@ -31,7 +31,12 @@ export function CatalogCardItem({ card, sx, ...other }: CatalogCardItemProps) {
       ]}
       {...other}
     >
-      <CardFrame imageUrl={card.image_url} rarity={card.rarity} alt={card.name} />
+      <CardFrame
+        thumbUrl={card.thumb_url}
+        imageUrl={card.image_url}
+        rarity={card.rarity}
+        alt={card.name}
+      />
 
       <Typography
         sx={{

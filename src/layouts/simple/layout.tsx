@@ -45,7 +45,7 @@ export function SimpleLayout({
           This is an info Alert.
         </Alert>
       ),
-      leftArea: <Logo />,
+      leftArea: <Logo variant="horizontal" />,
       rightArea: (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
           {/** @slot Help link */}

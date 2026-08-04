@@ -38,6 +38,7 @@ export function CardPicker({ items, selectedId, onSelect }: CardPickerProps) {
             }}
           >
             <CardFrame
+              thumbUrl={item.thumb_url}
               imageUrl={item.image_url}
               rarity={item.rarity}
               alt={item.name}

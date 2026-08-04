@@ -66,6 +66,7 @@ export function CardRevealView({
 
           <Box sx={{ width: '62%', minWidth: 200, maxWidth: { xs: 260, md: 340 } }}>
             <PsaSlab
+              thumbUrl={result.thumb_url}
               imageUrl={result.image_url}
               rarity={result.rarity}
               cardName={result.card_name}

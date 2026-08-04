@@ -21,13 +21,13 @@ import { typeScale } from 'src/theme/type-scale';
 import { registerNamespace } from 'src/i18n/register';
 import { signUpWithEmail, signInWithGoogle } from 'src/api/auth.api';
 
+import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
 import { GhostButton, PrimaryButton } from 'src/components/vault';
 import { Form, Field, schemaUtils } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
-import { LogoMark } from './logo-mark';
 import { AuthShell } from './auth-shell';
 
 registerNamespace('auth', en, th);
@@ -110,9 +110,7 @@ export function SignUpView() {
             textAlign: { xs: 'center', md: 'left' },
           }}
         >
-          <Box sx={{ display: { md: 'none' } }}>
-            <LogoMark size={44} />
-          </Box>
+          <Logo sx={{ display: { md: 'none' }, width: 44, height: 44 }} />
           <Typography sx={{ ...typeScale.sectionHeading, color: '#F4ECDD' }}>
             {t('signUp.title')}
           </Typography>

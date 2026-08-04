@@ -14,11 +14,11 @@ import en from 'src/i18n/locales/en/onboarding.json';
 import th from 'src/i18n/locales/th/onboarding.json';
 import { registerNamespace } from 'src/i18n/register';
 
+import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
 import { FadeUp, TrustBadge, TickerStrip, GhostButton, PrimaryButton } from 'src/components/vault';
 
 import { AuthShell } from 'src/sections/auth/auth-shell';
-import { LogoMark, Wordmark } from 'src/sections/auth/logo-mark';
 
 registerNamespace('onboarding', en, th);
 
@@ -70,8 +70,7 @@ export function OnboardingView() {
               gap: 2,
             }}
           >
-            <LogoMark />
-            <Wordmark />
+            <Logo variant="horizontal" sx={{ width: 236, height: 40 }} />
             <Typography sx={{ ...typeScale.body, color: '#9A9285', textAlign: 'center', mt: 1 }}>
               {t('tagline', { ns: 'common' })}
             </Typography>

@@ -10,11 +10,11 @@ import { paths } from 'src/routes/paths';
 
 import { typeScale } from 'src/theme/type-scale';
 import { useWalletBalance } from 'src/api/wallet.api';
+import { primaryFont } from 'src/theme/core/typography';
 
+import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
 import { ThbAmount, PrimaryButton } from 'src/components/vault';
-
-import { LogoMark, Wordmark } from 'src/sections/auth/logo-mark';
 
 import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_COMPACT } from './layout-config';
 import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './nav-items';
@@ -23,6 +23,16 @@ import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } 
 // Persistent desktop navigation. Labelled rail at `lg`, icon-only rail at `md`,
 // hidden below that — BottomNav takes over.
 // ----------------------------------------------------------------------
+
+// Digits read as numerals, not a title, so use the same sans-serif treatment
+// as the pack price (ThbAmount's own default) rather than typeScale.cardTitle's
+// Cormorant Garamond — serif numerals looked out of place in this compact rail.
+const BALANCE_AMOUNT_SX = {
+  fontFamily: primaryFont,
+  fontWeight: 700,
+  lineHeight: 1.2,
+  fontSize: '20px',
+};
 
 function NavRow({ item }: { item: NavItem }) {
   const { t } = useTranslation();
@@ -105,23 +115,15 @@ export function SidebarNav() {
       }}
     >
       {/* Brand lockup — mark only on the compact rail */}
-      <Box
-        component={NavLink}
-        to={paths.home}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-          textDecoration: 'none',
-          justifyContent: { md: 'center', lg: 'flex-start' },
-          px: { lg: 1 },
-        }}
-      >
-        <LogoMark size={36} />
-        <Box sx={{ display: { md: 'none', lg: 'block' }, textAlign: 'left' }}>
-          <Wordmark size={18} />
-        </Box>
-      </Box>
+      <Logo
+        href={paths.home}
+        sx={{ display: { md: 'flex', lg: 'none' }, alignSelf: 'center', width: 36, height: 36 }}
+      />
+      <Logo
+        href={paths.home}
+        variant="horizontal"
+        sx={{ display: { md: 'none', lg: 'flex' }, ml: 1, width: 200, height: 34 }}
+      />
 
       <Box component="nav" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {PRIMARY_NAV_ITEMS.map((item) => (
@@ -171,11 +173,11 @@ export function SidebarNav() {
             {t('nav.balance', { defaultValue: 'Balance' })}
           </Typography>
           {balanceQuery.isPending ? (
-            <Typography sx={{ ...typeScale.cardTitle, color: '#4A4844' }}>—</Typography>
+            <Typography sx={{ ...BALANCE_AMOUNT_SX, color: '#4A4844' }}>—</Typography>
           ) : (
             <ThbAmount
               satang={balanceQuery.data?.balance_satang ?? 0}
-              sx={{ ...typeScale.cardTitle, color: ACTIVE_COLOR, display: 'block' }}
+              sx={{ ...BALANCE_AMOUNT_SX, color: ACTIVE_COLOR, display: 'block' }}
             />
           )}
         </Box>

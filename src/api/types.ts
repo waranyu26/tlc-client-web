@@ -56,6 +56,8 @@ export type Card = {
   set_name: string;
   rarity: string;
   image_url: string;
+  /** Grid-sized copy of image_url. Empty for CSV-imported art — fall back to image_url. */
+  thumb_url: string;
   buyback_price_satang: number;
   stock_count: number;
 };
@@ -80,6 +82,8 @@ export type CollectionItem = {
   set_name: string;
   rarity: string;
   image_url: string;
+  /** Grid-sized copy of image_url. Empty for CSV-imported art — fall back to image_url. */
+  thumb_url: string;
   buyback_price_satang: number;
 };
 
@@ -100,6 +104,8 @@ export type PullResult = {
   set_name: string;
   rarity: string;
   image_url: string;
+  /** Grid-sized copy of image_url. Empty for CSV-imported art — fall back to image_url. */
+  thumb_url: string;
   price_satang: number;
   new_balance_satang: number;
   cards_remaining: number;
@@ -162,6 +168,8 @@ export type PackCardItem = {
   set_name: string;
   rarity: string;
   image_url: string;
+  /** Grid-sized copy of image_url. Empty for CSV-imported art — fall back to image_url. */
+  thumb_url: string;
   buyback_price_satang: number;
   quantity_total: number;
   remaining: number;
@@ -236,6 +244,8 @@ export type MyDeliveryRequest = {
   set_name: string;
   rarity: string;
   image_url: string;
+  /** Grid-sized copy of image_url. Empty for CSV-imported art — fall back to image_url. */
+  thumb_url: string;
   recipient_name: string;
   line1: string;
   line2: string;

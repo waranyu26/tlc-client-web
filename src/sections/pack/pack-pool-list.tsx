@@ -1,6 +1,7 @@
 import type { BoxProps } from '@mui/material/Box';
 import type { PackCardItem } from 'src/api/types';
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
@@ -8,7 +9,13 @@ import Typography from '@mui/material/Typography';
 
 import { formatThb } from 'src/utils/format-currency';
 
-import { CardFrame, SectionHeading, getRarityColor } from 'src/components/vault';
+import {
+  CardFrame,
+  HdImageButton,
+  SectionHeading,
+  getRarityColor,
+  CardImageViewer,
+} from 'src/components/vault';
 
 // ----------------------------------------------------------------------
 
@@ -23,6 +30,10 @@ export type PackPoolListProps = BoxProps & {
  */
 export function PackPoolList({ cards, sx, ...other }: PackPoolListProps) {
   const { t } = useTranslation('pack');
+
+  // One viewer for the whole grid — mounting a modal per card would put dozens
+  // of them in the tree for no benefit.
+  const [viewing, setViewing] = useState<PackCardItem | null>(null);
 
   return (
     <Box sx={[{}, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
@@ -51,7 +62,17 @@ export function PackPoolList({ cards, sx, ...other }: PackPoolListProps) {
                 opacity: soldOut ? 0.45 : 1,
               }}
             >
-              <CardFrame imageUrl={card.image_url} rarity={card.rarity} alt={card.name} />
+              <Box sx={{ position: 'relative' }}>
+                <CardFrame
+                  thumbUrl={card.thumb_url}
+                  imageUrl={card.image_url}
+                  rarity={card.rarity}
+                  alt={card.name}
+                />
+                {(card.thumb_url || card.image_url) && (
+                  <HdImageButton compact onOpen={() => setViewing(card)} />
+                )}
+              </Box>
 
               <Typography
                 noWrap
@@ -115,6 +136,14 @@ export function PackPoolList({ cards, sx, ...other }: PackPoolListProps) {
           );
         })}
       </Box>
+
+      <CardImageViewer
+        open={!!viewing}
+        onClose={() => setViewing(null)}
+        thumbUrl={viewing?.thumb_url}
+        imageUrl={viewing?.image_url}
+        alt={viewing?.name ?? ''}
+      />
     </Box>
   );
 }

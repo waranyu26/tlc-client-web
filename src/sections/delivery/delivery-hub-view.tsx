@@ -209,6 +209,7 @@ export function DeliveryHubView() {
           >
             <Box sx={{ width: 56, flexShrink: 0 }}>
               <CardFrame
+                thumbUrl={selectedCard.thumb_url}
                 imageUrl={selectedCard.image_url}
                 rarity={selectedCard.rarity}
                 alt={selectedCard.name}

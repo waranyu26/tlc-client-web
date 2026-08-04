@@ -29,5 +29,6 @@
   "trust": {
     "footer": "Payments via Stripe · Audited pull rates · 100% authentic inventory",
     "authenticated": "Authenticated inventory. All cards graded and vaulted before listing. Pull rates audited monthly."
-  }
+  },
+  "viewHd": "View in HD"
 }

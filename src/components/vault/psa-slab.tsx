@@ -18,6 +18,7 @@ function certNumberFromName(cardName: string): string {
 }
 
 export type PsaSlabProps = Omit<BoxProps, 'children'> & {
+  thumbUrl?: string | null;
   imageUrl?: string | null;
   rarity: string;
   cardName: string;
@@ -27,6 +28,7 @@ export type PsaSlabProps = Omit<BoxProps, 'children'> & {
 };
 
 export function PsaSlab({
+  thumbUrl,
   imageUrl,
   rarity,
   cardName,
@@ -99,7 +101,13 @@ export function PsaSlab({
 
       {/* Card area */}
       <Box sx={{ bgcolor: '#0A0808', padding: '10px' }}>
-        <CardFrame imageUrl={imageUrl} rarity={rarity} alt={alt ?? cardName} />
+        <CardFrame
+          priority
+          thumbUrl={thumbUrl}
+          imageUrl={imageUrl}
+          rarity={rarity}
+          alt={alt ?? cardName}
+        />
       </Box>
 
       {/* Footer bar */}

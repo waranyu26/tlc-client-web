@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router';
 
@@ -14,6 +14,7 @@ import en from 'src/i18n/locales/en/catalog.json';
 import th from 'src/i18n/locales/th/catalog.json';
 import { registerNamespace } from 'src/i18n/register';
 
+import { Iconify } from 'src/components/iconify';
 import {
   FadeUp,
   CardFrame,
@@ -21,6 +22,7 @@ import {
   GhostButton,
   RarityBadge,
   PrimaryButton,
+  CardImageViewer,
 } from 'src/components/vault';
 
 registerNamespace('catalog', en, th);
@@ -39,6 +41,8 @@ export default function Page() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation('catalog');
+
+  const [viewerOpen, setViewerOpen] = useState(false);
 
   const cardsQuery = useCards({ pageSize: CATALOG_PAGE_SIZE });
 
@@ -91,7 +95,57 @@ export default function Page() {
                   top: { md: 88 },
                 }}
               >
-                <CardFrame imageUrl={card.image_url} rarity={card.rarity} alt={card.name} glow />
+                {/* The frame shows the cheap thumbnail; the original is only
+                    fetched once the customer asks to see it in HD. */}
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={() => setViewerOpen(true)}
+                  aria-label={t('detail.viewHd', { defaultValue: 'View in HD' })}
+                  sx={{
+                    display: 'block',
+                    width: '100%',
+                    padding: 0,
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'zoom-in',
+                    position: 'relative',
+                    '&:hover .hd-hint': { opacity: 1 },
+                  }}
+                >
+                  <CardFrame
+                    priority
+                    glow
+                    thumbUrl={card.thumb_url}
+                    imageUrl={card.image_url}
+                    rarity={card.rarity}
+                    alt={card.name}
+                  />
+
+                  <Box
+                    className="hd-hint"
+                    sx={{
+                      position: 'absolute',
+                      right: '10px',
+                      bottom: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '5px 10px',
+                      borderRadius: '999px',
+                      bgcolor: 'rgba(11,11,13,0.72)',
+                      border: '1px solid rgba(231,206,146,0.3)',
+                      opacity: { xs: 1, md: 0.75 },
+                      transition: 'opacity 0.2s ease',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <Iconify icon="carbon:zoom-in" width={13} sx={{ color: '#E7CE92' }} />
+                    <Typography sx={{ fontSize: '10px', fontWeight: 600, color: '#E7CE92' }}>
+                      {t('detail.viewHd', { defaultValue: 'View in HD' })}
+                    </Typography>
+                  </Box>
+                </Box>
               </Box>
 
               <Box sx={{ minWidth: 0 }}>
@@ -168,6 +222,16 @@ export default function Page() {
               </Box>
             </Box>
           </FadeUp>
+        )}
+
+        {card && (
+          <CardImageViewer
+            open={viewerOpen}
+            onClose={() => setViewerOpen(false)}
+            thumbUrl={card.thumb_url}
+            imageUrl={card.image_url}
+            alt={card.name}
+          />
         )}
       </Box>
     </>

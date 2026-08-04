@@ -27,14 +27,37 @@ const glowPulse = keyframes`
 export const CARD_ASPECT_RATIO = '5 / 6';
 
 export type CardFrameProps = Omit<BoxProps, 'children'> & {
+  /**
+   * Grid-sized art. Prefer a card's `thumb_url` here — the frame renders at
+   * roughly 200-260px, so handing it the full scan makes every browse surface
+   * decode megapixels it will never show. Falls back to `imageUrl` for cards
+   * whose art was bulk-imported and never got a thumbnail.
+   */
+  thumbUrl?: string | null;
+  /** Full-resolution art, used only as the fallback source — see `thumbUrl`. */
   imageUrl?: string | null;
   rarity: string;
   alt: string;
   glow?: boolean;
+  /**
+   * Render above the fold. Eager-loads instead of deferring, for the one card
+   * that is certainly visible on arrival (a detail page hero, a pull reveal).
+   */
+  priority?: boolean;
 };
 
-export function CardFrame({ imageUrl, rarity, alt, glow = false, sx, ...other }: CardFrameProps) {
+export function CardFrame({
+  thumbUrl,
+  imageUrl,
+  rarity,
+  alt,
+  glow = false,
+  priority = false,
+  sx,
+  ...other
+}: CardFrameProps) {
   const color = getRarityColor(rarity);
+  const src = thumbUrl || imageUrl;
 
   return (
     <Box
@@ -57,11 +80,16 @@ export function CardFrame({ imageUrl, rarity, alt, glow = false, sx, ...other }:
       ]}
       {...other}
     >
-      {imageUrl ? (
+      {src ? (
         <Box
           component="img"
-          src={imageUrl}
+          src={src}
           alt={alt}
+          // Grids stack dozens of these. Deferring the off-screen ones and
+          // decoding off the main thread is what keeps scrolling smooth.
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={priority ? 'high' : 'auto'}
           sx={{
             width: '100%',
             height: '100%',

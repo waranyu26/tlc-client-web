@@ -34,7 +34,12 @@ export function VaultCardItem({ item, index = 0, onSelect }: VaultCardItemProps)
         }}
       >
         <Box sx={{ position: 'relative', width: '100%' }}>
-          <CardFrame imageUrl={item.image_url} rarity={item.rarity} alt={item.name} />
+          <CardFrame
+            thumbUrl={item.thumb_url}
+            imageUrl={item.image_url}
+            rarity={item.rarity}
+            alt={item.name}
+          />
 
           <Box
             sx={{

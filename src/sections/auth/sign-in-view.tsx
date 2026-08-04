@@ -21,6 +21,7 @@ import { typeScale } from 'src/theme/type-scale';
 import { registerNamespace } from 'src/i18n/register';
 import { signInWithEmail, signInWithGoogle } from 'src/api/auth.api';
 
+import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
 import { GhostButton, PrimaryButton } from 'src/components/vault';
 import { Form, Field, schemaUtils } from 'src/components/hook-form';
@@ -28,7 +29,6 @@ import { Form, Field, schemaUtils } from 'src/components/hook-form';
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
 import { AuthShell } from './auth-shell';
-import { LogoMark, Wordmark } from './logo-mark';
 
 registerNamespace('auth', en, th);
 
@@ -107,12 +107,10 @@ export function SignInView() {
             textAlign: { xs: 'center', md: 'left' },
           }}
         >
-          <Box sx={{ display: { md: 'none' }, alignSelf: 'center' }}>
-            <LogoMark size={44} />
-          </Box>
-          <Box sx={{ display: { md: 'none' }, alignSelf: 'center' }}>
-            <Wordmark size={19} />
-          </Box>
+          <Logo
+            variant="stacked"
+            sx={{ display: { md: 'none' }, alignSelf: 'center', width: 172, height: 110 }}
+          />
           <Typography sx={{ ...typeScale.sectionHeading, color: '#F4ECDD', mt: 1 }}>
             {t('signIn.title')}
           </Typography>

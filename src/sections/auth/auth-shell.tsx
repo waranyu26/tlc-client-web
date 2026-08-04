@@ -7,10 +7,8 @@ import Typography from '@mui/material/Typography';
 
 import { typeScale } from 'src/theme/type-scale';
 
+import { Logo } from 'src/components/logo';
 import { TrustBadge } from 'src/components/vault';
-
-// LogoMark registers the `onboarding` namespace its Wordmark depends on.
-import { LogoMark, Wordmark } from './logo-mark';
 
 // ----------------------------------------------------------------------
 // Guest frame. Desktop is a split screen — a brand panel carrying the lockup,
@@ -46,10 +44,7 @@ export function AuthShell({ children, slotTop }: AuthShellProps) {
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, alignItems: 'flex-start' }}>
-          <LogoMark size={64} />
-          <Box sx={{ '& *': { textAlign: 'left' } }}>
-            <Wordmark size={34} />
-          </Box>
+          <Logo variant="horizontal" sx={{ width: 260, height: 44 }} />
           <Typography sx={{ ...typeScale.body, color: '#9A9285', maxWidth: 380 }}>
             {t('tagline', { ns: 'common' })}
           </Typography>
