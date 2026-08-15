@@ -20,11 +20,13 @@ const glowPulse = keyframes`
 `;
 
 /**
- * The proportions every piece of card art is rendered at. Pack covers use it
- * too, so a pack reads as a card rather than a banner — exported here so the
- * two can't drift apart.
+ * The proportions every piece of card art is rendered at: 63×88mm, the real
+ * trading-card size. Anything wider (this was `5 / 6`) letterboxes the scan
+ * inside the frame, because the art is drawn `object-fit: contain` and will not
+ * crop. Pack covers use it too, so a pack reads as a card rather than a banner —
+ * exported here so the two can't drift apart.
  */
-export const CARD_ASPECT_RATIO = '5 / 6';
+export const CARD_ASPECT_RATIO = '63 / 88';
 
 export type CardFrameProps = Omit<BoxProps, 'children'> & {
   /**

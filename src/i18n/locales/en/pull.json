@@ -10,9 +10,29 @@
     "buyback": "Avg. Buyback",
     "empty": "Rates unavailable right now."
   },
+  "prefs": {
+    "soundOn": "Sound on",
+    "soundOff": "Sound off",
+    "skipPick": "Skip the pick"
+  },
+  "choose": {
+    "title": "Choose your card",
+    "honesty": "Your card was drawn the instant you pulled — the pick is yours to enjoy, not to influence.",
+    "gridAria": "Twelve face-down cards to choose from",
+    "cardAria": "Face-down card {{index}} of {{total}}"
+  },
+  "peel": {
+    "hint": "Drag down to uncover",
+    "aria": "Sleeve covering your card. Drag it down, or press Enter, to uncover the card."
+  },
   "stage": {
-    "pulling": "Shuffling the vault…",
-    "glowing": "Something rare is surfacing…"
+    "shuffle": "Shuffling the vault…",
+    "choosing": "Trust your instinct.",
+    "converge": "Locked in.",
+    "charge": "Something is surfacing…",
+    "flip": "Turning it over…",
+    "peel": "Take your time.",
+    "skip": "Tap to skip"
   },
   "reveal": {
     "sellInstantly": "Sell Instantly",

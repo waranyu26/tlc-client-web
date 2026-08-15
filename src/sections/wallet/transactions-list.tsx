@@ -101,7 +101,6 @@ export function TransactionsList() {
       <Box sx={{ marginTop: '14px' }}>
         {isPending &&
           Array.from({ length: 6 }).map((_, index) => (
-             
             <Skeleton
               key={index}
               variant="rectangular"

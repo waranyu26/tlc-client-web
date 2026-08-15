@@ -3,6 +3,7 @@ export * from './buttons';
 export * from './fade-up';
 export * from './live-dot';
 export * from './psa-slab';
+export * from './card-back';
 export * from './bottom-nav';
 export * from './card-frame';
 export * from './thb-amount';

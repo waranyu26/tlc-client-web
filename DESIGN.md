@@ -229,12 +229,35 @@ color: #E7CE92;
 | `dot-pulse` | Live indicator dot, 1.3–1.4s |
 | `fade-up` | Entry animation — `opacity 0→1, translateY 14px→0`, 0.5–0.6s ease |
 | `pop-in` | Buyback success number — `scale(.7)+translateY(18px) → scale(1.04) → scale(1)`, 0.7s |
-| `scale-in` | Card reveal appear — `scale(.88)→scale(1)`, 0.6s ease |
+| `scale-in` | Card reveal appear — spring, initial scale by tier (`.92` standard → `.6` legendary) |
+| `sigil-drift` | Card-back compass sigil — `rotate(0→6deg) scale(1→1.04)`, 6s ease-in-out infinite |
+| `deal` | Pick card entry — from `y:-170 scale:.62` with a per-index 45ms stagger, spring 210/20 |
+| `disperse` | Unpicked cards leaving — outward from grid centre + fade, 0.55s ease-in |
+| `charge-motes` | Gold particles spiralling into the card, count by tier (10 → 34) |
+| `burst` | Reveal payoff — shockwave ring (scale .2→3.2), conic light rays, shards by tier (0 → 40) |
 
-**Pull flow timing:**
-1. `overlay: 'pulling'` — 3 shuffling card backs floating (`v-f1/f2/f3` keyframes, 2.8–3.5s loops)
-2. After **2600ms** → `pullStage: 'glowing'` — card fades in with gold glow animation
-3. After **1600ms more** → `overlay: 'reveal'` — full PSA slab reveal screen
+**Pull flow timing** — the API fires at `shuffle` and resolves underneath the deal and the
+user's thinking time, so only `charge` ever has to wait. Timings compress ~60% under
+`prefers-reduced-motion`.
+
+| Phase | Duration | Stage |
+|---|---|---|
+| `shuffle` | 1300ms | Deck riffles, then deals 12 backs into the pick grid |
+| `choosing` | user-paced | 12 interactive backs — pointer tilt, hover lift, rim glow |
+| `converge` | 750ms | 11 cards blow outward; the picked one flies to centre (shared `layoutId`) |
+| `charge` | 900ms + tier bonus (0/300/700/1200) | Motes spiral in, glow tightens. Holds if the API is still in flight |
+| `flip` | 650ms | 3D `rotateY` turn — onto a **sleeve**, not the art; screen shake on epic/legendary |
+| `peel` | user-paced | Drag the sleeve down to uncover the card. Gold light-line + sparks ride its edge, grain ticks every 12%. Release past 45% (or flick) commits; short of that it springs back. Tap or Enter uncovers it outright |
+| `reveal` | — | PSA slab seals around the card, `RevealBurst` plays, payoff chime |
+
+Tier comes from the pack's live `rarity_odds` (`< 2% legendary`, `< 8% epic`, `< 25% rare`,
+else standard) — never a hardcoded rarity-name list, since rarities are free-form server-side.
+The rarity colour is deliberately withheld until the flip so `charge` can't spoil the result.
+
+Tap anywhere fast-forwards the current phase — except during `choosing` and `peel`, where the
+user is holding the wheel and the cards/sleeve are their own affordance. "Skip the pick" and
+"Sound" are persisted preferences on the idle screen; sound is procedurally synthesised via the
+Web Audio API — there are no audio assets.
 
 ---
 
@@ -245,8 +268,10 @@ color: #E7CE92;
 | Onboarding / Login | `loggedIn: false` | Logo, tagline, email CTA, Google OAuth, trust footnote |
 | Home | `tab: 'home'` | Ticker strip, greeting + wallet balance, featured pack card, 2×grid of smaller packs |
 | Pack Detail | `overlay: 'pack'` | Pack hero, pull rates table (audited), trust badge, Pull · ฿300 CTA |
-| Pull Animation | `overlay: 'pulling'` | 3 stacked card backs floating → gold glow |
-| Card Reveal | `overlay: 'reveal'` | PSA slab, rarity badge, card name, Sell Instantly / Add to Vault / Pull Again |
+| Choose Your Card | `phase: 'shuffle' \| 'choosing'` | Deck riffle, 12 face-down backs (3×4 / 4×3 / 6×2), honesty note that the card is already drawn |
+| Suspense | `phase: 'converge' \| 'charge' \| 'flip'` | Picked card flies to centre, gathers motes, turns over onto a sleeve |
+| Uncover | `phase: 'peel'` | Drag the sleeve down to expose the art at your own pace; rarity halo blooms behind |
+| Card Reveal | `phase: 'reveal'` | PSA slab, burst, rarity badge, card name, Sell Instantly / Add to Vault / Pull Again |
 | Instant Buyback | `overlay: 'buyback'` | Success checkmark, credit amount (+฿), new wallet balance, Pull Again |
 | Vault | `tab: 'vault'` | 2×grid of owned cards with PSA grade badge overlay, total portfolio value |
 | Wallet | `tab: 'wallet'` | Balance hero, Add Funds / Withdraw, transaction history list |

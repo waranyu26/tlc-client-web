@@ -1,6 +1,7 @@
 import type { PullResult, BuybackResult } from 'src/api/types';
 
 import { useTranslation } from 'react-i18next';
+import { useReducedMotion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router';
 import { useRef, useState, useCallback } from 'react';
 
@@ -10,37 +11,30 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 
 import { ApiError } from 'src/lib/axios';
+import { usePack } from 'src/api/pack.api';
 import enPull from 'src/i18n/locales/en/pull.json';
 import thPull from 'src/i18n/locales/th/pull.json';
 import { registerNamespace } from 'src/i18n/register';
 import { useWalletBalance } from 'src/api/wallet.api';
 import { useBuybackMutation } from 'src/api/buyback.api';
-import { usePack, usePullMutation } from 'src/api/pack.api';
-import { usePullFlowStore } from 'src/store/pull-flow-store';
+import { usePullPrefsStore } from 'src/store/pull-prefs-store';
 import { useCollection, useCardBuyback } from 'src/api/catalog.api';
+import { isStagePhase, usePullFlowStore } from 'src/store/pull-flow-store';
 
 import {
   PullIdleView,
   CardRevealView,
+  PullChooseView,
+  PullStageShell,
   PullPendingView,
+  usePullSequence,
+  PullSuspenseView,
   BuybackSuccessView,
-  PullAnimationOverlay,
 } from 'src/sections/pull';
 
 // ----------------------------------------------------------------------
 
 registerNamespace('pull', enPull, thPull);
-
-// Fixed animation timeline (DESIGN.md "Pull flow timing"): 'pulling' plays for
-// PULLING_MS, then 'glowing' for GLOWING_MS more, before the reveal is allowed
-// to show — even if the API responds sooner. If the API is slower, 'glowing'
-// simply holds until the response lands.
-const PULLING_MS = 2600;
-const GLOWING_MS = 1600;
-
-type PendingAttempt = {
-  key: string;
-};
 
 type AttemptSnapshot = {
   preBalanceSatang: number;
@@ -54,79 +48,51 @@ export default function PullPage() {
   // there is no pull screen without one.
   const { id: packId } = useParams<{ id: string }>();
 
-  const { overlay, stage, result, setOverlay, startPull, setResult, reset } = usePullFlowStore();
+  const phase = usePullFlowStore((state) => state.phase);
+  const result = usePullFlowStore((state) => state.result);
+  const pickedIndex = usePullFlowStore((state) => state.pickedIndex);
+  const setPhase = usePullFlowStore((state) => state.setPhase);
+  const revealImmediately = usePullFlowStore((state) => state.revealImmediately);
+  const reset = usePullFlowStore((state) => state.reset);
+
+  // A user who has asked the OS for less motion has asked for it here too.
+  const reduceMotion = Boolean(useReducedMotion());
+  const skipPick = usePullPrefsStore((state) => state.skipPick);
 
   const packQuery = usePack(packId);
   const walletQuery = useWalletBalance();
   const collectionQuery = useCollection();
-  const pullMutation = usePullMutation(packId);
   const buybackMutation = useBuybackMutation();
 
-  // Buyback preview for the currently revealed card (shown on the "Sell Instantly" CTA).
+  // Buyback preview for the revealed card. `result` is stored the moment the API
+  // responds — well before the reveal is on screen — so this has time to resolve.
   const cardBuybackQuery = useCardBuyback(result?.card_id ?? '');
 
-  const pullStartRef = useRef(0);
-  const glowTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const attemptSnapshotRef = useRef<AttemptSnapshot | null>(null);
 
-  const [pending, setPending] = useState<PendingAttempt | null>(null);
   const [buybackResult, setBuybackResult] = useState<BuybackResult | null>(null);
   const [isReconciling, setIsReconciling] = useState(false);
   const [reconcileMessage, setReconcileMessage] = useState<string | null>(null);
   const [reconcileTone, setReconcileTone] = useState<'neutral' | 'success' | 'error'>('neutral');
 
-  const clearTimers = useCallback(() => {
-    clearTimeout(glowTimerRef.current);
-    clearTimeout(revealTimerRef.current);
-  }, []);
-
-  /** Fires the pull mutation with a fixed Idempotency-Key and drives the animation timeline. */
-  const executePull = useCallback(
-    (key: string) => {
-      clearTimers();
-      setReconcileMessage(null);
-      pullStartRef.current = Date.now();
-      startPull(); // -> overlay 'pulling', stage 'pulling', result null
-
-      glowTimerRef.current = setTimeout(() => {
-        usePullFlowStore.setState({ stage: 'glowing' });
-      }, PULLING_MS);
-
-      pullMutation.mutate(key, {
-        onSuccess: (data: PullResult) => {
-          const elapsed = Date.now() - pullStartRef.current;
-          const remaining = Math.max(0, PULLING_MS + GLOWING_MS - elapsed);
-          revealTimerRef.current = setTimeout(() => {
-            setPending(null);
-            setResult(data); // -> overlay 'reveal', stage 'reveal'
-          }, remaining);
-        },
-        onError: () => {
-          clearTimeout(glowTimerRef.current);
-          setPending({ key });
-        },
-      });
-    },
-    [clearTimers, pullMutation, setResult, startPull]
-  );
-
-  /** New attempt: fresh Idempotency-Key + a balance/collection snapshot for reconciliation. */
-  const startNewPull = useCallback(() => {
-    const key = crypto.randomUUID();
+  /** Snapshot balance + collection so an interrupted attempt can be reconciled later. */
+  const handleAttemptStart = useCallback(() => {
     attemptSnapshotRef.current = {
       preBalanceSatang: walletQuery.data?.balance_satang ?? 0,
       preCollectionIds: new Set((collectionQuery.data ?? []).map((item) => item.instance_id)),
     };
     setBuybackResult(null);
-    executePull(key);
-  }, [collectionQuery.data, executePull, walletQuery.data]);
+    setReconcileMessage(null);
+  }, [collectionQuery.data, walletQuery.data]);
 
-  /** Retry of an interrupted attempt: SAME Idempotency-Key (FR15/FR19 — never double-charge). */
-  const retryPull = useCallback(() => {
-    if (!pending) return;
-    executePull(pending.key);
-  }, [executePull, pending]);
+  const { start, retry, pick, skip, completePeel, pending, setPending, intensity, isMutating } =
+    usePullSequence({
+      packId,
+      rarityOdds: packQuery.data?.rarity_odds,
+      reduceMotion,
+      skipPick,
+      onAttemptStart: handleAttemptStart,
+    });
 
   const priceSatang = packQuery.data?.price_satang;
   const balanceSatang = walletQuery.data?.balance_satang;
@@ -138,8 +104,8 @@ export default function PullPage() {
       navigate(paths.wallet);
       return;
     }
-    startNewPull();
-  }, [canAfford, navigate, startNewPull]);
+    start();
+  }, [canAfford, navigate, start]);
 
   const handlePullAgain = useCallback(
     (balanceAfterSatang: number) => {
@@ -147,9 +113,9 @@ export default function PullPage() {
         navigate(paths.wallet);
         return;
       }
-      startNewPull();
+      start();
     },
-    [navigate, priceSatang, startNewPull]
+    [navigate, priceSatang, start]
   );
 
   const handleAddToVault = useCallback(() => {
@@ -163,11 +129,11 @@ export default function PullPage() {
       {
         onSuccess: (data) => {
           setBuybackResult(data);
-          setOverlay('buyback');
+          setPhase('buyback');
         },
       }
     );
-  }, [buybackMutation, result, setOverlay]);
+  }, [buybackMutation, result, setPhase]);
 
   const handleBuybackDone = useCallback(() => {
     setBuybackResult(null);
@@ -219,7 +185,8 @@ export default function PullPage() {
         setPending(null);
         setReconcileTone('success');
         setReconcileMessage(t('pending.resolvedSuccess'));
-        setResult(reconciled);
+        // No theatre for a recovered pull — the suspense already happened, badly.
+        revealImmediately(reconciled);
       } else if (snapshot && newBalance === snapshot.preBalanceSatang && !newItem) {
         setReconcileTone('neutral');
         setReconcileMessage(t('pending.notCharged'));
@@ -233,7 +200,16 @@ export default function PullPage() {
     } finally {
       setIsReconciling(false);
     }
-  }, [collectionQuery, packId, packQuery.data, pending, setResult, t, walletQuery]);
+  }, [
+    collectionQuery,
+    packId,
+    packQuery.data,
+    pending,
+    revealImmediately,
+    setPending,
+    t,
+    walletQuery,
+  ]);
 
   // ------------------------------------------------------------------
   // Render
@@ -244,14 +220,14 @@ export default function PullPage() {
       <PullPendingView
         isChecking={isReconciling}
         onCheckStatus={handleCheckStatus}
-        onRetry={retryPull}
+        onRetry={retry}
         message={reconcileMessage}
         messageTone={reconcileTone}
       />
     );
   }
 
-  if (overlay === 'buyback' && buybackResult) {
+  if (phase === 'buyback' && buybackResult) {
     return (
       <BuybackSuccessView
         buyback={buybackResult}
@@ -265,15 +241,74 @@ export default function PullPage() {
     );
   }
 
-  if (overlay === 'pulling') {
-    return <PullAnimationOverlay stage={stage} />;
+  if (isStagePhase(phase)) {
+    const showChoose = phase === 'shuffle' || phase === 'choosing' || phase === 'converge';
+    const showSuspense =
+      phase === 'converge' || phase === 'charge' || phase === 'flip' || phase === 'peel';
+    // The two phases where the user is holding the wheel: a stray backdrop tap
+    // must not pick a card for them, nor uncover the one they're savouring.
+    const skippable = phase !== 'choosing' && phase !== 'peel';
+
+    return (
+      <PullStageShell
+        reduceMotion={reduceMotion}
+        shake={phase === 'flip' ? intensity.shakeAmplitude : 0}
+        onSkip={skippable ? skip : undefined}
+        skipLabel={skippable ? t('stage.skip') : undefined}
+        announcement={t(`stage.${phase}`)}
+        caption={showSuspense ? t(`stage.${phase}`) : undefined}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            placeItems: 'center',
+            width: '100%',
+          }}
+        >
+          {showChoose ? (
+            <Box
+              sx={{
+                gridArea: '1 / 1',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                opacity: phase === 'converge' ? 0 : 1,
+                pointerEvents: phase === 'converge' ? 'none' : 'auto',
+                transition: 'opacity 480ms ease',
+              }}
+            >
+              <PullChooseView onPick={pick} pickedIndex={pickedIndex} reduceMotion={reduceMotion} />
+            </Box>
+          ) : null}
+
+          {showSuspense ? (
+            <Box sx={{ gridArea: '1 / 1', zIndex: 2 }}>
+              <PullSuspenseView
+                phase={phase}
+                intensity={intensity}
+                result={result}
+                pickedIndex={pickedIndex}
+                onPeelComplete={completePeel}
+                reduceMotion={reduceMotion}
+              />
+            </Box>
+          ) : null}
+        </Box>
+      </PullStageShell>
+    );
   }
 
-  if (overlay === 'reveal' && result) {
+  if (phase === 'reveal' && result) {
     return (
       <CardRevealView
         result={result}
-        buybackPreviewSatang={cardBuybackQuery.data?.buyback_price_satang}
+        intensity={intensity}
+        reduceMotion={reduceMotion}
+        buybackPreviewSatang={
+          cardBuybackQuery.data?.buyback_price_satang ??
+          packQuery.data?.cards.find((card) => card.card_id === result.card_id)
+            ?.buyback_price_satang
+        }
         isSelling={buybackMutation.isPending}
         onSellInstantly={handleSellInstantly}
         onAddToVault={handleAddToVault}
@@ -307,7 +342,7 @@ export default function PullPage() {
     <PullIdleView
       priceSatang={priceSatang}
       canAfford={canAfford}
-      disabled={pullMutation.isPending}
+      disabled={isMutating}
       onPull={handlePull}
     />
   );

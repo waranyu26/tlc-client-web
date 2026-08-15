@@ -1,9 +1,16 @@
+import type { ReactNode } from 'react';
+import type { IconifyName } from 'src/components/iconify';
+
 import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
+import ButtonBase from '@mui/material/ButtonBase';
 import Typography from '@mui/material/Typography';
 
 import { formatThb } from 'src/utils/format-currency';
+
+import { unlockSfx, toggleBlip } from 'src/lib/pull-sfx';
+import { usePullPrefsStore } from 'src/store/pull-prefs-store';
 
 import { Iconify } from 'src/components/iconify';
 import { FadeUp, TrustBadge, PrimaryButton } from 'src/components/vault';
@@ -16,6 +23,40 @@ import { PullRateTable } from './pull-rate-table';
 // rather than taking `sx` directly.
 // ----------------------------------------------------------------------
 
+type PrefToggleProps = {
+  active: boolean;
+  icon: IconifyName;
+  label: ReactNode;
+  onClick: () => void;
+};
+
+function PrefToggle({ active, icon, label, onClick }: PrefToggleProps) {
+  return (
+    <ButtonBase
+      onClick={onClick}
+      aria-pressed={active}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        borderRadius: '999px',
+        padding: '6px 12px',
+        fontSize: '11.5px',
+        fontWeight: 600,
+        letterSpacing: '0.02em',
+        border: `1px solid ${active ? 'rgba(231,206,146,0.42)' : 'rgba(231,206,146,0.14)'}`,
+        bgcolor: active ? 'rgba(231,206,146,0.10)' : 'transparent',
+        color: active ? '#E7CE92' : '#9A9285',
+        transition: 'all 180ms ease',
+        '&.Mui-focusVisible': { outline: '2px solid #E7CE92', outlineOffset: '2px' },
+      }}
+    >
+      <Iconify icon={icon} width={15} />
+      {label}
+    </ButtonBase>
+  );
+}
+
 export type PullIdleViewProps = {
   priceSatang?: number;
   canAfford: boolean;
@@ -25,6 +66,22 @@ export type PullIdleViewProps = {
 
 export function PullIdleView({ priceSatang, canAfford, disabled, onPull }: PullIdleViewProps) {
   const { t } = useTranslation('pull');
+
+  const soundEnabled = usePullPrefsStore((state) => state.soundEnabled);
+  const skipPick = usePullPrefsStore((state) => state.skipPick);
+  const toggleSound = usePullPrefsStore((state) => state.toggleSound);
+  const toggleSkipPick = usePullPrefsStore((state) => state.toggleSkipPick);
+
+  const handleToggleSound = () => {
+    const turningOn = !soundEnabled;
+    toggleSound();
+    if (turningOn) {
+      // Must happen inside the click: an AudioContext created outside a user
+      // gesture starts suspended and everything stays silent.
+      unlockSfx();
+      setTimeout(toggleBlip, 140);
+    }
+  };
 
   return (
     <Box sx={{ padding: '20px 16px 32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -78,14 +135,35 @@ export function PullIdleView({ priceSatang, canAfford, disabled, onPull }: PullI
               {t('insufficientBalance')}
             </Typography>
           ) : null}
+
+          <Typography sx={{ fontSize: '11.5px', color: '#9A9285', textAlign: 'center' }}>
+            {t('choose.honesty')}
+          </Typography>
         </Box>
       </FadeUp>
 
-      <FadeUp delay={0.14}>
+      <FadeUp delay={0.12}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <PrefToggle
+            active={soundEnabled}
+            icon={soundEnabled ? 'solar:volume-loud-bold' : 'solar:volume-bold'}
+            label={t(soundEnabled ? 'prefs.soundOn' : 'prefs.soundOff')}
+            onClick={handleToggleSound}
+          />
+          <PrefToggle
+            active={skipPick}
+            icon="solar:double-alt-arrow-right-bold-duotone"
+            label={t('prefs.skipPick')}
+            onClick={toggleSkipPick}
+          />
+        </Box>
+      </FadeUp>
+
+      <FadeUp delay={0.18}>
         <PullRateTable />
       </FadeUp>
 
-      <FadeUp delay={0.2}>
+      <FadeUp delay={0.24}>
         <Box sx={{ display: 'flex', justifyContent: 'center', padding: '0 8px' }}>
           <TrustBadge />
         </Box>

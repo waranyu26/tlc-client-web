@@ -63,7 +63,6 @@ export function WalletTransactionsPreview() {
       <Box sx={{ marginTop: '4px' }}>
         {isPending &&
           Array.from({ length: 3 }).map((_, index) => (
-             
             <Skeleton
               key={index}
               variant="rectangular"
