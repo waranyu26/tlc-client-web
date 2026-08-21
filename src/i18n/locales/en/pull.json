@@ -22,8 +22,8 @@
     "cardAria": "Face-down card {{index}} of {{total}}"
   },
   "peel": {
-    "hint": "Drag down to uncover",
-    "aria": "Sleeve covering your card. Drag it down, or press Enter, to uncover the card."
+    "hint": "Drag any direction to uncover",
+    "aria": "Sleeve covering your card. Drag it up, down, left or right — or press an arrow key — to uncover the card."
   },
   "stage": {
     "shuffle": "Shuffling the vault…",

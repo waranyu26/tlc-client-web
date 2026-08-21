@@ -78,11 +78,12 @@ export function PullSuspenseView({
 
   const motes = useMemo<Mote[]>(() => {
     const rand = makeRandom(0x85ebca6b + intensity.moteCount);
-    // Half the card's diagonal is 0.78×width at a 5/6 ratio — start beyond that.
+    // Half the card's diagonal is ~0.98×width at this ratio, so anything under
+    // 1.0 spawns under the card and is painted over before it is ever seen.
     const clearance = Math.max(150, cardWidth);
     return Array.from({ length: intensity.moteCount }, (_, i) => ({
       angle: (i / Math.max(1, intensity.moteCount)) * Math.PI * 2 + rand() * 0.5,
-      radius: clearance * (0.85 + rand() * 0.55),
+      radius: clearance * (1.05 + rand() * 0.55),
       delay: rand() * 0.8,
       duration: 0.9 + rand() * 0.7,
       size: 2.5 + rand() * 3,
@@ -125,11 +126,11 @@ export function PullSuspenseView({
       ref={stageRef}
       sx={{
         position: 'relative',
-        // Hero-sized, and bounded by height as well as width: at the true card
-        // ratio the box is 1.4× as tall as it is wide, so `45vh` of width is
+        // Hero-sized, and bounded by height as well as width: at the catalogue's
+        // card ratio the box is 1.7× as tall as it is wide, so `37vh` of width is
         // `63vh` of card — about as much as fits above the caption without the
         // stage needing to scroll.
-        width: 'min(78vw, 45vh, 400px)',
+        width: 'min(78vw, 37vh, 340px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

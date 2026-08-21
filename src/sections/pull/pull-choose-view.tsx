@@ -60,10 +60,7 @@ export function PullChooseView({
   // Must mirror the gridTemplateColumns below — arrow-key navigation needs to
   // know how wide a row actually is at the current breakpoint.
   const isMd = useMediaQuery(theme.breakpoints.up('md'));
-  const isSm = useMediaQuery(theme.breakpoints.up('sm'));
-  let columns = 3;
-  if (isMd) columns = 6;
-  else if (isSm) columns = 4;
+  const columns = isMd ? 6 : 4;
 
   const cardRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -152,11 +149,10 @@ export function PullChooseView({
           onKeyDown={handleKeyDown}
           sx={{
             display: 'grid',
-            gridTemplateColumns: {
-              xs: 'repeat(3, 1fr)',
-              sm: 'repeat(4, 1fr)',
-              md: 'repeat(6, 1fr)',
-            },
+            // 4/6 rather than 3/4/6: at the catalogue's card ratio each cell is
+            // 1.7× as tall as it is wide, and three columns pushes twelve cards
+            // to four rows — taller than a phone viewport.
+            gridTemplateColumns: { xs: 'repeat(4, 1fr)', md: 'repeat(6, 1fr)' },
             gap: { xs: '10px', md: '14px' },
           }}
         >

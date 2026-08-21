@@ -100,7 +100,7 @@ export function CardRevealView({
               // the payoff. Height-bounded so the CTAs stay above the fold.
               width: '88%',
               minWidth: 200,
-              maxWidth: 'min(84vw, 36vh, 360px)',
+              maxWidth: 'min(84vw, 30vh, 300px)',
             }}
           >
             {/* Sits behind the slab and plays once — see RevealBurst for the layering. */}

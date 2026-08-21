@@ -20,13 +20,18 @@ const glowPulse = keyframes`
 `;
 
 /**
- * The proportions every piece of card art is rendered at: 63×88mm, the real
- * trading-card size. Anything wider (this was `5 / 6`) letterboxes the scan
- * inside the frame, because the art is drawn `object-fit: contain` and will not
- * crop. Pack covers use it too, so a pack reads as a card rather than a banner —
+ * The proportions every piece of card art is rendered at, measured against the
+ * real artwork rather than assumed.
+ *
+ * Note this is NOT the 63×88mm physical trading-card ratio — the scans in this
+ * catalogue are narrower than that, and 63/88 (or the earlier 5/6) letterboxes
+ * them, because the art is drawn `object-fit: contain` and will not crop. Don't
+ * "correct" this to a physical card size without re-checking against the assets.
+ *
+ * Pack covers use it too, so a pack reads as a card rather than a banner —
  * exported here so the two can't drift apart.
  */
-export const CARD_ASPECT_RATIO = '63 / 88';
+export const CARD_ASPECT_RATIO = '52 / 88';
 
 export type CardFrameProps = Omit<BoxProps, 'children'> & {
   /**

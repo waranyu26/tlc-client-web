@@ -247,7 +247,7 @@ user's thinking time, so only `charge` ever has to wait. Timings compress ~60% u
 | `converge` | 750ms | 11 cards blow outward; the picked one flies to centre (shared `layoutId`) |
 | `charge` | 900ms + tier bonus (0/300/700/1200) | Motes spiral in, glow tightens. Holds if the API is still in flight |
 | `flip` | 650ms | 3D `rotateY` turn — onto a **sleeve**, not the art; screen shake on epic/legendary |
-| `peel` | user-paced | Drag the sleeve down to uncover the card. Gold light-line + sparks ride its edge, grain ticks every 12%. Release past 45% (or flick) commits; short of that it springs back. Tap or Enter uncovers it outright |
+| `peel` | user-paced | Drag the sleeve off in **any** direction — up, down, left or right. `dragDirectionLock` snaps to the axis you start on, so the four cardinal peels stay clean. Every edge carries a gold rim + sparks, grain ticks every 12%. Release past 38% of that axis (or flick) commits and the sleeve continues along its own vector; short of that it springs back. Tap, Enter or any arrow key uncovers it outright |
 | `reveal` | — | PSA slab seals around the card, `RevealBurst` plays, payoff chime |
 
 Tier comes from the pack's live `rarity_odds` (`< 2% legendary`, `< 8% epic`, `< 25% rare`,
@@ -270,7 +270,7 @@ Web Audio API — there are no audio assets.
 | Pack Detail | `overlay: 'pack'` | Pack hero, pull rates table (audited), trust badge, Pull · ฿300 CTA |
 | Choose Your Card | `phase: 'shuffle' \| 'choosing'` | Deck riffle, 12 face-down backs (3×4 / 4×3 / 6×2), honesty note that the card is already drawn |
 | Suspense | `phase: 'converge' \| 'charge' \| 'flip'` | Picked card flies to centre, gathers motes, turns over onto a sleeve |
-| Uncover | `phase: 'peel'` | Drag the sleeve down to expose the art at your own pace; rarity halo blooms behind |
+| Uncover | `phase: 'peel'` | Drag the sleeve off any side — up, down, left or right — to expose the art at your own pace; rarity halo blooms behind |
 | Card Reveal | `phase: 'reveal'` | PSA slab, burst, rarity badge, card name, Sell Instantly / Add to Vault / Pull Again |
 | Instant Buyback | `overlay: 'buyback'` | Success checkmark, credit amount (+฿), new wallet balance, Pull Again |
 | Vault | `tab: 'vault'` | 2×grid of owned cards with PSA grade badge overlay, total portfolio value |
