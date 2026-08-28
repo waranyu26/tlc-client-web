@@ -5,5 +5,8 @@
   },
   "ticker": {
     "item": "{{user}} pulled {{card}} · {{rarity}}"
+  },
+  "errors": {
+    "google": "Could not start Google sign-in. Please try again."
   }
 }

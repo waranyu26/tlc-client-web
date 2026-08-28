@@ -22,7 +22,8 @@
     "tsc:watch": "tsc --noEmit --watch",
     "tsc:print": "tsc --showConfig",
     "tsc:check": "tsc --noEmit --pretty",
-    "verify:fairness": "node --experimental-strip-types scripts/verify-fairness-vectors.mjs"
+    "verify:fairness": "node --experimental-strip-types scripts/verify-fairness-vectors.mjs",
+    "certs": "mkdir -p certs && cd certs && mkcert ${VITE_DEV_HOST:-dev.tokyoluckycard.com}"
   },
   "engines": {
     "node": ">=22.12.0"

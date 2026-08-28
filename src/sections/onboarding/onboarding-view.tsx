@@ -2,13 +2,13 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { typeScale } from 'src/theme/type-scale';
-import { signInWithGoogle } from 'src/api/auth.api';
 import { subscribeTicker } from 'src/api/ticker.api';
 import en from 'src/i18n/locales/en/onboarding.json';
 import th from 'src/i18n/locales/th/onboarding.json';
@@ -19,6 +19,8 @@ import { Iconify } from 'src/components/iconify';
 import { FadeUp, TrustBadge, TickerStrip, GhostButton, PrimaryButton } from 'src/components/vault';
 
 import { AuthShell } from 'src/sections/auth/auth-shell';
+
+import { useGoogleSignIn } from 'src/auth/hooks/use-google-sign-in';
 
 registerNamespace('onboarding', en, th);
 
@@ -36,6 +38,7 @@ export function OnboardingView() {
   const router = useRouter();
 
   const [tickerItems, setTickerItems] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = subscribeTicker((event) => {
@@ -53,9 +56,10 @@ export function OnboardingView() {
     return unsubscribe;
   }, [t]);
 
-  const handleGoogle = useCallback(() => {
-    signInWithGoogle();
-  }, []);
+  const handleGoogleError = useCallback(() => setErrorMessage(t('errors.google')), [t]);
+  const { start: handleGoogle, pending: googlePending } = useGoogleSignIn({
+    onError: handleGoogleError,
+  });
 
   return (
     <AuthShell slotTop={<TickerStrip items={tickerItems} />}>
@@ -85,6 +89,19 @@ export function OnboardingView() {
 
         <FadeUp delay={0.1}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {errorMessage && (
+              <Alert
+                severity="error"
+                sx={{
+                  bgcolor: 'rgba(201,96,91,0.1)',
+                  color: '#C9605B',
+                  border: '1px solid rgba(201,96,91,0.35)',
+                  '& .MuiAlert-icon': { color: '#C9605B' },
+                }}
+              >
+                {errorMessage}
+              </Alert>
+            )}
             <PrimaryButton fullWidth size="large" onClick={() => router.push(paths.auth.signIn)}>
               {t('cta.email')}
             </PrimaryButton>
@@ -92,6 +109,7 @@ export function OnboardingView() {
               fullWidth
               size="large"
               startIcon={<Iconify icon="socials:google" width={18} />}
+              disabled={googlePending}
               onClick={handleGoogle}
             >
               {t('cta.google')}

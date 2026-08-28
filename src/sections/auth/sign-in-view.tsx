@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -18,8 +18,8 @@ import { ApiError } from 'src/lib/axios';
 import en from 'src/i18n/locales/en/auth.json';
 import th from 'src/i18n/locales/th/auth.json';
 import { typeScale } from 'src/theme/type-scale';
+import { signInWithEmail } from 'src/api/auth.api';
 import { registerNamespace } from 'src/i18n/register';
-import { signInWithEmail, signInWithGoogle } from 'src/api/auth.api';
 
 import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
@@ -27,6 +27,7 @@ import { GhostButton, PrimaryButton } from 'src/components/vault';
 import { Form, Field, schemaUtils } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
+import { useGoogleSignIn } from 'src/auth/hooks/use-google-sign-in';
 
 import { AuthShell } from './auth-shell';
 
@@ -61,6 +62,11 @@ export function SignInView() {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  const handleGoogleError = useCallback(() => setErrorMessage(t('callback.error')), [t]);
+  const { start: startGoogle, pending: googlePending } = useGoogleSignIn({
+    onError: handleGoogleError,
+  });
 
   const onSubmit = handleSubmit(async (data) => {
     setErrorMessage(null);
@@ -156,7 +162,8 @@ export function SignInView() {
           fullWidth
           size="large"
           startIcon={<Iconify icon="socials:google" width={18} />}
-          onClick={() => signInWithGoogle()}
+          disabled={googlePending}
+          onClick={startGoogle}
         >
           {t('signIn.google')}
         </GhostButton>

@@ -2,6 +2,8 @@ import Session from 'supertokens-web-js/recipe/session';
 import ThirdParty from 'supertokens-web-js/recipe/thirdparty';
 import EmailPassword from 'supertokens-web-js/recipe/emailpassword';
 
+import { paths } from 'src/routes/paths';
+
 import axiosInstance from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
@@ -43,7 +45,7 @@ export async function signInWithEmail({ email, password }: SignInParams) {
 export async function signInWithGoogle() {
   const authUrl = await ThirdParty.getAuthorisationURLWithQueryParamsAndSetState({
     thirdPartyId: 'google',
-    frontendRedirectURI: `${window.location.origin}/auth/callback`,
+    frontendRedirectURI: `${window.location.origin}${paths.auth.callback}`,
   });
   window.location.assign(authUrl);
 }
