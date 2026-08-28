@@ -1,4 +1,4 @@
-import type { PullResult } from 'src/api/types';
+import type { PullReveal } from 'src/api/types';
 
 import { create } from 'zustand';
 
@@ -44,7 +44,7 @@ export function isStagePhase(phase: PullPhase): boolean {
 
 type PullFlowState = {
   phase: PullPhase;
-  result: PullResult | null;
+  result: PullReveal | null;
   /** Which of the PICK_CARD_COUNT backs the user chose — drives the converge geometry. */
   pickedIndex: number | null;
   /** True once the revealed card's art has decoded, so the flip never shows a blank face. */
@@ -52,17 +52,17 @@ type PullFlowState = {
 
   setPhase: (phase: PullPhase) => void;
   startPull: () => void;
-  setResult: (result: PullResult) => void;
+  setResult: (result: PullReveal) => void;
   setPickedIndex: (index: number) => void;
   setImageReady: (ready: boolean) => void;
   /** Jump straight to the reveal, skipping the choreography (recovery + reduced-motion paths). */
-  revealImmediately: (result: PullResult) => void;
+  revealImmediately: (result: PullReveal) => void;
   reset: () => void;
 };
 
 const initialState = {
   phase: 'idle' as PullPhase,
-  result: null as PullResult | null,
+  result: null as PullReveal | null,
   pickedIndex: null as number | null,
   imageReady: false,
 };

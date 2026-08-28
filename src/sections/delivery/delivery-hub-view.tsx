@@ -51,7 +51,7 @@ export function DeliveryHubView() {
   const [success, setSuccess] = useState(false);
 
   const selectedCard = useMemo(
-    () => collection?.find((item) => item.instance_id === selectedCardId) ?? null,
+    () => collection?.find((item) => item.card_id === selectedCardId) ?? null,
     [collection, selectedCardId]
   );
 
@@ -63,7 +63,7 @@ export function DeliveryHubView() {
 
     setSubmitError(null);
     requestMutation.mutate(
-      { card_instance_id: selectedCardId, address_id: selectedAddressId },
+      { card_id: selectedCardId, address_id: selectedAddressId },
       {
         onSuccess: () => {
           setSuccess(true);

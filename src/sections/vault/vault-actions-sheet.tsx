@@ -51,7 +51,7 @@ export function VaultActionsSheet({ item, open, onClose, onSold }: VaultActionsS
       buybackMutation.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, item?.instance_id]);
+  }, [open, item?.card_id]);
 
   if (!item) return null;
 
@@ -62,7 +62,7 @@ export function VaultActionsSheet({ item, open, onClose, onSold }: VaultActionsS
 
   const handleConfirmSell = () => {
     buybackMutation.mutate(
-      { card_instance_id: item.instance_id },
+      { card_id: item.card_id },
       {
         onSuccess: (result) => {
           onSold(result.amount_satang);

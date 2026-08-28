@@ -49,12 +49,6 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
  */
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
   {
-    key: 'catalog',
-    href: paths.catalog,
-    icon: 'solar:widget-4-linear' as IconifyName,
-    fallbackLabel: 'Catalog',
-  },
-  {
     key: 'delivery',
     href: paths.delivery,
     icon: 'solar:box-linear' as IconifyName,

@@ -40,7 +40,7 @@ export type PackCardProps = Omit<BoxProps, 'children'> & {
 export function PackCard({ pack, featured = false, sx, ...other }: PackCardProps) {
   const { t } = useTranslation('home');
   const accent = accentForPack(pack.id);
-  const outOfStock = pack.cards_remaining <= 0;
+  const outOfStock = pack.sold_out;
 
   return (
     <Box
@@ -163,9 +163,12 @@ export function PackCard({ pack, featured = false, sx, ...other }: PackCardProps
             satang={pack.price_satang}
             sx={{ fontWeight: 700, fontSize: featured ? '20px' : '14px', color: '#E7CE92' }}
           />
-          {!outOfStock && (
+          {/* Pulls so far, not cards left: how much is in the box is the
+              seller's information, and a running total reads as popularity
+              rather than as a countdown. */}
+          {!outOfStock && pack.pull_count > 0 && (
             <Typography sx={{ fontSize: '10px', color: '#9A9285' }}>
-              {t('stock', { count: pack.cards_remaining, defaultValue: '{{count}} left' })}
+              {t('opened', { count: pack.pull_count, defaultValue: '{{count}} opened' })}
             </Typography>
           )}
         </Box>

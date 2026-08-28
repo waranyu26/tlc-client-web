@@ -21,7 +21,8 @@
     "re:build-npm": "npm run clean && npm install && npm run build",
     "tsc:watch": "tsc --noEmit --watch",
     "tsc:print": "tsc --showConfig",
-    "tsc:check": "tsc --noEmit --pretty"
+    "tsc:check": "tsc --noEmit --pretty",
+    "verify:fairness": "node --experimental-strip-types scripts/verify-fairness-vectors.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
@@ -48,6 +49,7 @@
     "@mui/x-data-grid": "^9.1.0",
     "@mui/x-date-pickers": "^9.1.0",
     "@mui/x-tree-view": "^9.1.0",
+    "@noble/curves": "^2.4.0",
     "@stripe/react-stripe-js": "^6.8.0",
     "@stripe/stripe-js": "^9.10.0",
     "@tanstack/react-query": "^5.101.3",

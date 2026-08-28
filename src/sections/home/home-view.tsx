@@ -63,8 +63,8 @@ export function HomeView() {
         />
         {/* At `lg` the sidebar already carries this CTA — don't say it twice. */}
         <Box sx={{ display: { xs: 'block', lg: 'none' }, px: 2.5, pb: 2.5 }}>
-          <PrimaryButton fullWidth onClick={() => navigate(paths.catalog)}>
-            {t('pullCta', { defaultValue: 'Browse cards' })}
+          <PrimaryButton fullWidth onClick={() => navigate(paths.home)}>
+            {t('pullCta', { defaultValue: 'Browse packs' })}
           </PrimaryButton>
         </Box>
       </Box>

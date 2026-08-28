@@ -1,4 +1,4 @@
-import type { PullResult } from 'src/api/types';
+import type { PullReveal } from 'src/api/types';
 import type { PullPhase } from 'src/store/pull-flow-store';
 import type { PullIntensity } from 'src/utils/rarity-intensity';
 
@@ -38,7 +38,7 @@ type Mote = { angle: number; radius: number; delay: number; duration: number; si
 export type PullSuspenseViewProps = {
   phase: Extract<PullPhase, 'converge' | 'charge' | 'flip' | 'peel'>;
   intensity: PullIntensity;
-  result: PullResult | null;
+  result: PullReveal | null;
   pickedIndex: number | null;
   /** Fired when the sleeve clears the card. */
   onPeelComplete: () => void;

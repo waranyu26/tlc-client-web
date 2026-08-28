@@ -12,8 +12,7 @@ export const paths = {
   // Authenticated home
   home: '/home',
   // Catalog & discovery
-  catalog: '/catalog',
-  card: (id: string) => `/catalog/card/${id}`,
+  verify: (ticketId: string) => `/verify/${ticketId}`,
   pack: (id: string) => `/pack/${id}`,
   // Gacha — always scoped to a pack; there is no global pull.
   pull: (id: string) => `/pack/${id}/pull`,

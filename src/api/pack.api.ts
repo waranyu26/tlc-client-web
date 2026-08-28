@@ -1,9 +1,8 @@
-import type { Pagination, PackDetail, PullResult, PackListItem } from './types';
+import type { Pagination, PackDetail, PackListItem, PackRarityManifest } from './types';
 
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import axiosInstance from 'src/lib/axios';
-import { queryClient } from 'src/lib/query-client';
 
 // ----------------------------------------------------------------------
 
@@ -23,15 +22,18 @@ export async function getPack(packId: string): Promise<PackDetail> {
 }
 
 /**
- * A pull is always scoped to a pack — it charges that pack's price and claims
- * one of its remaining cards. Retries must reuse the same idempotency key so a
- * dropped connection can't double-charge (FR19).
+ * The cards behind one rarity tile.
+ *
+ * This is the full manifest — everything the rarity was stocked with, pulled
+ * ones included — with no availability marking, so a buyer can see what the
+ * pool contains without working out what is left in it.
  */
-export async function pullFromPack(packId: string, idempotencyKey?: string): Promise<PullResult> {
-  const { data } = await axiosInstance.post<PullResult>(
-    `/api/v1/packs/${packId}/pull`,
-    undefined,
-    idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : undefined
+export async function getPackRarityCards(
+  packId: string,
+  rarityCode: string
+): Promise<PackRarityManifest> {
+  const { data } = await axiosInstance.get<PackRarityManifest>(
+    `/api/v1/packs/${packId}/rarities/${rarityCode}/cards`
   );
   return data;
 }
@@ -53,16 +55,15 @@ export function usePack(packId: string | undefined) {
   });
 }
 
-export function usePullMutation(packId: string | undefined) {
-  return useMutation({
-    mutationFn: (idempotencyKey?: string) => pullFromPack(packId!, idempotencyKey),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['wallet', 'balance'] });
-      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['catalog', 'collection'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      // The pull changed what's left in the box, so its odds moved too.
-      queryClient.invalidateQueries({ queryKey: ['packs'] });
-    },
+/**
+ * A rarity's manifest is fixed for the life of the pack — pulling does not
+ * change it, because pulled cards stay listed. So it can be cached hard.
+ */
+export function usePackRarityCards(packId: string | undefined, rarityCode: string | undefined) {
+  return useQuery({
+    queryKey: ['packs', 'rarity', packId, rarityCode],
+    queryFn: () => getPackRarityCards(packId!, rarityCode!),
+    enabled: !!packId && !!rarityCode,
+    staleTime: 5 * 60 * 1000,
   });
 }

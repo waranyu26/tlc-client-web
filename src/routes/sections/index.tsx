@@ -22,10 +22,9 @@ const AuthCallbackPage = lazy(() => import('src/pages/auth/callback'));
 
 // Authenticated pages
 const HomePage = lazy(() => import('src/pages/home'));
-const CatalogPage = lazy(() => import('src/pages/catalog'));
-const CardPage = lazy(() => import('src/pages/card'));
 const PackPage = lazy(() => import('src/pages/pack'));
 const PullPage = lazy(() => import('src/pages/pull'));
+const VerifyPage = lazy(() => import('src/pages/verify'));
 const VaultPage = lazy(() => import('src/pages/vault'));
 const WalletPage = lazy(() => import('src/pages/wallet'));
 const TransactionsPage = lazy(() => import('src/pages/transactions'));
@@ -68,8 +67,6 @@ export const routesSection: RouteObject[] = [
     ),
     children: [
       { path: '/home', element: <HomePage /> },
-      { path: '/catalog', element: <CatalogPage /> },
-      { path: '/catalog/card/:id', element: <CardPage /> },
       { path: '/pack/:id', element: <PackPage /> },
       { path: '/pack/:id/pull', element: <PullPage /> },
       { path: '/vault', element: <VaultPage /> },
@@ -81,6 +78,20 @@ export const routesSection: RouteObject[] = [
       { path: '/delivery/addresses', element: <AddressesPage /> },
       { path: '/account', element: <AccountPage /> },
     ],
+  },
+
+  // Public — no guard on purpose.
+  //
+  // A fairness receipt that only its owner can open proves nothing to anyone
+  // else. The whole value of this page is that a sceptic can be handed the link
+  // and check the pull themselves, against a beacon they fetch from drand.
+  {
+    element: (
+      <Suspense fallback={<SplashScreen />}>
+        <Outlet />
+      </Suspense>
+    ),
+    children: [{ path: '/verify/:ticketId', element: <VerifyPage /> }],
   },
 
   // No match

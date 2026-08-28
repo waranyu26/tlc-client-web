@@ -10,7 +10,7 @@ import { queryClient } from 'src/lib/query-client';
 export type AddressInput = Omit<Address, 'id'>;
 
 export type DeliveryRequestInput = {
-  card_instance_id: string;
+  card_id: string;
   address_id: string;
 };
 

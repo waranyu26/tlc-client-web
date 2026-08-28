@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { PackRarityOdds } from 'src/api/types';
 import type { IconifyName } from 'src/components/iconify';
 
 import { useTranslation } from 'react-i18next';
@@ -13,9 +14,11 @@ import { unlockSfx, toggleBlip } from 'src/lib/pull-sfx';
 import { usePullPrefsStore } from 'src/store/pull-prefs-store';
 
 import { Iconify } from 'src/components/iconify';
-import { FadeUp, TrustBadge, PrimaryButton } from 'src/components/vault';
+import { FadeUp, TrustBadge, PrimaryButton, SectionHeading } from 'src/components/vault';
 
-import { PullRateTable } from './pull-rate-table';
+import { PackRarityTiles } from 'src/sections/pack/pack-rarity-tiles';
+
+import { ClientSeedField } from './client-seed-field';
 
 // ----------------------------------------------------------------------
 // Note: FadeUp only forwards framer-motion `HTMLMotionProps<'div'>` (it does not
@@ -58,13 +61,26 @@ function PrefToggle({ active, icon, label, onClick }: PrefToggleProps) {
 }
 
 export type PullIdleViewProps = {
+  /** This pack's published odds — the rates that actually apply here. */
+  rarityOdds?: PackRarityOdds[];
   priceSatang?: number;
   canAfford: boolean;
   disabled?: boolean;
+  /** The player's own entropy, mixed into the commitment before it is sealed. */
+  clientSeed?: string;
+  onClientSeedChange?: (seed: string) => void;
   onPull: () => void;
 };
 
-export function PullIdleView({ priceSatang, canAfford, disabled, onPull }: PullIdleViewProps) {
+export function PullIdleView({
+  rarityOdds,
+  priceSatang,
+  canAfford,
+  disabled,
+  clientSeed,
+  onClientSeedChange,
+  onPull,
+}: PullIdleViewProps) {
   const { t } = useTranslation('pull');
 
   const soundEnabled = usePullPrefsStore((state) => state.soundEnabled);
@@ -159,9 +175,23 @@ export function PullIdleView({ priceSatang, canAfford, disabled, onPull }: PullI
         </Box>
       </FadeUp>
 
-      <FadeUp delay={0.18}>
-        <PullRateTable />
-      </FadeUp>
+      {clientSeed !== undefined && onClientSeedChange && (
+        <FadeUp delay={0.16}>
+          <ClientSeedField value={clientSeed} onChange={onClientSeedChange} disabled={disabled} />
+        </FadeUp>
+      )}
+
+      {rarityOdds && rarityOdds.length > 0 && (
+        <FadeUp delay={0.18}>
+          {/* The tiles are bare numbers now that the pack page owns the
+              heading, so label them here rather than leave a row of
+              percentages floating above the trust badge. */}
+          <SectionHeading sx={{ fontSize: '20px', mb: '12px', textAlign: 'center' }}>
+            {t('odds.title', { ns: 'pack', defaultValue: 'Pull rates' })}
+          </SectionHeading>
+          <PackRarityTiles rarityOdds={rarityOdds} />
+        </FadeUp>
+      )}
 
       <FadeUp delay={0.24}>
         <Box sx={{ display: 'flex', justifyContent: 'center', padding: '0 8px' }}>

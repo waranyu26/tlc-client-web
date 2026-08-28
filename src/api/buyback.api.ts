@@ -8,7 +8,7 @@ import { queryClient } from 'src/lib/query-client';
 // ----------------------------------------------------------------------
 
 export type BuybackRequest = {
-  card_instance_id: string;
+  card_id: string;
 };
 
 export async function buybackCard(body: BuybackRequest): Promise<BuybackResult> {

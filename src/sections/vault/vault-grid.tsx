@@ -23,7 +23,7 @@ export function VaultGrid({ items, onSelect }: VaultGridProps) {
       }}
     >
       {items.map((item, index) => (
-        <VaultCardItem key={item.instance_id} item={item} index={index} onSelect={onSelect} />
+        <VaultCardItem key={item.card_id} item={item} index={index} onSelect={onSelect} />
       ))}
     </Box>
   );

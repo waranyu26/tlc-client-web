@@ -1,11 +1,11 @@
-import type { PullResult, PackRarityOdds } from 'src/api/types';
+import type { PullTicket, PackRarityOdds } from 'src/api/types';
 
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import { calmIntensity, getPullIntensity } from 'src/utils/rarity-intensity';
 
 import { haptic } from 'src/lib/haptics';
-import { usePullMutation } from 'src/api/pack.api';
+import { usePullTicket, useCommitPull } from 'src/api/pull.api';
 import { PICK_CARD_COUNT, usePullFlowStore } from 'src/store/pull-flow-store';
 import {
   payoff,
@@ -17,14 +17,16 @@ import {
 } from 'src/lib/pull-sfx';
 
 // ----------------------------------------------------------------------
-// The pull lifecycle: one mutation, one idempotency key, and the timeline that
-// walks the store from `shuffle` to `reveal`.
+// The pull lifecycle: commit, then reveal, and the timeline that walks the
+// store from `shuffle` to `reveal`.
 //
-// The API call fires at the very start, so the round trip runs underneath the
-// deal *and* however long the user takes to choose. By the time the card is
-// charging, the result and its decoded art are almost always already in hand —
-// which is why `charge` is the only phase that can stretch, and the flip never
-// shows a blank face.
+// A pull is charged against a drand round that has not been published yet, so
+// the card genuinely does not exist for the first few seconds — not even
+// server-side. That wait is not a loading spinner bolted on: the commit fires
+// at `shuffle`, so the beacon lands underneath the deal *and* however long the
+// user takes to choose a card. `charge` already refused to advance until both
+// the result and its decoded art were in hand, so the beacon simply became a
+// third thing that gate waits for.
 // ----------------------------------------------------------------------
 
 const TIMING = {
@@ -35,13 +37,33 @@ const TIMING = {
 /** Ceiling on waiting for the art to decode. A slow CDN must not stall the reveal. */
 const DECODE_TIMEOUT_MS = 2000;
 
-export type PendingAttempt = { key: string };
+export type PendingAttempt = {
+  key: string;
+  /** Set once the commit succeeded, so a retry can poll rather than re-charge. */
+  ticketId?: string;
+  /**
+   * The seed this attempt was committed with. Carried so a retry re-sends the
+   * same one: the idempotency key already makes the server replay the original
+   * ticket, but sending a different seed on the wire would make the request
+   * look like a different commitment to anyone reading the traffic.
+   */
+  clientSeed?: string;
+};
 
 export type UsePullSequenceArgs = {
   packId?: string;
   rarityOdds?: PackRarityOdds[];
   reduceMotion: boolean;
   skipPick: boolean;
+  /**
+   * The player's own entropy, mixed into the commitment preimage.
+   *
+   * Optional: the server generates one when this is empty, which is what
+   * happened for every pull before this was exposed. Supplying it is what turns
+   * commit-reveal into provably fair — the outcome then depends on an input we
+   * demonstrably did not choose.
+   */
+  clientSeed?: string;
   /** Called once per new attempt, before the request goes out, to snapshot state for reconciliation. */
   onAttemptStart?: () => void;
 };
@@ -51,15 +73,22 @@ export function usePullSequence({
   rarityOdds,
   reduceMotion,
   skipPick,
+  clientSeed,
   onAttemptStart,
 }: UsePullSequenceArgs) {
   const phase = usePullFlowStore((state) => state.phase);
   const result = usePullFlowStore((state) => state.result);
   const imageReady = usePullFlowStore((state) => state.imageReady);
 
-  const pullMutation = usePullMutation(packId);
-  const mutateRef = useRef(pullMutation.mutate);
-  mutateRef.current = pullMutation.mutate;
+  const commitMutation = useCommitPull(packId);
+  const mutateRef = useRef(commitMutation.mutate);
+  mutateRef.current = commitMutation.mutate;
+
+  // The committed ticket. Polling it is only an accelerator — the server
+  // resolves pulls in the background too, so closing the tab still awards the
+  // card.
+  const [ticketId, setTicketId] = useState<string | null>(null);
+  const ticketQuery = usePullTicket(ticketId ?? undefined, Boolean(ticketId));
 
   const [pending, setPending] = useState<PendingAttempt | null>(null);
   // Flipped once the charge window has elapsed; the flip itself still waits on
@@ -91,6 +120,40 @@ export function usePullSequence({
   // still gets its long charge, instead of the standard one captured at pick time.
   const intensityRef = useRef(intensity);
   intensityRef.current = intensity;
+
+  // ------------------------------------------------------------------
+  // Reveal — the beacon has landed
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    const ticket = ticketQuery.data;
+    if (!ticket || ticket.status === 'pending') return;
+
+    if (ticket.status === 'refunded' || !ticket.card) {
+      // The pack could not honour the pull and the money is already back. Drop
+      // out of the theatre rather than flipping a card that does not exist.
+      clearTimers();
+      usePullFlowStore.getState().reset();
+      setTicketId(null);
+      setPending({ key: crypto.randomUUID(), ticketId: ticket.ticket_id });
+      return;
+    }
+
+    usePullFlowStore.getState().setResult({
+      ticket_id: ticket.ticket_id,
+      pack_id: ticket.pack_id,
+      card_id: ticket.card.card_id,
+      card_name: ticket.card.card_name,
+      set_name: ticket.card.set_name,
+      rarity: ticket.card.rarity_code,
+      image_url: ticket.card.image_url,
+      thumb_url: ticket.card.thumb_url,
+      psa_cert_number: ticket.card.psa_cert_number,
+      psa_grade: ticket.card.psa_grade,
+      price_satang: ticket.price_satang,
+      new_balance_satang: ticket.new_balance_satang,
+    });
+    setTicketId(null);
+  }, [clearTimers, ticketQuery.data]);
 
   // ------------------------------------------------------------------
   // Art preload — the flip gate
@@ -199,8 +262,14 @@ export function usePullSequence({
   // Entry points
   // ------------------------------------------------------------------
 
+  // Read through a ref: `executePull` is memoised on timing only, and rebuilding
+  // it whenever the player types into the seed box would restart the timeline.
+  const seedRef = useRef(clientSeed);
+  seedRef.current = clientSeed;
+
   const executePull = useCallback(
-    (key: string) => {
+    (key: string, seedOverride?: string) => {
+      const seed = seedOverride ?? seedRef.current;
       clearTimers();
       setChargeElapsed(false);
       unlockSfx();
@@ -209,18 +278,27 @@ export function usePullSequence({
       usePullFlowStore.getState().startPull();
       later(enterChoosing, timing.shuffle);
 
-      mutateRef.current(key, {
-        onSuccess: (data: PullResult) => {
-          // Stored the instant it lands — the phase timeline is independent, and
-          // the head start is what makes the buyback quote and art ready on time.
-          usePullFlowStore.getState().setResult(data);
-        },
-        onError: () => {
-          clearTimers();
-          usePullFlowStore.getState().reset();
-          setPending({ key });
-        },
-      });
+      mutateRef.current(
+        { idempotencyKey: key, clientSeed: seed || undefined },
+        {
+          onSuccess: (ticket: PullTicket) => {
+            // The charge has happened and the commitment is durable, but the
+            // card is not decided yet. Start polling; the phase timeline runs
+            // independently and `charge` waits for whatever arrives.
+            if (ticket.status === 'pending') {
+              setTicketId(ticket.ticket_id);
+              return;
+            }
+            // A replayed idempotency key can come back already resolved.
+            setTicketId(ticket.ticket_id);
+          },
+          onError: () => {
+            clearTimers();
+            usePullFlowStore.getState().reset();
+            setPending({ key, clientSeed: seed });
+          },
+        }
+      );
     },
     [clearTimers, enterChoosing, later, timing.shuffle]
   );
@@ -234,8 +312,20 @@ export function usePullSequence({
   /** Retry of an interrupted attempt: the SAME key, so the wallet is never charged twice (FR15/FR19). */
   const retry = useCallback(() => {
     if (!pending) return;
+
+    // If the commit already went through, the pull exists and is being resolved
+    // server-side — re-poll it rather than sending anything that could look
+    // like a second attempt.
+    if (pending.ticketId) {
+      setPending(null);
+      setTicketId(pending.ticketId);
+      return;
+    }
+
     setPending(null);
-    executePull(pending.key);
+    // Same key AND same seed: a retry must be byte-identical to the attempt it
+    // resumes, or it is a different commitment wearing the same key.
+    executePull(pending.key, pending.clientSeed);
   }, [executePull, pending]);
 
   /** Tap-to-fast-forward. Never skips the flip or the peel — those are the payoff, not the wait. */
@@ -270,6 +360,9 @@ export function usePullSequence({
     pending,
     setPending,
     intensity,
-    isMutating: pullMutation.isPending,
+    isMutating: commitMutation.isPending,
+    /** True while the committed beacon round has not been published yet. */
+    awaitingBeacon: ticketQuery.data?.status === 'pending',
+    revealAt: ticketQuery.data?.commitment.reveal_at,
   };
 }

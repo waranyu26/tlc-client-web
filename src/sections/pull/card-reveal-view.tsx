@@ -1,4 +1,4 @@
-import type { PullResult } from 'src/api/types';
+import type { PullReveal } from 'src/api/types';
 import type { PullIntensity } from 'src/utils/rarity-intensity';
 
 import { m } from 'framer-motion';
@@ -14,6 +14,7 @@ import { formatThb } from 'src/utils/format-currency';
 
 import { typeScale } from 'src/theme/type-scale';
 
+import { Iconify } from 'src/components/iconify';
 import {
   PsaSlab,
   GhostButton,
@@ -36,7 +37,7 @@ const ENTRANCE = {
 } as const;
 
 export type CardRevealViewProps = {
-  result: PullResult;
+  result: PullReveal;
   intensity: PullIntensity;
   reduceMotion?: boolean;
   buybackPreviewSatang?: number;
@@ -151,6 +152,29 @@ export function CardRevealView({
               {t('topUp.message')}
             </Typography>
           ) : null}
+        </Box>
+
+        {/* One tap from the card to the proof of how it was drawn. A fairness
+            receipt filed somewhere in an account menu convinces nobody; it has
+            to sit next to the thing it explains, at the moment the player might
+            wonder. */}
+        <Box
+          component={RouterLink}
+          href={paths.verify(result.ticket_id)}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '5px',
+            fontSize: '11.5px',
+            color: '#9A9285',
+            textDecoration: 'none',
+            padding: '4px',
+            '&:hover': { color: '#E7CE92' },
+          }}
+        >
+          <Iconify icon="solar:shield-check-bold" width={14} />
+          {t('reveal.verifyFairness', { defaultValue: 'How was this card chosen?' })}
         </Box>
 
         <Box

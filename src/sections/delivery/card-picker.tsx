@@ -19,12 +19,12 @@ export function CardPicker({ items, selectedId, onSelect }: CardPickerProps) {
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: pickerGridColumns, gap: '10px' }}>
       {items.map((item) => {
-        const selected = item.instance_id === selectedId;
+        const selected = item.card_id === selectedId;
 
         return (
           <ButtonBase
-            key={item.instance_id}
-            onClick={() => onSelect(item.instance_id)}
+            key={item.card_id}
+            onClick={() => onSelect(item.card_id)}
             sx={{
               display: 'flex',
               flexDirection: 'column',

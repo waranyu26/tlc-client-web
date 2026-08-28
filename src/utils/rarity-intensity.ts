@@ -93,9 +93,12 @@ export function getPullTier(
   const key = (rarity ?? '').trim().toLowerCase();
   if (!key) return 'standard';
 
-  const match = rarityOdds?.find((entry) => entry.rarity.trim().toLowerCase() === key);
-  // `odds_bps === 0` means the pack query is stale (it can't have been 0 for the
-  // card we just pulled), so fall through to the name map rather than trusting it.
+  const match = rarityOdds?.find((entry) => entry.rarity_code.trim().toLowerCase() === key);
+  // `odds_bps === 0` means the pack query is stale (a rarity with no published
+  // weight can never be drawn), so fall through to the name map rather than
+  // trusting it. Note the celebration now keys off the seller's published rate,
+  // which is exactly the number the player was shown — a 0.5% pull feels rare
+  // because it was advertised as rare, not because stock happened to run low.
   if (match && match.odds_bps > 0) return tierFromOddsBps(match.odds_bps);
 
   return TIER_BY_NAME[key] ?? 'standard';

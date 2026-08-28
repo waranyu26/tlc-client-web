@@ -18,6 +18,6 @@
     "fallback": "Live pulls will appear here.",
     "event": "Someone just pulled {{card}} ({{rarity}})"
   },
-  "stock": "{{count}} left",
-  "outOfStock": "Sold out"
+  "outOfStock": "Sold out",
+  "opened": "{{count}} opened"
 }

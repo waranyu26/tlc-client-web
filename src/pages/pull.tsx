@@ -1,9 +1,9 @@
-import type { PullResult, BuybackResult } from 'src/api/types';
+import type { BuybackResult } from 'src/api/types';
 
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router';
-import { useRef, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -11,14 +11,15 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 
 import { ApiError } from 'src/lib/axios';
+import { getPull } from 'src/api/pull.api';
 import { usePack } from 'src/api/pack.api';
 import enPull from 'src/i18n/locales/en/pull.json';
 import thPull from 'src/i18n/locales/th/pull.json';
+import { useCardBuyback } from 'src/api/catalog.api';
 import { registerNamespace } from 'src/i18n/register';
 import { useWalletBalance } from 'src/api/wallet.api';
 import { useBuybackMutation } from 'src/api/buyback.api';
 import { usePullPrefsStore } from 'src/store/pull-prefs-store';
-import { useCollection, useCardBuyback } from 'src/api/catalog.api';
 import { isStagePhase, usePullFlowStore } from 'src/store/pull-flow-store';
 
 import {
@@ -28,6 +29,7 @@ import {
   PullStageShell,
   PullPendingView,
   usePullSequence,
+  randomClientSeed,
   PullSuspenseView,
   BuybackSuccessView,
 } from 'src/sections/pull';
@@ -35,11 +37,6 @@ import {
 // ----------------------------------------------------------------------
 
 registerNamespace('pull', enPull, thPull);
-
-type AttemptSnapshot = {
-  preBalanceSatang: number;
-  preCollectionIds: Set<string>;
-};
 
 export default function PullPage() {
   const { t } = useTranslation('pull');
@@ -61,29 +58,26 @@ export default function PullPage() {
 
   const packQuery = usePack(packId);
   const walletQuery = useWalletBalance();
-  const collectionQuery = useCollection();
   const buybackMutation = useBuybackMutation();
 
   // Buyback preview for the revealed card. `result` is stored the moment the API
   // responds — well before the reveal is on screen — so this has time to resolve.
   const cardBuybackQuery = useCardBuyback(result?.card_id ?? '');
 
-  const attemptSnapshotRef = useRef<AttemptSnapshot | null>(null);
-
   const [buybackResult, setBuybackResult] = useState<BuybackResult | null>(null);
   const [isReconciling, setIsReconciling] = useState(false);
   const [reconcileMessage, setReconcileMessage] = useState<string | null>(null);
   const [reconcileTone, setReconcileTone] = useState<'neutral' | 'success' | 'error'>('neutral');
 
-  /** Snapshot balance + collection so an interrupted attempt can be reconciled later. */
+  // Seeded once per page, then re-rolled after each attempt so two pulls never
+  // share a client seed by accident — an identical seed is not unsafe (the
+  // beacon still differs) but it makes two receipts look copy-pasted.
+  const [clientSeed, setClientSeed] = useState(randomClientSeed);
+
   const handleAttemptStart = useCallback(() => {
-    attemptSnapshotRef.current = {
-      preBalanceSatang: walletQuery.data?.balance_satang ?? 0,
-      preCollectionIds: new Set((collectionQuery.data ?? []).map((item) => item.instance_id)),
-    };
     setBuybackResult(null);
     setReconcileMessage(null);
-  }, [collectionQuery.data, walletQuery.data]);
+  }, []);
 
   const { start, retry, pick, skip, completePeel, pending, setPending, intensity, isMutating } =
     usePullSequence({
@@ -91,6 +85,7 @@ export default function PullPage() {
       rarityOdds: packQuery.data?.rarity_odds,
       reduceMotion,
       skipPick,
+      clientSeed,
       onAttemptStart: handleAttemptStart,
     });
 
@@ -113,6 +108,10 @@ export default function PullPage() {
         navigate(paths.wallet);
         return;
       }
+      // Fresh seed for a fresh commitment. Reusing the last one is not unsafe —
+      // the beacon differs — but two receipts carrying the same seed read like
+      // a copy-paste, which is the opposite of what a receipt is for.
+      setClientSeed(randomClientSeed());
       start();
     },
     [navigate, priceSatang, start]
@@ -125,7 +124,7 @@ export default function PullPage() {
   const handleSellInstantly = useCallback(() => {
     if (!result) return;
     buybackMutation.mutate(
-      { card_instance_id: result.instance_id },
+      { card_id: result.card_id },
       {
         onSuccess: (data) => {
           setBuybackResult(data);
@@ -140,56 +139,57 @@ export default function PullPage() {
     reset();
   }, [reset]);
 
+  /**
+   * Ask the server what happened to an interrupted pull.
+   *
+   * This used to mean diffing the wallet balance and collection against a
+   * snapshot taken before the attempt, and inferring. It does not any more: a
+   * committed pull has a ticket id, and the ticket says plainly whether it is
+   * still waiting on its beacon, resolved, or refunded.
+   */
   const handleCheckStatus = useCallback(async () => {
     if (!pending) return;
     setIsReconciling(true);
     setReconcileMessage(null);
 
     try {
-      const [balanceRes, collectionRes] = await Promise.all([
-        walletQuery.refetch(),
-        collectionQuery.refetch(),
-      ]);
+      if (!pending.ticketId) {
+        // The commit never landed, so nothing was charged and the key is unused.
+        setReconcileTone('neutral');
+        setReconcileMessage(t('pending.notCharged'));
+        return;
+      }
 
-      const snapshot = attemptSnapshotRef.current;
-      const price = packQuery.data?.price_satang;
-      const newBalance = balanceRes.data?.balance_satang;
-      const newCollection = collectionRes.data ?? [];
-      const newItem = snapshot
-        ? newCollection.find((item) => !snapshot.preCollectionIds.has(item.instance_id))
-        : undefined;
+      const ticket = await getPull(pending.ticketId);
 
-      if (
-        snapshot &&
-        price !== undefined &&
-        newBalance !== undefined &&
-        newItem &&
-        newBalance === snapshot.preBalanceSatang - price
-      ) {
-        // Confirmed success server-side even though the client never saw the
-        // response. cards_remaining is unknown here — the pack query refetches
-        // it — so report what the pack last told us.
-        const reconciled: PullResult = {
-          instance_id: newItem.instance_id,
-          pack_id: packId ?? '',
-          card_id: newItem.card_id,
-          card_name: newItem.name,
-          set_name: newItem.set_name,
-          rarity: newItem.rarity,
-          image_url: newItem.image_url,
-          thumb_url: newItem.thumb_url,
-          price_satang: price,
-          new_balance_satang: newBalance,
-          cards_remaining: packQuery.data?.cards_remaining ?? 0,
-        };
+      if (ticket.status === 'resolved' && ticket.card) {
         setPending(null);
         setReconcileTone('success');
         setReconcileMessage(t('pending.resolvedSuccess'));
         // No theatre for a recovered pull — the suspense already happened, badly.
-        revealImmediately(reconciled);
-      } else if (snapshot && newBalance === snapshot.preBalanceSatang && !newItem) {
+        revealImmediately({
+          ticket_id: ticket.ticket_id,
+          pack_id: ticket.pack_id,
+          card_id: ticket.card.card_id,
+          card_name: ticket.card.card_name,
+          set_name: ticket.card.set_name,
+          rarity: ticket.card.rarity_code,
+          image_url: ticket.card.image_url,
+          thumb_url: ticket.card.thumb_url,
+          psa_cert_number: ticket.card.psa_cert_number,
+          psa_grade: ticket.card.psa_grade,
+          price_satang: ticket.price_satang,
+          new_balance_satang: ticket.new_balance_satang,
+        });
+      } else if (ticket.status === 'refunded') {
+        setPending(null);
         setReconcileTone('neutral');
-        setReconcileMessage(t('pending.notCharged'));
+        setReconcileMessage(
+          t('pending.refunded', {
+            defaultValue: 'That pull could not be filled, so you were refunded.',
+          })
+        );
+        walletQuery.refetch();
       } else {
         setReconcileTone('neutral');
         setReconcileMessage(t('pending.stillChecking'));
@@ -200,16 +200,7 @@ export default function PullPage() {
     } finally {
       setIsReconciling(false);
     }
-  }, [
-    collectionQuery,
-    packId,
-    packQuery.data,
-    pending,
-    revealImmediately,
-    setPending,
-    t,
-    walletQuery,
-  ]);
+  }, [pending, revealImmediately, setPending, t, walletQuery]);
 
   // ------------------------------------------------------------------
   // Render
@@ -304,11 +295,9 @@ export default function PullPage() {
         result={result}
         intensity={intensity}
         reduceMotion={reduceMotion}
-        buybackPreviewSatang={
-          cardBuybackQuery.data?.buyback_price_satang ??
-          packQuery.data?.cards.find((card) => card.card_id === result.card_id)
-            ?.buyback_price_satang
-        }
+        // The pack page no longer ships a card list, so there is no local
+        // fallback price: the per-card quote is the only source.
+        buybackPreviewSatang={cardBuybackQuery.data?.buyback_price_satang}
         isSelling={buybackMutation.isPending}
         onSellInstantly={handleSellInstantly}
         onAddToVault={handleAddToVault}
@@ -340,9 +329,12 @@ export default function PullPage() {
 
   return (
     <PullIdleView
+      rarityOdds={packQuery.data?.rarity_odds}
       priceSatang={priceSatang}
       canAfford={canAfford}
       disabled={isMutating}
+      clientSeed={clientSeed}
+      onClientSeedChange={setClientSeed}
       onPull={handlePull}
     />
   );

@@ -1,17 +1,17 @@
 import { CONFIG } from 'src/global-config';
 
-import { CatalogView } from 'src/sections/catalog';
+import { VerifyView } from 'src/sections/verify/verify-view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Catalog | ${CONFIG.appName}` };
+const metadata = { title: `Fairness check - ${CONFIG.appName}` };
 
 export default function Page() {
   return (
     <>
       <title>{metadata.title}</title>
 
-      <CatalogView />
+      <VerifyView />
     </>
   );
 }

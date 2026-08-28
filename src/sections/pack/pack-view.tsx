@@ -1,6 +1,4 @@
-import type { PullRateRow } from './pull-rate-table';
-
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router';
 
@@ -10,21 +8,27 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
-import { usePack } from 'src/api/pack.api';
 import en from 'src/i18n/locales/en/pack.json';
 import th from 'src/i18n/locales/th/pack.json';
 import { useWalletBalance } from 'src/api/wallet.api';
 import { registerNamespace } from 'src/i18n/register';
+import { usePack, usePackRarityCards } from 'src/api/pack.api';
+import { CONTENT_MAX_WIDTH } from 'src/layouts/vault/layout-config';
 
-import { FadeUp, GhostButton, PrimaryButton } from 'src/components/vault';
+import { FadeUp, GhostButton } from 'src/components/vault';
 
-import { PackHero } from './pack-hero';
-import { PackPoolList } from './pack-pool-list';
-import { PullRateTable } from './pull-rate-table';
+import { PackShowcase } from './pack-showcase';
+import { PackBuyPanel } from './pack-buy-panel';
+import { PackRarityBrowser } from './pack-rarity-browser';
+import { PackFairnessPanel } from './pack-fairness-panel';
+import { PackLifecycleStrip } from './pack-lifecycle-strip';
 
 registerNamespace('pack', en, th);
 
 // ----------------------------------------------------------------------
+
+/** Every band on the page shares this cap, which is what makes them line up. */
+const pageWidth = { width: '100%', maxWidth: CONTENT_MAX_WIDTH, mx: 'auto' } as const;
 
 export function PackView() {
   const { id } = useParams<{ id: string }>();
@@ -35,36 +39,30 @@ export function PackView() {
   const walletQuery = useWalletBalance();
 
   const pack = packQuery.data;
+  const rarityOdds = useMemo(() => pack?.rarity_odds ?? [], [pack]);
 
-  /**
-   * Odds come straight from this pack's remaining stock, and the buyback column
-   * averages only the cards of that rarity still in THIS pack — no catalog-wide
-   * averaging, so the numbers describe the box in front of you.
-   */
-  const pullRateRows = useMemo<PullRateRow[]>(() => {
-    if (!pack) return [];
+  // Rarest tier = longest odds. Ranking by odds rather than the `rank` column
+  // keeps this correct for a pack whose tiers were entered in any order. It is
+  // both what the showcase fans out and what the manifest opens on, because it
+  // is the reason to open this box rather than another.
+  const chaseTier = useMemo(
+    () =>
+      rarityOdds.length
+        ? rarityOdds.reduce((rarest, tier) => (tier.odds_bps < rarest.odds_bps ? tier : rarest))
+        : undefined,
+    [rarityOdds]
+  );
 
-    return pack.rarity_odds.map((odds) => {
-      const cardsOfRarity = pack.cards.filter(
-        (card) => card.rarity === odds.rarity && card.remaining > 0
-      );
-      const avgBuyback = cardsOfRarity.length
-        ? Math.round(
-            cardsOfRarity.reduce((sum, card) => sum + card.buyback_price_satang, 0) /
-              cardsOfRarity.length
-          )
-        : 0;
+  // Null until the customer picks, so the default tracks the pack once it loads
+  // rather than being frozen at whatever was known on first render.
+  const [pickedRarity, setPickedRarity] = useState<string | null>(null);
+  const selectedRarity = pickedRarity ?? chaseTier?.rarity_code;
 
-      return {
-        code: odds.rarity,
-        display_name: odds.rarity,
-        probability_bps: odds.odds_bps,
-        avg_buyback_satang: avgBuyback,
-      };
-    });
-  }, [pack]);
+  // The showcase always fans the chase tier, even while the browser is showing
+  // another one — it is the box's advertisement, not a reflection of the grid.
+  const chaseQuery = usePackRarityCards(pack?.id, chaseTier?.rarity_code);
 
-  const soldOut = !!pack && pack.cards_remaining <= 0;
+  const soldOut = !!pack && pack.sold_out;
   const balanceSatang = walletQuery.data?.balance_satang;
   const canAfford = !pack || balanceSatang === undefined || balanceSatang >= pack.price_satang;
 
@@ -95,43 +93,60 @@ export function PackView() {
 
       {pack && (
         <FadeUp>
-          {/* Desktop: pack art left, odds + pool alongside it. */}
           <Box
-            sx={{
-              display: 'grid',
-              alignItems: 'start',
-              gap: { xs: 2.5, md: 5 },
-              gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) minmax(0, 1fr)' },
-            }}
+            sx={{ ...pageWidth, display: 'flex', flexDirection: 'column', gap: { xs: 3, md: 5 } }}
           >
-            <Box sx={{ position: { md: 'sticky' }, top: { md: 88 } }}>
-              <PackHero pack={pack} />
+            {/* Band 1 — the decision. Art at the size it deserves beside a buy
+                column at a fixed width, so the panel stays a product card
+                instead of stretching into a banner on a wide pane. */}
+            <Box
+              sx={{
+                display: 'grid',
+                alignItems: 'stretch',
+                gap: { xs: 2.5, md: 3 },
+                gridTemplateColumns: {
+                  xs: 'minmax(0, 1fr)',
+                  md: 'minmax(0, 1fr) minmax(340px, 400px)',
+                },
+              }}
+            >
+              <PackShowcase
+                pack={pack}
+                cards={chaseQuery.data?.cards ?? []}
+                tierName={chaseTier?.display_name || chaseTier?.rarity_code}
+                accent={chaseTier?.color_hex || '#E7CE92'}
+              />
 
-              <Box sx={{ mt: '16px' }}>
-                <PrimaryButton fullWidth disabled={soldOut} onClick={handlePull}>
-                  {soldOut
-                    ? t('outOfStock', { defaultValue: 'Sold out' })
-                    : t('pullCta', {
-                        price: `฿${(pack.price_satang / 100).toLocaleString('en-US')}`,
-                        defaultValue: 'Pull · {{price}}',
-                      })}
-                </PrimaryButton>
-
-                {!canAfford && !soldOut && (
-                  <Typography
-                    sx={{ fontSize: '11px', color: '#9A9285', mt: '8px', textAlign: 'center' }}
-                  >
-                    {t('topUpHint', { defaultValue: 'Not enough balance — tap to top up.' })}
-                  </Typography>
-                )}
-              </Box>
+              <PackBuyPanel pack={pack} canAfford={canAfford && !soldOut} onPull={handlePull} />
             </Box>
 
-            <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-              <PullRateTable rows={pullRateRows} />
-
-              {pack.cards.length > 0 && <PackPoolList cards={pack.cards} />}
+            {/* Band 2 — why the odds can be trusted, and what the slab becomes
+                once it is yours. Two panels on one row, tops aligned. */}
+            <Box
+              sx={{
+                display: 'grid',
+                alignItems: 'stretch',
+                gap: { xs: 2.5, md: 3 },
+                // minmax(0, …) on every track, and the panels set minWidth: 0
+                // themselves. A grid item defaults to min-width: auto, so one
+                // unbreakable string (a 96-char signature) would otherwise set
+                // the track's floor and push the page wider than the screen.
+                gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) minmax(0, 1fr)' },
+              }}
+            >
+              <PackFairnessPanel />
+              <PackLifecycleStrip />
             </Box>
+
+            {/* Band 3 — the odds, and the cards behind whichever one is picked. */}
+            {selectedRarity && (
+              <PackRarityBrowser
+                packId={pack.id}
+                rarityOdds={rarityOdds}
+                selectedRarity={selectedRarity}
+                onSelectRarity={setPickedRarity}
+              />
+            )}
           </Box>
         </FadeUp>
       )}
