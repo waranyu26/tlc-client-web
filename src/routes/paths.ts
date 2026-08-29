@@ -33,7 +33,11 @@ export const paths = {
   auth: {
     signIn: `${ROOTS.AUTH}/sign-in`,
     signUp: `${ROOTS.AUTH}/sign-up`,
-    callback: `${ROOTS.AUTH}/callback`,
+    // Provider-suffixed to match the redirect URI registered on the Google
+    // OAuth client (Google matches redirect URIs exactly, so this string and
+    // the console entry must stay identical), and to leave room for a second
+    // provider without reusing one callback route for both.
+    callback: `${ROOTS.AUTH}/callback/google`,
     // --- compat: consumed only by throwaway boilerplate; removed in cleanup ---
     jwt: {
       signIn: `${ROOTS.AUTH}/jwt/sign-in`,

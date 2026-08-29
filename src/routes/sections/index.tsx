@@ -50,7 +50,7 @@ export const routesSection: RouteObject[] = [
       { path: '/', element: <OnboardingPage /> },
       { path: '/auth/sign-in', element: <SignInPage /> },
       { path: '/auth/sign-up', element: <SignUpPage /> },
-      { path: '/auth/callback', element: <AuthCallbackPage /> },
+      { path: '/auth/callback/google', element: <AuthCallbackPage /> },
     ],
   },
 

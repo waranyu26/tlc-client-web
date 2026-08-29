@@ -1,0 +1,20 @@
+# Never needed to build, and the largest things in the context by far.
+node_modules
+dist
+.git
+.gitignore
+
+# Secrets and local TLS material. .env is excluded on purpose: a Docker build
+# must take its configuration from the ARGs above, not from whatever happens to
+# be on the developer's disk, or images would differ per machine.
+.env
+.env.*
+certs/
+*.pem
+
+# Local-only tooling and prose.
+.vercel
+.vscode
+.idea
+.DS_Store
+*.md

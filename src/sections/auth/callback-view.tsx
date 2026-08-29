@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import en from 'src/i18n/locales/en/auth.json';
 import th from 'src/i18n/locales/th/auth.json';
@@ -29,6 +29,8 @@ export function AuthCallbackView() {
   const { t } = useTranslation('auth');
   const router = useRouter();
   const { checkUserSession } = useAuthContext();
+  const searchParams = useSearchParams();
+  const oauthError = searchParams.get('error');
   const hasRun = useRef(false);
 
   useEffect(() => {
@@ -36,6 +38,15 @@ export function AuthCallbackView() {
     hasRun.current = true;
 
     const resolve = async () => {
+      // Google reports its own failures on the redirect itself (`?error=`,
+      // most often `access_denied` when the user cancels the consent screen).
+      // There is no authorisation code in that case, so short-circuit rather
+      // than handing SuperTokens a request it can only fail on.
+      if (oauthError) {
+        router.replace(`${paths.auth.signIn}?error=google`);
+        return;
+      }
+
       try {
         const response = await handleGoogleCallback();
 
@@ -52,7 +63,7 @@ export function AuthCallbackView() {
     };
 
     resolve();
-  }, [checkUserSession, router]);
+  }, [checkUserSession, oauthError, router]);
 
   return (
     <AuthShell>
