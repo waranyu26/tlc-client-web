@@ -336,6 +336,7 @@ export type DeliveryRequest = {
   id: string;
   user_id: string;
   card_instance_id: string;
+  method: DeliveryMethod;
   recipient_name: string;
   phone: string;
   line1: string;
@@ -351,6 +352,14 @@ export type DeliveryRequest = {
 export type DeliveryStatus = 'pending' | 'fulfilled';
 
 /**
+ * How the customer takes possession of a released card.
+ *
+ * 'pickup' carries no address — the card waits at the shop counter — so the
+ * address fields on a delivery request are empty for it.
+ */
+export type DeliveryMethod = 'ship' | 'pickup';
+
+/**
  * A delivery request joined to the card it is shipping. Requesting delivery
  * removes the card from the vault, so this is where the owner tracks it after
  * it leaves.
@@ -358,6 +367,7 @@ export type DeliveryStatus = 'pending' | 'fulfilled';
 export type MyDeliveryRequest = {
   id: string;
   card_instance_id: string;
+  method: DeliveryMethod;
   card_name: string;
   set_name: string;
   rarity: string;

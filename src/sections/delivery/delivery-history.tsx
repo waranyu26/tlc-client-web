@@ -79,6 +79,7 @@ export function DeliveryHistory({ sx, ...other }: Omit<BoxProps, 'children'>) {
 function DeliveryHistoryRow({ request }: { request: MyDeliveryRequest }) {
   const { t } = useTranslation('delivery');
   const status = STATUS_STYLES[request.status] ?? STATUS_STYLES.pending;
+  const isPickup = request.method === 'pickup';
 
   return (
     <Box
@@ -108,20 +109,31 @@ function DeliveryHistoryRow({ request }: { request: MyDeliveryRequest }) {
           <RarityBadge rarity={request.rarity} />
         </Box>
 
+        {/* A collection has no province to name, so it says where to go
+            instead of rendering "To Nook · " with an empty tail. */}
         <Typography noWrap sx={{ fontSize: '11px', color: '#9A9285', mt: '2px' }}>
-          {t('history.shippingTo', {
-            recipient: request.recipient_name,
-            province: request.province,
-            defaultValue: 'To {{recipient}} · {{province}}',
-          })}
+          {isPickup
+            ? t('history.collectBy', {
+                recipient: request.recipient_name,
+                defaultValue: 'Collect at the shop · {{recipient}}',
+              })
+            : t('history.shippingTo', {
+                recipient: request.recipient_name,
+                province: request.province,
+                defaultValue: 'To {{recipient}} · {{province}}',
+              })}
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', mt: '6px' }}>
           <Iconify icon={status.icon} width={13} sx={{ color: status.color }} />
           <Typography sx={{ fontSize: '11px', fontWeight: 600, color: status.color }}>
             {request.status === 'fulfilled'
-              ? t('history.fulfilled', { defaultValue: 'Shipped' })
-              : t('history.pending', { defaultValue: 'Preparing to ship' })}
+              ? isPickup
+                ? t('history.fulfilledPickup', { defaultValue: 'Ready to collect' })
+                : t('history.fulfilled', { defaultValue: 'Shipped' })
+              : isPickup
+                ? t('history.pendingPickup', { defaultValue: 'Preparing for collection' })
+                : t('history.pending', { defaultValue: 'Preparing to ship' })}
           </Typography>
           <Typography sx={{ fontSize: '10px', color: '#5A5550' }}>
             ·{' '}
