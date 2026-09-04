@@ -1,7 +1,7 @@
 {
   "hub": {
     "title": "Physical Delivery",
-    "subtitle": "Ship a vaulted card straight to your door.",
+    "subtitle": "Ship a vaulted card to your door, or collect it at the shop.",
     "warning": "Requesting delivery permanently removes this card from your digital collection — it can no longer be sold back or viewed in the Vault.",
     "selectCard": "Select a card",
     "noCards": "You don't have any cards to deliver yet.",
@@ -14,7 +14,13 @@
     "successTitle": "Delivery requested",
     "successSubtitle": "We're preparing your card for shipment. You'll be notified once it's on its way.",
     "requestAnother": "Request another",
-    "backToVault": "Back to Vault"
+    "backToVault": "Back to Vault",
+    "selectMethod": "How do you want it?",
+    "pickupDetails": "Collection details",
+    "warningPickup": "Requesting collection permanently removes this card from your digital collection — it can no longer be sold back or viewed in the Vault.",
+    "submitPickup": "Reserve for collection",
+    "successTitlePickup": "Reserved for collection",
+    "successSubtitlePickup": "We're getting your card ready. You'll be notified once it's waiting for you at the shop."
   },
   "address": {
     "title": "Delivery Addresses",
@@ -53,6 +59,27 @@
     "pending": "Preparing to ship",
     "fulfilled": "Shipped",
     "shippingTo": "To {{recipient}} · {{province}}",
-    "requestedOn": "Requested {{date}}"
+    "requestedOn": "Requested {{date}}",
+    "collectBy": "Collect at the shop · {{recipient}}",
+    "pendingPickup": "Preparing for collection",
+    "fulfilledPickup": "Ready to collect"
+  },
+  "method": {
+    "ship": {
+      "title": "Ship it to me",
+      "subtitle": "Couriered to a saved address."
+    },
+    "pickup": {
+      "title": "Pick up at the shop",
+      "subtitle": "We hold it at the counter for you."
+    }
+  },
+  "pickup": {
+    "shopName": "Tokyo Lucky Card — Bangkok",
+    "shopAddress": "Set your shop address in delivery.json (pickup.shopAddress).",
+    "shopHours": "Open daily, 11:00–20:00",
+    "idNote": "Bring photo ID matching the name below. We'll only release the card to that person.",
+    "recipientName": "Name of the person collecting",
+    "phone": "Contact phone number"
   }
 }

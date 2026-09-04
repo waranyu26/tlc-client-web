@@ -1,4 +1,4 @@
-import type { Address, DeliveryRequest, MyDeliveryRequest } from './types';
+import type { Address, DeliveryMethod, DeliveryRequest, MyDeliveryRequest } from './types';
 
 import { useQuery, useMutation } from '@tanstack/react-query';
 
@@ -9,9 +9,17 @@ import { queryClient } from 'src/lib/query-client';
 
 export type AddressInput = Omit<Address, 'id'>;
 
+/**
+ * Shipping needs an address; pickup needs the contact details the shop counter
+ * checks before handing the card over. `method` is optional for the same reason
+ * the API defaults it — a request without one is a shipment.
+ */
 export type DeliveryRequestInput = {
   card_id: string;
-  address_id: string;
+  method?: DeliveryMethod;
+  address_id?: string;
+  recipient_name?: string;
+  phone?: string;
 };
 
 export async function getAddresses(): Promise<Address[]> {

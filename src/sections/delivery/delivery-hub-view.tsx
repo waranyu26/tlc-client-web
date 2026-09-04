@@ -1,5 +1,7 @@
 import './i18n';
 
+import type { DeliveryMethod } from 'src/api/types';
+
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +29,9 @@ import {
 } from 'src/components/vault';
 
 import { CardPicker } from './card-picker';
+import { MethodPicker } from './method-picker';
 import { AddressPicker } from './address-picker';
+import { PickupDetails } from './pickup-details';
 import { DeliveryHistory } from './delivery-history';
 
 // ----------------------------------------------------------------------
@@ -45,8 +49,11 @@ export function DeliveryHubView() {
   const { data: addresses, isLoading: addressesLoading, isError: addressesError } = useAddresses();
   const requestMutation = useCreateDeliveryRequestMutation();
 
+  const [method, setMethod] = useState<DeliveryMethod>('ship');
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [pickupName, setPickupName] = useState('');
+  const [pickupPhone, setPickupPhone] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -55,15 +62,28 @@ export function DeliveryHubView() {
     [collection, selectedCardId]
   );
 
-  const canSubmit =
-    Boolean(selectedCardId) && Boolean(selectedAddressId) && !requestMutation.isPending;
+  const isPickup = method === 'pickup';
+
+  // Shipping needs somewhere to post to; collection needs someone to hand it to.
+  const destinationReady = isPickup
+    ? pickupName.trim() !== '' && pickupPhone.trim() !== ''
+    : Boolean(selectedAddressId);
+
+  const canSubmit = Boolean(selectedCardId) && destinationReady && !requestMutation.isPending;
 
   const handleSubmit = () => {
-    if (!selectedCardId || !selectedAddressId) return;
+    if (!selectedCardId || !destinationReady) return;
 
     setSubmitError(null);
     requestMutation.mutate(
-      { card_id: selectedCardId, address_id: selectedAddressId },
+      isPickup
+        ? {
+            card_id: selectedCardId,
+            method: 'pickup',
+            recipient_name: pickupName.trim(),
+            phone: pickupPhone.trim(),
+          }
+        : { card_id: selectedCardId, method: 'ship', address_id: selectedAddressId! },
       {
         onSuccess: () => {
           setSuccess(true);
@@ -79,6 +99,8 @@ export function DeliveryHubView() {
   const handleRequestAnother = () => {
     setSuccess(false);
     setSelectedAddressId(null);
+    setPickupName('');
+    setPickupPhone('');
     setSubmitError(null);
   };
 
@@ -101,9 +123,11 @@ export function DeliveryHubView() {
             >
               <Iconify icon="solar:check-circle-bold" width={32} sx={{ color: '#6FBF8E' }} />
             </Box>
-            <SectionHeading>{t('hub.successTitle')}</SectionHeading>
+            <SectionHeading>
+              {isPickup ? t('hub.successTitlePickup') : t('hub.successTitle')}
+            </SectionHeading>
             <Typography sx={{ color: '#9A9285', fontSize: '13px', maxWidth: 320 }}>
-              {t('hub.successSubtitle')}
+              {isPickup ? t('hub.successSubtitlePickup') : t('hub.successSubtitle')}
             </Typography>
             <Stack direction="row" spacing={1.5} sx={{ pt: 2 }}>
               <GhostButton onClick={handleRequestAnother}>{t('hub.requestAnother')}</GhostButton>
@@ -155,7 +179,7 @@ export function DeliveryHubView() {
           sx={{ color: '#C9605B', flexShrink: 0, mt: '2px' }}
         />
         <Typography sx={{ color: '#C9605B', fontSize: '12.5px', lineHeight: 1.6 }}>
-          {t('hub.warning')}
+          {isPickup ? t('hub.warningPickup') : t('hub.warning')}
         </Typography>
       </Stack>
 
@@ -227,38 +251,62 @@ export function DeliveryHubView() {
 
       <Box>
         <Typography sx={{ color: '#F4ECDD', fontWeight: 600, fontSize: '14px', mb: '10px' }}>
-          {t('hub.selectAddress')}
+          {t('hub.selectMethod')}
+        </Typography>
+        <MethodPicker value={method} onChange={setMethod} />
+      </Box>
+
+      <Box>
+        <Typography sx={{ color: '#F4ECDD', fontWeight: 600, fontSize: '14px', mb: '10px' }}>
+          {isPickup ? t('hub.pickupDetails') : t('hub.selectAddress')}
         </Typography>
 
-        {addressesLoading && (
-          <Stack sx={{ alignItems: 'center', py: 4 }}>
-            <CircularProgress size={24} sx={{ color: '#E7CE92' }} />
-          </Stack>
-        )}
-
-        {addressesError && !addressesLoading && (
-          <Typography sx={{ color: '#9A9285', fontSize: '13px' }}>
-            {tCommon('state.error')}
-          </Typography>
-        )}
-
-        {!addressesLoading && !addressesError && (addresses?.length ?? 0) === 0 && (
-          <Stack spacing={1.5} sx={{ py: 2 }}>
-            <Typography sx={{ color: '#9A9285', fontSize: '13px' }}>
-              {t('hub.noAddresses')}
-            </Typography>
-            <GhostButton onClick={() => navigate(paths.addresses)} sx={{ alignSelf: 'flex-start' }}>
-              {t('hub.addAddress')}
-            </GhostButton>
-          </Stack>
-        )}
-
-        {!addressesLoading && !addressesError && (addresses?.length ?? 0) > 0 && (
-          <AddressPicker
-            items={addresses ?? []}
-            selectedId={selectedAddressId}
-            onSelect={setSelectedAddressId}
+        {/* A collection has no address to choose, so the whole address block —
+            including its loading and empty states — is skipped rather than
+            shown alongside a shop the customer is walking to. */}
+        {isPickup ? (
+          <PickupDetails
+            recipientName={pickupName}
+            phone={pickupPhone}
+            onRecipientNameChange={setPickupName}
+            onPhoneChange={setPickupPhone}
           />
+        ) : (
+          <>
+            {addressesLoading && (
+              <Stack sx={{ alignItems: 'center', py: 4 }}>
+                <CircularProgress size={24} sx={{ color: '#E7CE92' }} />
+              </Stack>
+            )}
+
+            {addressesError && !addressesLoading && (
+              <Typography sx={{ color: '#9A9285', fontSize: '13px' }}>
+                {tCommon('state.error')}
+              </Typography>
+            )}
+
+            {!addressesLoading && !addressesError && (addresses?.length ?? 0) === 0 && (
+              <Stack spacing={1.5} sx={{ py: 2 }}>
+                <Typography sx={{ color: '#9A9285', fontSize: '13px' }}>
+                  {t('hub.noAddresses')}
+                </Typography>
+                <GhostButton
+                  onClick={() => navigate(paths.addresses)}
+                  sx={{ alignSelf: 'flex-start' }}
+                >
+                  {t('hub.addAddress')}
+                </GhostButton>
+              </Stack>
+            )}
+
+            {!addressesLoading && !addressesError && (addresses?.length ?? 0) > 0 && (
+              <AddressPicker
+                items={addresses ?? []}
+                selectedId={selectedAddressId}
+                onSelect={setSelectedAddressId}
+              />
+            )}
+          </>
         )}
       </Box>
 
@@ -267,7 +315,11 @@ export function DeliveryHubView() {
       )}
 
       <PrimaryButton disabled={!canSubmit} onClick={handleSubmit} sx={{ width: '100%' }}>
-        {requestMutation.isPending ? t('hub.submitting') : t('hub.submit')}
+        {requestMutation.isPending
+          ? t('hub.submitting')
+          : isPickup
+            ? t('hub.submitPickup')
+            : t('hub.submit')}
       </PrimaryButton>
 
       {/* Sending a card removes it from the vault, so it needs somewhere to

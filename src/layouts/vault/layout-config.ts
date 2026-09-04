@@ -53,12 +53,9 @@ export const cardGridColumns = {
   lg: 'repeat(5, 1fr)',
 } as const;
 
-/** Pack grid — larger tiles, one density step behind the card grid. */
-export const packGridColumns = {
-  xs: 'repeat(2, 1fr)',
-  md: 'repeat(3, 1fr)',
-  lg: 'repeat(4, 1fr)',
-} as const;
+// Home no longer tiles packs. The shop runs one to three boxes, and a grid
+// sized for a catalogue left most of the column empty, so each pack now gets a
+// full-width row instead (`sections/home/pack-shelf-card.tsx`).
 
 /** Live feed event cards — wider tiles, reads as a stream not a grid. */
 export const feedGridColumns = {
