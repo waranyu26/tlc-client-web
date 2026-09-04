@@ -7,8 +7,29 @@
   },
   "balanceLabel": "Available balance",
   "pullCta": "Pull a card",
-  "featured": "Featured pack",
-  "morePacks": "All packs",
+  "packsHeading": "Available packs",
+  "packCta": "Open pack",
+  "perPull": "Price / pull",
+  "collection": {
+    "heading": "Your collection",
+    "viewAll": "View vault"
+  },
+  "how": {
+    "heading": "How it works",
+    "topUp": {
+      "title": "Top up your balance",
+      "body": "Add credit with a card. Balances are held in Thai baht and never expire."
+    },
+    "pull": {
+      "title": "Open a pack",
+      "body": "Every pack publishes its odds up front. One pull, one graded slab."
+    },
+    "keep": {
+      "title": "Keep it, sell it, or ship it",
+      "body": "Hold the card in your vault, sell it back instantly, or have it delivered."
+    },
+    "fairness": "Every pull is committed to a public drand beacon round that has not been published yet — so nobody, including us, can know or steer the result when you pay. Each pull comes with a receipt anyone can verify."
+  },
   "state": {
     "loading": "Loading packs…",
     "empty": "No packs available right now.",
