@@ -17,7 +17,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
-import { derive, TOTAL_BPS, pickRarity, sha256Hex, hexToBytes, effectiveOdds } from '../src/lib/fair-verify.ts';
+import { derive, TOTAL_BPS, entryAtUnit, pickRarity, sha256Hex, hexToBytes, effectiveOdds } from '../src/lib/fair-verify.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixturePath = resolve(here, '../src/lib/__fixtures__/fairness-vectors.json');
@@ -42,17 +42,30 @@ for (const vector of vectors) {
 
   check('commit hash', await sha256Hex(preimage), vector.commit_hash);
 
-  const stock = Object.fromEntries(vector.pool.map((p) => [p.rarity_code, p.card_ids.length]));
+  // Copies, not rows: a tier whose only row is a depleted bulk counter is sold
+  // out even though the row is still listed.
+  const stock = Object.fromEntries(
+    vector.pool.map((p) => [p.rarity_code, p.cards.reduce((sum, c) => sum + c.amount, 0)])
+  );
   check('effective odds', effectiveOdds(vector.published_odds, stock), vector.effective_odds);
 
   const roll = (await derive(randomness, preimage, 0)) % TOTAL_BPS;
   check('rarity roll', roll, vector.rarity_roll);
   check('rarity', pickRarity(vector.effective_odds, roll), vector.rarity_code);
 
-  const candidates = [...(vector.pool.find((p) => p.rarity_code === vector.rarity_code)?.card_ids ?? [])].sort();
-  const index = (await derive(randomness, preimage, 1)) % candidates.length;
+  // Sorted by id, zero-amount entries dropped, then walked by copies — the
+  // index is into units, so a row-wise walk lands on the wrong card the moment
+  // any entry stands for more than one.
+  const candidates = [...(vector.pool.find((p) => p.rarity_code === vector.rarity_code)?.cards ?? [])]
+    .filter((c) => c.amount > 0)
+    .sort((a, b) => (a.card_id < b.card_id ? -1 : a.card_id > b.card_id ? 1 : 0));
+  const ids = candidates.map((c) => c.card_id);
+  const amounts = candidates.map((c) => c.amount);
+  const totalUnits = amounts.reduce((sum, a) => sum + a, 0);
+
+  const index = (await derive(randomness, preimage, 1)) % totalUnits;
   check('card index', index, vector.card_index);
-  check('card id', candidates[index], vector.card_id);
+  check('card id', entryAtUnit(ids, amounts, index), vector.card_id);
 
   if (failures === 0) console.log('  ✓ all values reproduce');
 }

@@ -73,10 +73,13 @@ export function VerifyView() {
           commitHash: proof.commitment.commit_hash,
           effectiveOdds: proof.effective_odds,
           candidateIds: proof.candidate_ids,
+          candidateAmounts: proof.candidate_amounts,
           claimedRarity: proof.rarity_code,
           claimedRoll: proof.rarity_roll,
           claimedIndex: proof.card_index,
-          claimedCardId: proof.card_id,
+          // The index names the pool entry, which for fungible stock is the
+          // stock row rather than the copy that ended up in the vault.
+          claimedStockCardId: proof.stock_card_id ?? proof.card_id,
         });
         if (!cancelled) setReport(result);
       } catch (error) {

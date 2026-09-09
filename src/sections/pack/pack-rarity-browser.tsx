@@ -133,12 +133,17 @@ export function PackRarityBrowser({ packId, rarityOdds, selectedRarity, onSelect
                 </Typography>
 
                 <Typography noWrap sx={{ fontSize: '10.5px', color: '#9A9285' }}>
-                  {card.psa_cert_number
-                    ? t('rarity.graded', {
-                        grade: card.psa_grade || '—',
-                        defaultValue: 'PSA {{grade}}',
-                      })
-                    : card.set_name}
+                  {/* A sealed pack or a raw card has no certificate to show,
+                      and saying "PSA —" would read as a missing grade rather
+                      than as a different kind of thing. */}
+                  {card.kind !== 'unique'
+                    ? t(`rarity.kind.${card.kind}`)
+                    : card.psa_cert_number
+                      ? t('rarity.graded', {
+                          grade: card.psa_grade || '—',
+                          defaultValue: 'PSA {{grade}}',
+                        })
+                      : card.set_name}
                 </Typography>
               </ButtonBase>
             ))}

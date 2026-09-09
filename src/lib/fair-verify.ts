@@ -80,6 +80,9 @@ export async function derive(
 /**
  * Rescales published odds over the rarities that still have stock.
  *
+ * `stock` is copies, not rows. A bulk row holding fifty copies counts fifty,
+ * and a depleted one counts nothing even though the row is still there.
+ *
  * Largest remainder, ties broken by the lowest rarity code — spelled out
  * because an unspecified tiebreak is exactly where this implementation and the
  * server's would diverge, on the very inputs a suspicious player would build.
@@ -131,10 +134,24 @@ export type VerificationInput = {
   commitHash: string;
   effectiveOdds: Odds[];
   candidateIds: string[];
+  /**
+   * How many copies each candidate stood for, in the same order as
+   * `candidateIds`. The card index is an index into *copies*, so a pool holding
+   * a bulk row of fifty has fifty entries for that one id.
+   *
+   * Null or absent means every candidate stood for one copy, which is what
+   * every receipt issued before fungible stock existed describes.
+   */
+  candidateAmounts?: number[] | null;
   claimedRarity: string;
   claimedRoll: number;
   claimedIndex: number;
-  claimedCardId: string | null;
+  /**
+   * The pool entry the index landed on. For a unique slab this is the card
+   * itself; for fungible stock it is the stock row the customer's copy was
+   * minted from, so it is what the index has to be checked against.
+   */
+  claimedStockCardId: string | null;
 };
 
 export type CheckResult = {
@@ -147,6 +164,20 @@ export type VerificationReport = {
   ok: boolean;
   checks: CheckResult[];
 };
+
+/**
+ * Finds which candidate owns a given unit index, given each candidate's copies.
+ */
+export function entryAtUnit(ids: string[], amounts: number[], unit: number): string | null {
+  let cumulative = 0;
+  for (let i = 0; i < ids.length; i += 1) {
+    cumulative += amounts[i] ?? 0;
+    if (unit < cumulative) {
+      return ids[i];
+    }
+  }
+  return null;
+}
 
 /** Recomputes a pull end to end and reports what matched. */
 export async function verifyPull(input: VerificationInput): Promise<VerificationReport> {
@@ -179,22 +210,27 @@ export async function verifyPull(input: VerificationInput): Promise<Verification
     detail: rarity ? `${roll} lands in ${rarity}` : 'no rarity contains this roll',
   });
 
-  // 4. The card index within that rarity.
-  const index =
-    input.candidateIds.length > 0
-      ? (await derive(randomness, preimage, 1)) % input.candidateIds.length
-      : -1;
+  // 4. The card index within that rarity, drawn over copies rather than rows.
+  const amounts =
+    input.candidateAmounts && input.candidateAmounts.length === input.candidateIds.length
+      ? input.candidateAmounts
+      : input.candidateIds.map(() => 1);
+  const totalUnits = amounts.reduce((sum, a) => sum + a, 0);
+
+  const index = totalUnits > 0 ? (await derive(randomness, preimage, 1)) % totalUnits : -1;
   checks.push({
     label: 'Card index reproduces',
     passed: index === input.claimedIndex,
-    detail: `index ${index} of ${input.candidateIds.length}`,
+    detail: `index ${index} of ${totalUnits}`,
   });
 
-  // 5. That index really points at the card handed over.
-  const derivedCard = index >= 0 ? (input.candidateIds[index] ?? null) : null;
+  // 5. That index really points at the pool entry handed over. Walking the
+  // copies is the whole difference: a verifier that walked rows would land on
+  // a different entry the moment any row stands for more than one copy.
+  const derivedCard = index >= 0 ? entryAtUnit(input.candidateIds, amounts, index) : null;
   checks.push({
     label: 'Card matches the index',
-    passed: derivedCard !== null && derivedCard === input.claimedCardId,
+    passed: derivedCard !== null && derivedCard === input.claimedStockCardId,
     detail: derivedCard ? `${derivedCard.slice(0, 8)}…` : 'no card at that index',
   });
 
