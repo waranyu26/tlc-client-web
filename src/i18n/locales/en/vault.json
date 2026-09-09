@@ -24,5 +24,10 @@
     "selling": "Selling…",
     "soldBody": "{{amount}} added to your wallet.",
     "error": "Couldn't complete the sale. Please try again."
+  },
+  "kind": {
+    "unique": "PSA",
+    "bulk": "RAW",
+    "sealed_pack": "PACK"
   }
 }

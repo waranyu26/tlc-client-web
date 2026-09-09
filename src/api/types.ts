@@ -50,6 +50,19 @@ export type TopupResponse = {
 // Catalog
 // ----------------------------------------------------------------------
 
+/**
+ * What a card row physically is.
+ *
+ * `unique` is one individually graded slab with its own PSA certificate.
+ * `bulk` is an ungraded card and `sealed_pack` a sealed booster, both held in
+ * multiples — a copy of either has no certificate and no grade, so anything
+ * that renders a grade has to check this first.
+ *
+ * How many copies are left is never published to a customer. Only what a card
+ * *is*.
+ */
+export type CardKind = 'unique' | 'bulk' | 'sealed_pack';
+
 export type CardBuyback = {
   card_id: string;
   buyback_price_satang: number;
@@ -59,6 +72,7 @@ export type CollectionItem = {
   card_id: string;
   name: string;
   set_name: string;
+  kind: CardKind;
   /**
    * The display name of the tier this card was pulled from, resolved through
    * its pack. Empty only if the card never belonged to a pack — rarity is a
@@ -102,6 +116,7 @@ export type PullCard = {
   card_id: string;
   card_name: string;
   set_name: string;
+  kind: CardKind;
   rarity_code: string;
   image_url: string;
   /** Grid-sized copy of image_url. Empty for CSV-imported art — fall back to image_url. */
@@ -153,8 +168,18 @@ export type PullProof = {
   rarity_roll: number;
   rarity_code: string;
   candidate_ids: string[];
+  /**
+   * Copies each candidate stood for, same order as `candidate_ids`. Null on
+   * receipts issued before fungible stock existed, where every entry was one.
+   */
+  candidate_amounts: number[] | null;
   card_index: number;
   card_id: string | null;
+  /**
+   * The pool entry the draw landed on: the card itself for a unique slab, or
+   * the stock row the customer's copy was minted from.
+   */
+  stock_card_id: string | null;
   prev_state_hash: string;
   state_hash: string;
   resolved_at: string | null;
@@ -178,6 +203,7 @@ export type PullReveal = {
   card_id: string;
   card_name: string;
   set_name: string;
+  kind: CardKind;
   rarity: string;
   image_url: string;
   thumb_url: string;
@@ -285,6 +311,7 @@ export type PackCardItem = {
   card_id: string;
   name: string;
   set_name: string;
+  kind: CardKind;
   rarity_code: string;
   rarity_name: string;
   image_url: string;

@@ -58,16 +58,20 @@ export function VaultCardItem({ item, index = 0, onSelect }: VaultCardItemProps)
               boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
             }}
           >
+            {/* Only a unique slab has a grade. A raw card or a sealed pack is
+                a real thing in the vault with no certificate behind it, so the
+                badge says what it is instead of implying a grade it never had. */}
             <Typography
               sx={{
                 fontFamily: `'Space Grotesk Variable', sans-serif`,
-                fontSize: '12px',
+                fontSize: item.kind === 'unique' ? '12px' : '7.5px',
                 fontWeight: 700,
                 lineHeight: 1,
+                letterSpacing: item.kind === 'unique' ? 0 : '0.03em',
                 color: '#E7CE92',
               }}
             >
-              {GRADE}
+              {item.kind === 'unique' ? GRADE : t(`kind.${item.kind}`)}
             </Typography>
           </Box>
         </Box>

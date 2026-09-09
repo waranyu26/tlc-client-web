@@ -37,7 +37,13 @@
     "graded": "PSA {{grade}}",
     "set": "Set",
     "cert": "PSA cert",
-    "grade": "Grade"
+    "grade": "Grade",
+    "kind": {
+      "unique": "Graded slab",
+      "bulk": "Ungraded card",
+      "sealed_pack": "Sealed pack"
+    },
+    "kindLabel": "Type"
   },
   "fair": {
     "title": "Provably fair",

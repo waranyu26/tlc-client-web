@@ -173,6 +173,7 @@ export default function PullPage() {
           card_id: ticket.card.card_id,
           card_name: ticket.card.card_name,
           set_name: ticket.card.set_name,
+          kind: ticket.card.kind,
           rarity: ticket.card.rarity_code,
           image_url: ticket.card.image_url,
           thumb_url: ticket.card.thumb_url,

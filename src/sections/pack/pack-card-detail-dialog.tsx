@@ -170,6 +170,12 @@ export function PackCardDetailDialog({ card, rarityName, onClose }: Props) {
             }}
           >
             <DetailRow label={t('rarity.set', { defaultValue: 'Set' })} value={card.set_name} />
+            {card.kind !== 'unique' && (
+              <DetailRow
+                label={t('rarity.kindLabel', { defaultValue: 'Type' })}
+                value={t(`rarity.kind.${card.kind}`)}
+              />
+            )}
             {card.psa_cert_number && (
               <DetailRow
                 label={t('rarity.cert', { defaultValue: 'PSA cert' })}

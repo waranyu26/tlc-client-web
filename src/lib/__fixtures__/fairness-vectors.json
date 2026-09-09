@@ -31,33 +31,66 @@
     "pool": [
       {
         "rarity_code": "common",
-        "card_ids": [
-          "997eda1b-8668-5bbf-b5d7-b85deb274d3b",
-          "7ab1656d-d4f5-5dcf-88ea-f044816dca4c",
-          "ca25ce1a-2867-5117-acb7-0a8dfd9c1977",
-          "9f602a73-490f-5cbd-b8ab-146f427eade2",
-          "602b5899-7508-5acc-83c9-0df95fb06cbe"
+        "cards": [
+          {
+            "card_id": "997eda1b-8668-5bbf-b5d7-b85deb274d3b",
+            "amount": 1
+          },
+          {
+            "card_id": "7ab1656d-d4f5-5dcf-88ea-f044816dca4c",
+            "amount": 1
+          },
+          {
+            "card_id": "ca25ce1a-2867-5117-acb7-0a8dfd9c1977",
+            "amount": 1
+          },
+          {
+            "card_id": "9f602a73-490f-5cbd-b8ab-146f427eade2",
+            "amount": 1
+          },
+          {
+            "card_id": "602b5899-7508-5acc-83c9-0df95fb06cbe",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "rare",
-        "card_ids": [
-          "c17557cc-d769-524b-acb9-6624a68e83d8",
-          "d2b2f0fa-fe71-5ff4-b224-82dffffbc072",
-          "6f4c7b0a-4087-5f6a-bbe2-ba8b605bbc39"
+        "cards": [
+          {
+            "card_id": "c17557cc-d769-524b-acb9-6624a68e83d8",
+            "amount": 1
+          },
+          {
+            "card_id": "d2b2f0fa-fe71-5ff4-b224-82dffffbc072",
+            "amount": 1
+          },
+          {
+            "card_id": "6f4c7b0a-4087-5f6a-bbe2-ba8b605bbc39",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "epic",
-        "card_ids": [
-          "a01783cf-a724-546e-9fe9-0fb9af54da0a",
-          "5603e713-c761-5505-9280-9ff9334e4e87"
+        "cards": [
+          {
+            "card_id": "a01783cf-a724-546e-9fe9-0fb9af54da0a",
+            "amount": 1
+          },
+          {
+            "card_id": "5603e713-c761-5505-9280-9ff9334e4e87",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "legendary",
-        "card_ids": [
-          "9ea0cdc4-7d74-5532-9e58-b1a2755bca42"
+        "cards": [
+          {
+            "card_id": "9ea0cdc4-7d74-5532-9e58-b1a2755bca42",
+            "amount": 1
+          }
         ]
       }
     ],
@@ -118,32 +151,62 @@
     "pool": [
       {
         "rarity_code": "common",
-        "card_ids": [
-          "997eda1b-8668-5bbf-b5d7-b85deb274d3b",
-          "7ab1656d-d4f5-5dcf-88ea-f044816dca4c",
-          "ca25ce1a-2867-5117-acb7-0a8dfd9c1977",
-          "9f602a73-490f-5cbd-b8ab-146f427eade2",
-          "602b5899-7508-5acc-83c9-0df95fb06cbe"
+        "cards": [
+          {
+            "card_id": "997eda1b-8668-5bbf-b5d7-b85deb274d3b",
+            "amount": 1
+          },
+          {
+            "card_id": "7ab1656d-d4f5-5dcf-88ea-f044816dca4c",
+            "amount": 1
+          },
+          {
+            "card_id": "ca25ce1a-2867-5117-acb7-0a8dfd9c1977",
+            "amount": 1
+          },
+          {
+            "card_id": "9f602a73-490f-5cbd-b8ab-146f427eade2",
+            "amount": 1
+          },
+          {
+            "card_id": "602b5899-7508-5acc-83c9-0df95fb06cbe",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "rare",
-        "card_ids": [
-          "c17557cc-d769-524b-acb9-6624a68e83d8",
-          "d2b2f0fa-fe71-5ff4-b224-82dffffbc072",
-          "6f4c7b0a-4087-5f6a-bbe2-ba8b605bbc39"
+        "cards": [
+          {
+            "card_id": "c17557cc-d769-524b-acb9-6624a68e83d8",
+            "amount": 1
+          },
+          {
+            "card_id": "d2b2f0fa-fe71-5ff4-b224-82dffffbc072",
+            "amount": 1
+          },
+          {
+            "card_id": "6f4c7b0a-4087-5f6a-bbe2-ba8b605bbc39",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "epic",
-        "card_ids": [
-          "a01783cf-a724-546e-9fe9-0fb9af54da0a",
-          "5603e713-c761-5505-9280-9ff9334e4e87"
+        "cards": [
+          {
+            "card_id": "a01783cf-a724-546e-9fe9-0fb9af54da0a",
+            "amount": 1
+          },
+          {
+            "card_id": "5603e713-c761-5505-9280-9ff9334e4e87",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "legendary",
-        "card_ids": []
+        "cards": []
       }
     ],
     "commit_hash": "01bae9fedbf359ffdb9702cfe8745f80b81f01afe4d469ac44bcfae74eb401a8",
@@ -199,23 +262,35 @@
     "pool": [
       {
         "rarity_code": "common",
-        "card_ids": []
+        "cards": []
       },
       {
         "rarity_code": "rare",
-        "card_ids": []
+        "cards": []
       },
       {
         "rarity_code": "epic",
-        "card_ids": []
+        "cards": []
       },
       {
         "rarity_code": "legendary",
-        "card_ids": [
-          "9ea0cdc4-7d74-5532-9e58-b1a2755bca42",
-          "1821fc5c-ff18-529e-8b4d-301fa22d7142",
-          "1788d39f-d7b5-5260-9a69-0b5710777077",
-          "a89407ca-ac5a-5a81-a46e-6214822cb145"
+        "cards": [
+          {
+            "card_id": "9ea0cdc4-7d74-5532-9e58-b1a2755bca42",
+            "amount": 1
+          },
+          {
+            "card_id": "1821fc5c-ff18-529e-8b4d-301fa22d7142",
+            "amount": 1
+          },
+          {
+            "card_id": "1788d39f-d7b5-5260-9a69-0b5710777077",
+            "amount": 1
+          },
+          {
+            "card_id": "a89407ca-ac5a-5a81-a46e-6214822cb145",
+            "amount": 1
+          }
         ]
       }
     ],
@@ -264,30 +339,54 @@
     "pool": [
       {
         "rarity_code": "common",
-        "card_ids": [
-          "997eda1b-8668-5bbf-b5d7-b85deb274d3b",
-          "7ab1656d-d4f5-5dcf-88ea-f044816dca4c"
+        "cards": [
+          {
+            "card_id": "997eda1b-8668-5bbf-b5d7-b85deb274d3b",
+            "amount": 1
+          },
+          {
+            "card_id": "7ab1656d-d4f5-5dcf-88ea-f044816dca4c",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "rare",
-        "card_ids": [
-          "c17557cc-d769-524b-acb9-6624a68e83d8",
-          "d2b2f0fa-fe71-5ff4-b224-82dffffbc072"
+        "cards": [
+          {
+            "card_id": "c17557cc-d769-524b-acb9-6624a68e83d8",
+            "amount": 1
+          },
+          {
+            "card_id": "d2b2f0fa-fe71-5ff4-b224-82dffffbc072",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "epic",
-        "card_ids": [
-          "a01783cf-a724-546e-9fe9-0fb9af54da0a",
-          "5603e713-c761-5505-9280-9ff9334e4e87"
+        "cards": [
+          {
+            "card_id": "a01783cf-a724-546e-9fe9-0fb9af54da0a",
+            "amount": 1
+          },
+          {
+            "card_id": "5603e713-c761-5505-9280-9ff9334e4e87",
+            "amount": 1
+          }
         ]
       },
       {
         "rarity_code": "legendary",
-        "card_ids": [
-          "9ea0cdc4-7d74-5532-9e58-b1a2755bca42",
-          "1821fc5c-ff18-529e-8b4d-301fa22d7142"
+        "cards": [
+          {
+            "card_id": "9ea0cdc4-7d74-5532-9e58-b1a2755bca42",
+            "amount": 1
+          },
+          {
+            "card_id": "1821fc5c-ff18-529e-8b4d-301fa22d7142",
+            "amount": 1
+          }
         ]
       }
     ],
@@ -315,5 +414,109 @@
     "rarity_code": "rare",
     "card_index": 0,
     "card_id": "c17557cc-d769-524b-acb9-6624a68e83d8"
+  },
+  {
+    "name": "bulk stock, index walks units not rows",
+    "pack_id": "11111111-1111-4111-8111-111111111111",
+    "pack_seq": 42,
+    "user_id": "22222222-2222-4222-8222-222222222222",
+    "ticket_id": "33333333-3333-4333-8333-333333333333",
+    "client_seed": "player-chosen-seed",
+    "server_nonce": "0102030405060708090a0b0c0d0e0f10",
+    "target_round": 31509641,
+    "chain_hash": "52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971",
+    "randomness": "5dee4dd60ff8d0ba9900fe91e90e0dcf65f0570d42c431f727d0300dd70dc431",
+    "published_odds": [
+      {
+        "rarity_code": "common",
+        "bps": 5000
+      },
+      {
+        "rarity_code": "rare",
+        "bps": 3000
+      },
+      {
+        "rarity_code": "epic",
+        "bps": 1500
+      },
+      {
+        "rarity_code": "legendary",
+        "bps": 500
+      }
+    ],
+    "pool": [
+      {
+        "rarity_code": "common",
+        "cards": [
+          {
+            "card_id": "997eda1b-8668-5bbf-b5d7-b85deb274d3b",
+            "amount": 50
+          },
+          {
+            "card_id": "7ab1656d-d4f5-5dcf-88ea-f044816dca4c",
+            "amount": 7
+          },
+          {
+            "card_id": "ca25ce1a-2867-5117-acb7-0a8dfd9c1977",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "rarity_code": "rare",
+        "cards": [
+          {
+            "card_id": "c17557cc-d769-524b-acb9-6624a68e83d8",
+            "amount": 12
+          },
+          {
+            "card_id": "d2b2f0fa-fe71-5ff4-b224-82dffffbc072",
+            "amount": 3
+          }
+        ]
+      },
+      {
+        "rarity_code": "epic",
+        "cards": [
+          {
+            "card_id": "a01783cf-a724-546e-9fe9-0fb9af54da0a",
+            "amount": 1
+          },
+          {
+            "card_id": "5603e713-c761-5505-9280-9ff9334e4e87",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "rarity_code": "legendary",
+        "cards": [
+          {
+            "card_id": "9ea0cdc4-7d74-5532-9e58-b1a2755bca42",
+            "amount": 0
+          }
+        ]
+      }
+    ],
+    "commit_hash": "01bae9fedbf359ffdb9702cfe8745f80b81f01afe4d469ac44bcfae74eb401a8",
+    "preimage": "11111111111141118111111111111111000000000000002a222222222222422282222222222222223333333333334333833333333333333350fdcad46f0d346ef9a9462ab9d56f259da574f05de43e1dbe139bc375013ad70102030405060708090a0b0c0d0e0f100000000001e0cc8952db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971",
+    "effective_odds": [
+      {
+        "rarity_code": "common",
+        "bps": 5263
+      },
+      {
+        "rarity_code": "epic",
+        "bps": 1579
+      },
+      {
+        "rarity_code": "rare",
+        "bps": 3158
+      }
+    ],
+    "rarity_roll": 817,
+    "rarity_code": "common",
+    "card_index": 3,
+    "card_id": "7ab1656d-d4f5-5dcf-88ea-f044816dca4c"
   }
 ]
