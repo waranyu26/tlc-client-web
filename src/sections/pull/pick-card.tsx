@@ -1,7 +1,7 @@
 import type { PointerEvent } from 'react';
 import type { Transition } from 'framer-motion';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { m, useSpring, useTransform, useMotionValue } from 'framer-motion';
 
 import ButtonBase from '@mui/material/ButtonBase';
@@ -19,6 +19,21 @@ import { CardBack } from 'src/components/vault';
 
 const TILT_DEGREES = 14;
 const SPRING = { stiffness: 260, damping: 22, mass: 0.5 };
+
+/**
+ * The transition a dealt-in card rests on.
+ *
+ * Kept separate from the deal because framer falls back to the `transition`
+ * prop for gesture targets that don't carry one of their own
+ * (`animateTarget` -> `visualElement.getDefaultTransition()`). While the deal's
+ * `delay` lived on that prop, every hover *and* every hover-release inherited
+ * it: the last card in the grid took 873ms to lift and 1050ms to drop back.
+ */
+const REST_SPRING: Transition = { type: 'spring', stiffness: 400, damping: 30, mass: 0.6 };
+
+/** Keeps a gesture mounted while it must not move anything. Module-scoped so
+ *  framer sees a stable reference rather than a new target every render. */
+const NO_GESTURE = {};
 
 export type PickCardProps = {
   index: number;
@@ -49,13 +64,18 @@ export function PickCard({
   const ref = useRef<HTMLButtonElement | null>(null);
   const hovering = useRef(false);
 
+  // Flipped by the deal's own completion rather than a timer, so it is exact.
+  // Nothing else animates this element before then — hover and tilt are gated
+  // on it — so the first completion is unambiguously the deal landing.
+  const [dealt, setDealt] = useState(false);
+
   const px = useMotionValue(0); // -0.5 .. 0.5
   const py = useMotionValue(0);
   const rotateX = useSpring(useTransform(py, [-0.5, 0.5], [TILT_DEGREES, -TILT_DEGREES]), SPRING);
   const rotateY = useSpring(useTransform(px, [-0.5, 0.5], [-TILT_DEGREES, TILT_DEGREES]), SPRING);
 
   const handlePointerMove = (event: PointerEvent<HTMLButtonElement>) => {
-    if (reduceMotion || disabled) return;
+    if (reduceMotion || disabled || !dealt) return;
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
     px.set((event.clientX - rect.left) / rect.width - 0.5);
@@ -90,9 +110,26 @@ export function PickCard({
       }
     : null;
 
-  let transition: Transition = { type: 'spring', stiffness: 210, damping: 20, delay: dealDelay };
+  // The deal's delay is dropped the moment the card has landed. Leaving it in
+  // place would keep lagging every later gesture by this card's place in the
+  // stagger, which is what made hover stick.
+  let transition: Transition;
   if (dispersed) transition = { duration: 0.55, ease: 'easeIn' };
-  else if (reduceMotion) transition = { duration: 0.2, delay: index * 0.012 };
+  else if (reduceMotion) transition = { duration: 0.2, delay: dealt ? 0 : index * 0.012 };
+  else if (dealt) transition = REST_SPRING;
+  else transition = { type: 'spring', stiffness: 210, damping: 20, delay: dealDelay };
+
+  // A card still in flight must not answer to the pointer. whileHover only
+  // claims y and scale, so a card caught mid-deal keeps the deal's x and rotate
+  // and simply stalls at its pre-deal position — sitting on top of the card in
+  // the row above it.
+  //
+  // Gated by swapping the gesture's *target* rather than unsetting whileHover:
+  // framer only starts a hover animation on pointerenter, so a pointer already
+  // resting on a card while it dealt would never get its lift. An empty target
+  // keeps the gesture mounted and moving nothing, and the lift engages on the
+  // render where the card lands.
+  const interactive = dealt && !dispersed;
 
   return (
     <ButtonBase
@@ -111,7 +148,14 @@ export function PickCard({
         padding: 0,
         borderRadius: '4px',
         perspective: '900px',
+        // A lifted, tilted card is larger than its grid cell, so it grows into
+        // its neighbours. Without this it grows *under* every later sibling,
+        // which reads as the cards colliding rather than one being picked up.
+        position: 'relative',
+        zIndex: 0,
+        '&:hover': { zIndex: 2 },
         '&.Mui-focusVisible': {
+          zIndex: 2,
           outline: '2px solid #E7CE92',
           outlineOffset: '4px',
         },
@@ -126,8 +170,11 @@ export function PickCard({
         }
         animate={dispersed ?? dealtIn}
         transition={transition}
-        whileHover={reduceMotion || dispersed ? undefined : { y: -12, scale: 1.06 }}
-        whileTap={dispersed ? undefined : { scale: 0.97 }}
+        onAnimationComplete={() => setDealt(true)}
+        whileHover={
+          reduceMotion || dispersed ? undefined : interactive ? { y: -12, scale: 1.06 } : NO_GESTURE
+        }
+        whileTap={dispersed ? undefined : interactive ? { scale: 0.97 } : NO_GESTURE}
       >
         {/*
           The layout target is kept free of transforms of its own — the deal,
