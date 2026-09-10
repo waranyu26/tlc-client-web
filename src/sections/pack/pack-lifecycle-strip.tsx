@@ -26,7 +26,7 @@ export function PackLifecycleStrip() {
       title: t('lifecycle.vaultTitle', { defaultValue: 'It lands in your vault' }),
       body: t('lifecycle.vaultBody', {
         defaultValue:
-          'The exact slab you pulled is held under your name, with its own PSA certificate.',
+          'The exact card you pulled is held under your name — a graded slab keeps its PSA certificate.',
       }),
     },
     {
@@ -43,7 +43,8 @@ export function PackLifecycleStrip() {
       icon: 'carbon:delivery',
       title: t('lifecycle.shipTitle', { defaultValue: 'Or have it shipped' }),
       body: t('lifecycle.shipBody', {
-        defaultValue: 'Request delivery and the graded slab is sent to you, tracked, still sealed.',
+        defaultValue:
+          'Request delivery and it is sent to you, tracked — a graded slab still sealed in its case.',
       }),
     },
   ] as const;

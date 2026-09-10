@@ -34,8 +34,16 @@ const TIMING = {
   reduced: { shuffle: 400, converge: 260, chargeBase: 380, flip: 260 },
 };
 
-/** Ceiling on waiting for the art to decode. A slow CDN must not stall the reveal. */
-const DECODE_TIMEOUT_MS = 2000;
+/**
+ * Ceiling on waiting for the art to decode. A slow CDN must not stall the reveal.
+ *
+ * Short on purpose. The flip lands on a *sleeve*, not the art, so the decode
+ * keeps running under cover for the whole turn and for however long the user
+ * takes to grab the sleeve — a second or more of free headroom that this gate
+ * does not need to buy again. Waiting longer here bought nothing and was paid
+ * for in the one place it is felt, with the customer stuck on `charge`.
+ */
+const DECODE_TIMEOUT_MS = 600;
 
 export type PendingAttempt = {
   key: string;

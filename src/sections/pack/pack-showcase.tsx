@@ -136,6 +136,7 @@ export function PackShowcase({ pack, cards, tierName, accent = '#E7CE92' }: Prop
                     rarity={card.rarity_code}
                     alt={card.name}
                     priority={focused}
+                    soldOut={card.sold_out}
                     sx={{ height: '100%', width: '100%' }}
                   />
                 </ButtonBase>

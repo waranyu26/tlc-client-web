@@ -127,7 +127,8 @@ export function PackRarityTiles({
             <Typography sx={{ mt: '6px', fontSize: '11px', color: '#9A9285' }}>
               {t('odds.cardCount', {
                 count: odds.card_count,
-                defaultValue: '{{count}} cards in this tier',
+                defaultValue_one: '{{count}} card in this tier',
+                defaultValue_other: '{{count}} cards in this tier',
               })}
             </Typography>
           </ButtonBase>
