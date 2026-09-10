@@ -154,6 +154,7 @@ export function PackCardDetailDialog({ card, rarityName, onClose }: Props) {
               imageUrl={card.image_url}
               rarity={card.rarity_code}
               alt={card.name}
+              soldOut={card.sold_out}
             />
             {(card.thumb_url || card.image_url) && (
               <HdImageButton onOpen={() => setViewerOpen(true)} />
@@ -170,6 +171,16 @@ export function PackCardDetailDialog({ card, rarityName, onClose }: Props) {
             }}
           >
             <DetailRow label={t('rarity.set', { defaultValue: 'Set' })} value={card.set_name} />
+            {/* Stated as a row rather than only as a grey wash, so it survives
+                a screen reader and a colour-blind reading of the grid. */}
+            <DetailRow
+              label={t('rarity.availability', { defaultValue: 'Availability' })}
+              value={
+                card.sold_out
+                  ? t('rarity.soldOut', { defaultValue: 'Sold out' })
+                  : t('rarity.stillAvailable', { defaultValue: 'Still in the pack' })
+              }
+            />
             {card.kind !== 'unique' && (
               <DetailRow
                 label={t('rarity.kindLabel', { defaultValue: 'Type' })}

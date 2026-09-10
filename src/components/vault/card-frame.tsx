@@ -51,6 +51,18 @@ export type CardFrameProps = Omit<BoxProps, 'children'> & {
    * that is certainly visible on arrival (a detail page hero, a pull reveal).
    */
   priority?: boolean;
+  /**
+   * Nothing of this entry can be won any more — a slab somebody already pulled,
+   * or a fungible counter at zero.
+   *
+   * Rendered as desaturation plus a dim rather than by hiding the card: the
+   * pool a customer was advertised should stay visible as a pack drains, and a
+   * card that quietly disappeared would look like the manifest had been edited.
+   * The frame keeps its rarity border at reduced strength so the tier is still
+   * legible, and the holo sheen stops, because an animated highlight reads as
+   * "look at this" on something you cannot have.
+   */
+  soldOut?: boolean;
 };
 
 export function CardFrame({
@@ -60,6 +72,7 @@ export function CardFrame({
   alt,
   glow = false,
   priority = false,
+  soldOut = false,
   sx,
   ...other
 }: CardFrameProps) {
@@ -78,9 +91,14 @@ export function CardFrame({
           boxShadow: `0 0 36px ${color}55, inset 0 0 50px rgba(0,0,0,0.35)`,
           overflow: 'hidden',
           bgcolor: '#0A0808',
-          ...(glow && {
-            '--glow-color': `${color}80`,
-            animation: `${glowPulse} 2s ease-in-out infinite`,
+          ...(glow &&
+            !soldOut && {
+              '--glow-color': `${color}80`,
+              animation: `${glowPulse} 2s ease-in-out infinite`,
+            }),
+          ...(soldOut && {
+            borderColor: `${color}4D`,
+            boxShadow: 'inset 0 0 50px rgba(0,0,0,0.55)',
           }),
         },
         ...(Array.isArray(sx) ? sx : [sx]),
@@ -102,6 +120,7 @@ export function CardFrame({
             height: '100%',
             objectFit: 'contain',
             display: 'block',
+            ...(soldOut && { filter: 'grayscale(1)', opacity: 0.4 }),
           }}
         />
       ) : (
@@ -127,10 +146,12 @@ export function CardFrame({
         </Box>
       )}
 
-      {/* Holo sheen sweep */}
+      {/* Holo sheen sweep. Suppressed on a sold-out card: a moving highlight
+          reads as an invitation, which is the opposite of what it now is. */}
       <Box
         className="sheen"
         sx={{
+          display: soldOut ? 'none' : 'block',
           position: 'absolute',
           top: '-10%',
           left: 0,

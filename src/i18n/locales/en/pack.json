@@ -43,7 +43,10 @@
       "bulk": "Ungraded card",
       "sealed_pack": "Sealed pack"
     },
-    "kindLabel": "Type"
+    "kindLabel": "Type",
+    "soldOut": "Sold out",
+    "availability": "Availability",
+    "stillAvailable": "Still in the pack"
   },
   "fair": {
     "title": "Provably fair",

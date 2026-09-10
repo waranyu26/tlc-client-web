@@ -43,7 +43,10 @@
       "bulk": "การ์ดไม่จัดเกรด",
       "sealed_pack": "แพ็กซีล"
     },
-    "kindLabel": "ประเภท"
+    "kindLabel": "ประเภท",
+    "soldOut": "หมดแล้ว",
+    "availability": "สถานะ",
+    "stillAvailable": "ยังอยู่ในแพ็ก"
   },
   "fair": {
     "title": "ตรวจสอบความยุติธรรมได้",

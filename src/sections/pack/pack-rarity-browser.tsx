@@ -115,19 +115,56 @@ export function PackRarityBrowser({ packId, rarityOdds, selectedRarity, onSelect
                   textAlign: 'left',
                   borderRadius: '8px',
                   transition: 'transform 160ms ease',
-                  '&:hover': { transform: 'translateY(-3px)' },
+                  // A sold-out card stays tappable — the dialog is provenance,
+                  // and people want to look at what came out of a box — but it
+                  // does not lift, because the lift is an affordance for
+                  // something you can still get.
+                  '&:hover': { transform: card.sold_out ? 'none' : 'translateY(-3px)' },
                 }}
               >
-                <CardFrame
-                  thumbUrl={card.thumb_url}
-                  imageUrl={card.image_url}
-                  rarity={card.rarity_code}
-                  alt={card.name}
-                />
+                <Box sx={{ position: 'relative' }}>
+                  <CardFrame
+                    thumbUrl={card.thumb_url}
+                    imageUrl={card.image_url}
+                    rarity={card.rarity_code}
+                    alt={card.name}
+                    soldOut={card.sold_out}
+                  />
+
+                  {card.sold_out && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        left: '50%',
+                        top: '50%',
+                        transform: 'translate(-50%, -50%) rotate(-7deg)',
+                        px: '8px',
+                        py: '3px',
+                        borderRadius: '4px',
+                        border: '1px solid rgba(244,236,221,0.45)',
+                        backgroundColor: 'rgba(11,11,13,0.82)',
+                        fontSize: '9.5px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: '#F4ECDD',
+                        pointerEvents: 'none',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {t('rarity.soldOut', { defaultValue: 'Sold out' })}
+                    </Box>
+                  )}
+                </Box>
 
                 <Typography
                   noWrap
-                  sx={{ mt: '8px', fontSize: '12px', fontWeight: 600, color: '#F4ECDD' }}
+                  sx={{
+                    mt: '8px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: card.sold_out ? '#9A9285' : '#F4ECDD',
+                  }}
                 >
                   {card.name}
                 </Typography>

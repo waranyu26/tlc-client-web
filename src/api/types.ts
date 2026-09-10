@@ -312,6 +312,15 @@ export type PackCardItem = {
   name: string;
   set_name: string;
   kind: CardKind;
+  /**
+   * Nothing of this entry can be pulled any more — a slab someone already won,
+   * or a fungible counter at zero.
+   *
+   * A boolean and never a number: the manifest says what is still winnable
+   * without publishing how much of it is left. The server sorts sold-out
+   * entries last, so rendering in the order received puts the live pool first.
+   */
+  sold_out: boolean;
   rarity_code: string;
   rarity_name: string;
   image_url: string;
