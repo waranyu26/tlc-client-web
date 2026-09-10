@@ -54,14 +54,28 @@ export async function getDrandInfo(): Promise<DrandInfo> {
 
 // ----------------------------------------------------------------------
 
-/** How often to ask whether the beacon has landed. Rounds are 3s apart. */
-const REVEAL_POLL_MS = 1000;
+/** How often to ask once the committed round is actually due. */
+const REVEAL_POLL_MS = 400;
+/** drand publishes a round a beat after its nominal time; asking sooner is a wasted round trip. */
+const BEACON_GRACE_MS = 400;
+/**
+ * Ceiling on a scheduled wait. `reveal_at` is compared against the *client's*
+ * clock, so a skewed one must only ever slow the reveal down — never park it
+ * minutes into the future on a ticket that has already resolved.
+ */
+const MAX_POLL_WAIT_MS = 3000;
 
 export function useCommitPull(packId: string | undefined) {
   return useMutation({
     mutationFn: ({ idempotencyKey, clientSeed }: { idempotencyKey: string; clientSeed?: string }) =>
       commitPull(packId!, idempotencyKey, clientSeed),
-    onSuccess: () => {
+    onSuccess: (ticket) => {
+      // Seed the reveal poll with what the commit already told us. It is the
+      // freshest answer obtainable — nothing about this ticket can change until
+      // its beacon publishes — so handing it over spares the poll an immediate
+      // round trip whose reply is guaranteed to be this same pending ticket.
+      queryClient.setQueryData(['pulls', ticket.ticket_id], ticket);
+
       // The charge has already happened, so the wallet is stale immediately —
       // the card has not been decided yet, so nothing else has moved.
       queryClient.invalidateQueries({ queryKey: ['wallet', 'balance'] });
@@ -77,14 +91,30 @@ export function useCommitPull(packId: string | undefined) {
  * Polling stops the moment the ticket leaves `pending`. It is only an
  * accelerator: the server resolves pulls in the background too, so closing the
  * tab still awards the card.
+ *
+ * The schedule is driven by the ticket's own `reveal_at` rather than a fixed
+ * cadence, because the answer is not merely unknown before that instant — it
+ * cannot exist. A flat interval therefore spent most of a pull asking a
+ * question with one possible reply, and then still landed up to a full interval
+ * late on the one request that mattered. Sleeping to the round and tightening
+ * the cadence around it cuts both the wasted requests and the latency the
+ * customer actually feels, sitting on a card they cannot yet uncover.
  */
 export function usePullTicket(ticketId: string | undefined, enabled = true) {
   return useQuery({
     queryKey: ['pulls', ticketId],
     queryFn: () => getPull(ticketId!),
     enabled: !!ticketId && enabled,
-    refetchInterval: (query) =>
-      query.state.data?.status === 'pending' ? REVEAL_POLL_MS : false,
+    // Keeps the commit-seeded ticket from being refetched on mount, seconds
+    // before its round is due. The interval below owns the schedule.
+    staleTime: REVEAL_POLL_MS,
+    refetchInterval: (query) => {
+      const ticket = query.state.data;
+      if (!ticket || ticket.status !== 'pending') return false;
+
+      const dueIn = new Date(ticket.commitment.reveal_at).getTime() - Date.now() + BEACON_GRACE_MS;
+      return Math.min(MAX_POLL_WAIT_MS, Math.max(REVEAL_POLL_MS, dueIn));
+    },
   });
 }
 
