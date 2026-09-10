@@ -147,7 +147,7 @@ export function PackBuyPanel({ pack, canAfford, onPull }: Props) {
         {t('stats.summary', {
           cards: cardCount,
           tiers: pack.rarity_odds.length,
-          defaultValue: '{{cards}} graded slabs · {{tiers}} rarity tiers',
+          defaultValue: '{{cards}} cards · {{tiers}} rarity tiers',
         })}
       </Typography>
 

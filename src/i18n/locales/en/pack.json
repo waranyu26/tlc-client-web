@@ -29,8 +29,9 @@
   "opened": "{{count}} opened",
   "odds": {
     "title": "Pull rates",
-    "cardCount": "{{count}} cards in this tier",
-    "redistribution": "If a tier sells out, its share is split proportionally across the tiers that still have cards."
+    "redistribution": "If a tier sells out, its share is split proportionally across the tiers that still have cards.",
+    "cardCount_one": "{{count}} card in this tier",
+    "cardCount_other": "{{count}} cards in this tier"
   },
   "rarity": {
     "subtitle": "Every card this tier can give you.",
@@ -62,18 +63,18 @@
     "title": "After you pull",
     "subtitle": "Keep it, cash it, or take it home.",
     "vaultTitle": "It lands in your vault",
-    "vaultBody": "The exact slab you pulled is held under your name, with its own PSA certificate.",
+    "vaultBody": "The exact card you pulled is held under your name — a graded slab keeps its PSA certificate.",
     "buybackTitle": "Sell it back instantly",
     "buybackBody": "Every card carries a buyback price up front. Take it whenever you like and the credit is immediate.",
     "shipTitle": "Or have it shipped",
-    "shipBody": "Request delivery and the graded slab is sent to you, tracked, still sealed."
+    "shipBody": "Request delivery and it is sent to you, tracked — a graded slab still sealed in its case."
   },
   "perPull": "Price / pull",
   "pullCta": "Pull · {{price}}",
   "topUpHint": "Not enough balance — tap to top up.",
   "stats": {
     "openedLabel": "Opened",
-    "summary": "{{cards}} graded slabs · {{tiers}} rarity tiers"
+    "summary": "{{cards}} cards · {{tiers}} rarity tiers"
   },
   "showcase": {
     "prev": "Previous card",
