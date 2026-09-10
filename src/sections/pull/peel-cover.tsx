@@ -1,5 +1,6 @@
 import type { PanInfo } from 'framer-motion';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
+import type { PeelBed } from 'src/lib/pull-sfx';
 
 import { keyframes } from '@emotion/react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import { haptic } from 'src/lib/haptics';
-import { peelTick, peelRelease } from 'src/lib/pull-sfx';
+import { peelBed, peelTick, peelRelease } from 'src/lib/pull-sfx';
 
 // ----------------------------------------------------------------------
 // The sleeve over the turned card.
@@ -37,8 +38,16 @@ const GOLD = '#E7CE92';
 const COMMIT_RATIO = 0.38;
 /** A flick this fast commits regardless of distance. */
 const COMMIT_VELOCITY = 420;
-/** One grain tick per this much progress. */
-const TICK_STEP = 0.12;
+/**
+ * Gap between grain ticks, in progress, at the start of the pull and at the end.
+ * Closing it up as the sleeve comes off thickens the texture, so the peel gets
+ * denser as well as louder.
+ */
+const TICK_STEP_START = 0.12;
+const TICK_STEP_END = 0.045;
+
+const tickStep = (progress: number) =>
+  TICK_STEP_START + (TICK_STEP_END - TICK_STEP_START) * Math.min(1, Math.max(0, progress));
 /** How long the sleeve takes to clear the frame once committed. */
 const EXIT_MS = 400;
 
@@ -119,16 +128,29 @@ export function PeelCover({ interactive, onComplete, reduceMotion = false }: Pee
     return Math.max(Math.abs(x.get()) / width, Math.abs(y.get()) / height);
   }, [x, y]);
 
-  // Grain underfoot: a tick every TICK_STEP of the way off.
+  const bedRef = useRef<PeelBed | null>(null);
+
+  const stopBed = useCallback(() => {
+    bedRef.current?.stop();
+    bedRef.current = null;
+  }, []);
+
+  // Grain underfoot, and the drone under that. Both ride how far the sleeve is
+  // off: the ticks get hotter and closer together, the bed swells and holds.
   useEffect(() => {
     if (!interactive || reduceMotion) return undefined;
-    let lastBucket = 0;
+    // Distance travelled since the last tick, rather than a fixed bucket index,
+    // because the step now varies with progress. Comparing the absolute
+    // difference also grains when the sleeve is pushed back, which is what the
+    // real thing would do.
+    let lastTickAt = 0;
     const onChange = () => {
-      const bucket = Math.floor(progress() / TICK_STEP);
-      if (bucket !== lastBucket) {
-        lastBucket = bucket;
-        if (bucket > 0) peelTick();
+      const p = progress();
+      if (Math.abs(p - lastTickAt) >= tickStep(p)) {
+        lastTickAt = p;
+        peelTick(p);
       }
+      bedRef.current?.set(p);
     };
     const unsubscribeX = x.on('change', onChange);
     const unsubscribeY = y.on('change', onChange);
@@ -138,6 +160,9 @@ export function PeelCover({ interactive, onComplete, reduceMotion = false }: Pee
     };
   }, [interactive, progress, reduceMotion, x, y]);
 
+  // The bed must never outlive the sleeve.
+  useEffect(() => stopBed, [stopBed]);
+
   /**
    * Sends the sleeve off along `(dx, dy)`. A zero vector — a tap, or Enter —
    * falls back to sliding it downward.
@@ -146,6 +171,8 @@ export function PeelCover({ interactive, onComplete, reduceMotion = false }: Pee
     (dx: number, dy: number) => {
       if (finishedRef.current) return;
       finishedRef.current = true;
+      // Down first, so the drone is already fading as the thunk lands over it.
+      stopBed();
       peelRelease();
       haptic('pick');
 
@@ -160,7 +187,7 @@ export function PeelCover({ interactive, onComplete, reduceMotion = false }: Pee
       animate(x, unitX * clearance, transition);
       animate(y, unitY * clearance, { ...transition, onComplete });
     },
-    [onComplete, x, y]
+    [onComplete, stopBed, x, y]
   );
 
   const handleDragEnd = useCallback(
@@ -172,11 +199,14 @@ export function PeelCover({ interactive, onComplete, reduceMotion = false }: Pee
         finish(x.get() + info.velocity.x * 0.15, y.get() + info.velocity.y * 0.15);
         return;
       }
+      // Not committed: let the tension out rather than leaving it hanging while
+      // the sleeve springs home.
+      stopBed();
       const springBack = { type: 'spring', stiffness: 320, damping: 30 } as const;
       animate(x, 0, springBack);
       animate(y, 0, springBack);
     },
-    [finish, progress, x, y]
+    [finish, progress, stopBed, x, y]
   );
 
   const handleKeyDown = useCallback(
@@ -216,6 +246,11 @@ export function PeelCover({ interactive, onComplete, reduceMotion = false }: Pee
       onKeyDown={handleKeyDown}
       onPointerDown={() => {
         draggedRef.current = false;
+        if (!interactive || reduceMotion || finishedRef.current) return;
+        // One bed per grab. A drag that sprang back has already stopped its own,
+        // and a stopped handle is deaf by design, so it has to be replaced.
+        stopBed();
+        bedRef.current = peelBed();
       }}
       onDragStart={() => {
         draggedRef.current = true;

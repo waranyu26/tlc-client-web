@@ -229,9 +229,103 @@ export function charge(durationMs: number, tier: PullTier) {
   osc.stop(at + dur);
 }
 
-/** Soft grain as the sleeve slides — fired every ~12% of the drag. */
-export function peelTick() {
-  noiseBurst({ durationMs: 34, gain: 0.16, type: 'bandpass', fromHz: 1400, toHz: 1000, q: 2.5 });
+/** Linear interpolation, with `t` clamped to 0..1. */
+function lerp(from: number, to: number, t: number) {
+  return from + (to - from) * Math.min(1, Math.max(0, t));
+}
+
+/**
+ * Soft grain as the sleeve slides. `progress` is how much of the card is
+ * uncovered, 0..1, and every parameter rides it — the grain gets louder,
+ * brighter and snappier the further the sleeve is off. The caller shortens the
+ * gap between ticks as it goes too, so the texture thickens as well as sharpens.
+ */
+export function peelTick(progress = 0) {
+  const hz = lerp(1200, 2600, progress);
+  noiseBurst({
+    durationMs: lerp(34, 26, progress),
+    gain: lerp(0.12, 0.34, progress),
+    type: 'bandpass',
+    fromHz: hz,
+    toHz: hz * 0.72,
+    q: lerp(2, 5, progress),
+  });
+}
+
+/**
+ * A live handle on the tension bed. `set` is safe to call at frame rate. `stop`
+ * is idempotent and permanently deafens the handle, so a `set` arriving late
+ * from a spring-back animation cannot revive a bed already torn down.
+ */
+export type PeelBed = { set(progress: number): void; stop(): void };
+
+/**
+ * The drone under the peel: the sound of the room holding its breath.
+ *
+ * Unlike every other voice in the kit this one is not fire-and-forget — it has
+ * to track the drag position live, because that is the whole point. Holding the
+ * sleeve half off *sustains* the tension, and easing it back releases it; a
+ * transient could never do that.
+ *
+ * Returns `null` when sound is off or the context never came up, so callers can
+ * park the result in a ref and use `?.` without branching.
+ */
+export function peelBed(): PeelBed | null {
+  const l = live();
+  if (!l) return null;
+  const { ac, out } = l;
+
+  const at = ac.currentTime;
+
+  const env = ac.createGain();
+  env.gain.setValueAtTime(0.0001, at);
+
+  const filter = ac.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.Q.value = 4;
+  filter.frequency.setValueAtTime(180, at);
+
+  // Two saws a few cents apart: the beating between them is what keeps the bed
+  // from sounding like a test tone.
+  const oscs = [0, 7].map((detune) => {
+    const osc = ac.createOscillator();
+    osc.type = 'sawtooth';
+    osc.detune.value = detune;
+    osc.frequency.setValueAtTime(55, at);
+    osc.connect(filter);
+    osc.start(at);
+    return osc;
+  });
+
+  filter.connect(env).connect(out);
+
+  let stopped = false;
+
+  return {
+    set(progress: number) {
+      if (stopped) return;
+      const p = Math.min(1, Math.max(0, progress));
+      const now = ac.currentTime;
+      // `setTargetAtTime` rather than ramps: the drag emits changes at frame
+      // rate, where overlapping ramps fight each other and stepped values
+      // zipper. The exponent keeps the bed near-subliminal early and lets it
+      // bloom late, so the swell tracks the drama rather than the distance.
+      env.gain.setTargetAtTime(0.13 * p ** 1.4, now, 0.05);
+      filter.frequency.setTargetAtTime(lerp(180, 1600, p), now, 0.05);
+      oscs.forEach((osc) => osc.frequency.setTargetAtTime(lerp(55, 88, p), now, 0.05));
+    },
+    stop() {
+      if (stopped) return;
+      stopped = true;
+      const now = ac.currentTime;
+      env.gain.cancelScheduledValues(now);
+      // Hold whatever the automation had reached before fading, or cancelling
+      // would snap the gain back to the last explicitly set value and click.
+      env.gain.setValueAtTime(Math.max(0.0001, env.gain.value), now);
+      env.gain.setTargetAtTime(0.0001, now, 0.04);
+      oscs.forEach((osc) => osc.stop(now + 0.12));
+    },
+  };
 }
 
 /** The sleeve clearing the card. */
