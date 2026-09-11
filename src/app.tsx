@@ -10,6 +10,7 @@ import { themeConfig, ThemeProvider } from 'src/theme';
 
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
+import { BackgroundMusic } from 'src/components/vault/background-music';
 import { defaultSettings, SettingsProvider } from 'src/components/settings';
 
 import { AuthProvider } from 'src/auth/context/supertokens';
@@ -33,6 +34,10 @@ export default function App({ children }: AppProps) {
           >
             <MotionLazy>
               <ProgressBar />
+              {/* Outside the authenticated shell on purpose: the track plays on
+                  every route, signed in or not, and survives sign-out. Mounted
+                  in the shell it stopped at the door of the app. */}
+              <BackgroundMusic />
               {children}
             </MotionLazy>
           </ThemeProvider>
