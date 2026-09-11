@@ -5,7 +5,18 @@
     "home": "Home",
     "vault": "Vault",
     "wallet": "Wallet",
-    "live": "Live"
+    "live": "Live",
+    "delivery": "Delivery",
+    "account": "Account",
+    "more": "More",
+    "menu": "Open menu",
+    "balance": "Balance",
+    "pull": "Choose a pack",
+    "language": "Language",
+    "music": {
+      "mute": "Mute music",
+      "unmute": "Unmute music"
+    }
   },
   "actions": {
     "continue": "Continue",

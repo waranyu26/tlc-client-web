@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import { BottomNav } from 'src/components/vault/bottom-nav';
 
 import { SidebarNav } from './sidebar-nav';
+import { MobileTopBar } from './mobile-top-bar';
 import { LiveTickerBar } from './live-ticker-bar';
 import { gutter, CONTENT_MAX_WIDTH, BOTTOM_NAV_HEIGHT } from './layout-config';
 
@@ -13,7 +14,12 @@ import { gutter, CONTENT_MAX_WIDTH, BOTTOM_NAV_HEIGHT } from './layout-config';
 //
 //   lg+  [ Sidebar 248 ][ ticker + content pane, inner cap 1440, centered ]
 //   md   [ Rail 88     ][ same pane ]
-//   < md [ ticker + full-width column ] + fixed BottomNav
+//   < md [ top bar + ticker + full-width column ] + fixed BottomNav
+//
+// The mobile top bar is the phone's only non-destination surface. Without it
+// there was nowhere to reach Delivery or Account — both are secondary nav items
+// the sidebar renders and the four-tab BottomNav does not — and nowhere to put
+// language or music outside the Account page itself.
 //
 // @see DESIGN.md — "Responsive Layout"
 // ----------------------------------------------------------------------
@@ -36,6 +42,8 @@ export function AppShell({ children }: AppShellProps) {
           flexDirection: 'column',
         }}
       >
+        <MobileTopBar />
+
         <LiveTickerBar />
 
         <Box

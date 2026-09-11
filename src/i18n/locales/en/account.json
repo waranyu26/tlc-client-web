@@ -7,6 +7,11 @@
     "en": "English",
     "th": "ไทย"
   },
+  "music": {
+    "label": "Music",
+    "description": "Background music while you browse and pull.",
+    "toggle": "Play background music"
+  },
   "danger": {
     "heading": "Danger zone",
     "deleteTitle": "Delete my account & data",
