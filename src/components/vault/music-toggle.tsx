@@ -1,5 +1,4 @@
 import type { IconButtonProps } from '@mui/material/IconButton';
-import type { IconifyName } from 'src/components/iconify';
 
 import { useTranslation } from 'react-i18next';
 
@@ -42,7 +41,7 @@ export function MusicToggle({ sx, ...other }: MusicToggleProps) {
         {...other}
       >
         <Iconify
-          icon={(musicEnabled ? 'solar:music-note-2-linear' : 'solar:muted-linear') as IconifyName}
+          icon={musicEnabled ? 'solar:music-note-2-linear' : 'solar:muted-linear'}
           width={20}
         />
       </IconButton>

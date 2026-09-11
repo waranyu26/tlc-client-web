@@ -20,25 +20,25 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
   {
     key: 'home',
     href: paths.home,
-    icon: 'solar:home-smile-linear' as IconifyName,
+    icon: 'solar:home-smile-linear',
     fallbackLabel: 'Home',
   },
   {
     key: 'vault',
     href: paths.vault,
-    icon: 'solar:lock-keyhole-minimalistic-linear' as IconifyName,
+    icon: 'solar:lock-keyhole-minimalistic-linear',
     fallbackLabel: 'Vault',
   },
   {
     key: 'wallet',
     href: paths.wallet,
-    icon: 'solar:card-linear' as IconifyName,
+    icon: 'solar:card-linear',
     fallbackLabel: 'Wallet',
   },
   {
     key: 'live',
     href: paths.feed,
-    icon: 'solar:soundwave-linear' as IconifyName,
+    icon: 'solar:soundwave-linear',
     fallbackLabel: 'Live',
   },
 ];
@@ -51,13 +51,13 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
   {
     key: 'delivery',
     href: paths.delivery,
-    icon: 'solar:box-linear' as IconifyName,
+    icon: 'solar:box-linear',
     fallbackLabel: 'Delivery',
   },
   {
     key: 'account',
     href: paths.account,
-    icon: 'solar:user-circle-linear' as IconifyName,
+    icon: 'solar:user-circle-linear',
     fallbackLabel: 'Account',
   },
 ];

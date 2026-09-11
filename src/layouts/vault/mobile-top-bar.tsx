@@ -1,4 +1,3 @@
-import type { IconifyName } from 'src/components/iconify';
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -56,7 +55,7 @@ export function MobileTopBar() {
           aria-label={t('nav.menu', { defaultValue: 'Open menu' })}
           sx={{ color: '#F4ECDD' }}
         >
-          <Iconify icon={'solar:hamburger-menu-linear' as IconifyName} width={22} />
+          <Iconify icon="solar:hamburger-menu-linear" width={22} />
         </IconButton>
 
         <Logo href={paths.home} sx={{ width: 30, height: 30 }} />
