@@ -45,6 +45,16 @@ const TIMING = {
  */
 const DECODE_TIMEOUT_MS = 600;
 
+/**
+ * Ceiling on how far ahead the on-screen countdown will aim.
+ *
+ * A pull commits two drand quicknet rounds ahead, so the beacon is at most ~6s
+ * out. `reveal_at` is read against the *client's* clock, exactly as the reveal
+ * poll reads it, so a skewed one must never stretch the count past the longest
+ * hold the protocol can actually ask for.
+ */
+const MAX_COUNTDOWN_MS = 6000;
+
 export type PendingAttempt = {
   key: string;
   /** Set once the commit succeeded, so a retry can poll rather than re-charge. */
@@ -102,6 +112,8 @@ export function usePullSequence({
   // Flipped once the charge window has elapsed; the flip itself still waits on
   // the result and its decoded art, so these two conditions meet whenever they meet.
   const [chargeElapsed, setChargeElapsed] = useState(false);
+  // The span the countdown under the card is spread across. Null outside `charge`.
+  const [chargeWindow, setChargeWindow] = useState<{ startAt: number; endAt: number } | null>(null);
 
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const clearTimers = useCallback(() => {
@@ -203,6 +215,8 @@ export function usePullSequence({
 
     const live = intensityRef.current;
     const duration = timing.chargeBase + live.chargeBonusMs;
+    const startAt = Date.now();
+    setChargeWindow({ startAt, endAt: startAt + duration });
     chargeSfx(duration, live.tier);
     later(() => setChargeElapsed(true), duration);
   }, [clearTimers, later, timing.chargeBase]);
@@ -281,6 +295,7 @@ export function usePullSequence({
       const seed = seedOverride ?? seedRef.current;
       clearTimers();
       setChargeElapsed(false);
+      setChargeWindow(null);
       unlockSfx();
       haptic('tap');
 
@@ -360,18 +375,33 @@ export function usePullSequence({
     }
   }, [enterCharge, enterChoosing]);
 
+  // The hold the customer actually sits through is the later of the two gates
+  // the flip waits on: the local charge window, and the beacon publishing. The
+  // countdown is aimed at that, not at the charge timer alone, or it would
+  // reach 1 and then stall on a round that had not landed yet.
+  const revealAt = ticketQuery.data?.commitment.reveal_at;
+  const countdownWindow = useMemo(() => {
+    if (!chargeWindow) return null;
+    const beaconAt = revealAt ? new Date(revealAt).getTime() : Number.NaN;
+    if (!Number.isFinite(beaconAt)) return chargeWindow;
+    const ceiling = chargeWindow.startAt + MAX_COUNTDOWN_MS;
+    return { ...chargeWindow, endAt: Math.max(chargeWindow.endAt, Math.min(beaconAt, ceiling)) };
+  }, [chargeWindow, revealAt]);
+
   return {
     start,
     retry,
     pick,
     completePeel,
     skip,
+    /** Span for the 3·2·1 under the charging card. Null outside `charge`. */
+    countdownWindow,
     pending,
     setPending,
     intensity,
     isMutating: commitMutation.isPending,
     /** True while the committed beacon round has not been published yet. */
     awaitingBeacon: ticketQuery.data?.status === 'pending',
-    revealAt: ticketQuery.data?.commitment.reveal_at,
+    revealAt,
   };
 }

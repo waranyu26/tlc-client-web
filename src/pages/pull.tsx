@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { BuybackResult } from 'src/api/types';
 
 import { useState, useCallback } from 'react';
@@ -24,6 +25,7 @@ import { isStagePhase, usePullFlowStore } from 'src/store/pull-flow-store';
 
 import {
   PullIdleView,
+  PullCountdown,
   CardRevealView,
   PullChooseView,
   PullStageShell,
@@ -79,8 +81,18 @@ export default function PullPage() {
     setReconcileMessage(null);
   }, []);
 
-  const { start, retry, pick, skip, completePeel, pending, setPending, intensity, isMutating } =
-    usePullSequence({
+  const {
+    start,
+    retry,
+    pick,
+    skip,
+    completePeel,
+    pending,
+    setPending,
+    intensity,
+    isMutating,
+    countdownWindow,
+  } = usePullSequence({
       packId,
       rarityOdds: packQuery.data?.rarity_odds,
       reduceMotion,
@@ -241,6 +253,22 @@ export default function PullPage() {
     // must not pick a card for them, nor uncover the one they're savouring.
     const skippable = phase !== 'choosing' && phase !== 'peel';
 
+    // `charge` is a live wait on a beacon that has not published yet, so it
+    // counts itself down rather than repeating a line of copy. The announcement
+    // stays prose: the digits are decoration, the phase is the information.
+    let caption: ReactNode;
+    if (phase === 'charge' && countdownWindow) {
+      caption = (
+        <PullCountdown
+          startAt={countdownWindow.startAt}
+          endAt={countdownWindow.endAt}
+          reduceMotion={reduceMotion}
+        />
+      );
+    } else if (showSuspense) {
+      caption = t(`stage.${phase}`);
+    }
+
     return (
       <PullStageShell
         reduceMotion={reduceMotion}
@@ -248,7 +276,7 @@ export default function PullPage() {
         onSkip={skippable ? skip : undefined}
         skipLabel={skippable ? t('stage.skip') : undefined}
         announcement={t(`stage.${phase}`)}
-        caption={showSuspense ? t(`stage.${phase}`) : undefined}
+        caption={caption}
       >
         <Box
           sx={{
