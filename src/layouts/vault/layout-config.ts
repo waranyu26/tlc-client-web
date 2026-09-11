@@ -17,6 +17,9 @@ export const SIDEBAR_WIDTH_COMPACT = 88;
 /** Fixed bottom tab bar, rendered below `md` only. */
 export const BOTTOM_NAV_HEIGHT = 54;
 
+/** Sticky mobile header (hamburger, language, music), rendered below `md` only. */
+export const MOBILE_TOP_BAR_HEIGHT = 52;
+
 /** Content pane cap — beyond this the pane centers rather than stretching. */
 export const CONTENT_MAX_WIDTH = 1440;
 

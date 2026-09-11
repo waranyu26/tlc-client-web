@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
+import Switch from '@mui/material/Switch';
 import Divider from '@mui/material/Divider';
 import Skeleton from '@mui/material/Skeleton';
 import ButtonBase from '@mui/material/ButtonBase';
@@ -17,6 +18,7 @@ import en from 'src/i18n/locales/en/account.json';
 import th from 'src/i18n/locales/th/account.json';
 import { registerNamespace } from 'src/i18n/register';
 import { signOut, deleteAccount } from 'src/api/auth.api';
+import { useMusicPrefsStore } from 'src/store/music-prefs-store';
 
 import { Iconify } from 'src/components/iconify';
 import { ThbAmount, GhostButton, SectionHeading } from 'src/components/vault';
@@ -55,6 +57,8 @@ export function AccountView() {
   const router = useRouter();
   const { checkUserSession } = useAuthContext();
   const { data: profile, isLoading } = useMe();
+  const musicEnabled = useMusicPrefsStore((state) => state.musicEnabled);
+  const toggleMusic = useMusicPrefsStore((state) => state.toggleMusic);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -173,6 +177,28 @@ export function AccountView() {
               </ButtonBase>
             );
           })}
+        </Box>
+      </Box>
+
+      {/* Mirrors the top bar's music button. The bar is where you reach for it
+          mid-session; this is where you look when you want to know what the
+          site is allowed to do, so the setting has to be in both. */}
+      <Box sx={{ ...PANEL_SX, p: 2, mb: 2.5 }}>
+        <Typography sx={{ ...LABEL_SX, mb: 1.5 }}>{t('music.label')}</Typography>
+        <Box sx={ROW_SX}>
+          <Box sx={{ pr: 2 }}>
+            <Typography sx={{ color: '#F4ECDD', fontSize: 13.5, fontWeight: 500 }}>
+              {t('music.toggle')}
+            </Typography>
+            <Typography sx={{ color: '#9A9285', fontSize: 12, lineHeight: 1.5, mt: 0.25 }}>
+              {t('music.description')}
+            </Typography>
+          </Box>
+          <Switch
+            checked={musicEnabled}
+            onChange={toggleMusic}
+            slotProps={{ input: { 'aria-label': t('music.toggle') } }}
+          />
         </Box>
       </Box>
 
