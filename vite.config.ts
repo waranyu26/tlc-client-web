@@ -31,6 +31,18 @@ const DEV_HOST = process.env.VITE_DEV_HOST ?? 'dev.tokyoluckycard.com';
 const API_TARGET = process.env.VITE_DEV_API_TARGET ?? 'http://127.0.0.1:3000';
 
 /**
+ * Origin the dev server proxies `/bucket` to — MinIO, standing in for Railway
+ * Bucket.
+ *
+ * Same mixed-content problem as the API, and it bites harder here: a blocked
+ * `<audio>` source fails silently, with no request in the network panel and no
+ * error anyone would connect to the music not playing. Prod needs none of this
+ * because Railway Bucket is already https, so VITE_BUCKET_URL points straight
+ * at it there.
+ */
+const BUCKET_TARGET = process.env.VITE_DEV_BUCKET_TARGET ?? 'http://127.0.0.1:9000';
+
+/**
  * TLS material from `yarn certs` (mkcert). Deliberately optional: a fresh
  * clone, a CI job, or anyone without the local mkcert CA still gets a working
  * plain-http dev server instead of a hard startup failure. Google sign-in is
@@ -67,6 +79,14 @@ const server = {
       // origin consistent with that; `changeOrigin: true` would rewrite it to
       // 127.0.0.1:3000 and desync the two.
       changeOrigin: false,
+    },
+    '/bucket': {
+      target: BUCKET_TARGET,
+      // Unlike /api, the origin must be rewritten: MinIO checks the Host header
+      // when it signs and routes bucket requests, and dev.tokyoluckycard.com
+      // means nothing to it.
+      changeOrigin: true,
+      rewrite: (requestPath: string) => requestPath.replace(/^\/bucket/, '/card-images'),
     },
   },
 };

@@ -27,6 +27,7 @@ yarn-error.log*
 
 # environment variables
 .env*
+!.env.example
 
 # deployment
 .vercel
@@ -43,3 +44,9 @@ next-env.d.ts
 # local configs & certificates
 *.pem
 .ncurc.js
+
+# Source audio staged for upload to the asset bucket. The app loads the track
+# by URL from the bucket, never from the bundle, so the file itself has no
+# reason to be in the repo — and a multi-megabyte binary in git history is
+# permanent in a way the bucket object is not.
+music/

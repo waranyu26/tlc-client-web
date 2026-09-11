@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import Box from '@mui/material/Box';
 
 import { BottomNav } from 'src/components/vault/bottom-nav';
+import { BackgroundMusic } from 'src/components/vault/background-music';
 
 import { SidebarNav } from './sidebar-nav';
 import { MobileTopBar } from './mobile-top-bar';
@@ -67,6 +68,10 @@ export function AppShell({ children }: AppShellProps) {
       </Box>
 
       <BottomNav />
+
+      {/* Renders nothing. Mounted here so one <audio> survives every route
+          change — a per-page player would restart the track on each navigation. */}
+      <BackgroundMusic />
     </Box>
   );
 }
