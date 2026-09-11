@@ -78,9 +78,7 @@ function arm() {
 function disarm() {
   if (!armed) return;
   armed = false;
-  GESTURES.forEach((type) =>
-    document.removeEventListener(type, onGesture, { capture: true })
-  );
+  GESTURES.forEach((type) => document.removeEventListener(type, onGesture, { capture: true }));
   element()?.removeEventListener('canplay', onGesture);
   document.removeEventListener('visibilitychange', onGesture);
 }

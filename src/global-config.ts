@@ -40,8 +40,17 @@ export type ConfigValue = {
  * who have music muted, and it would be re-downloaded on every deploy because
  * the bundle hash changes. From the bucket it is a separate, cacheable,
  * range-servable request that only happens if playback actually starts.
+ *
+ * The fallback is the dev proxy, and deliberately nothing else. It used to be
+ * an absolute `http://localhost:9000`, which shipped to production the first
+ * time the variable was forgotten and left an https page requesting audio and
+ * images over http — blocked as mixed content, silent in every log. A relative
+ * path cannot do that: it resolves against whatever origin is serving the app,
+ * so at worst it 404s somewhere visible. And it cannot reach production at all
+ * now, because the build refuses to run without VITE_BUCKET_URL set
+ * (see vite.config.ts).
  */
-const BUCKET_URL = import.meta.env.VITE_BUCKET_URL ?? 'http://localhost:9000/card-images';
+const BUCKET_URL = import.meta.env.VITE_BUCKET_URL ?? '/bucket';
 
 // ----------------------------------------------------------------------
 

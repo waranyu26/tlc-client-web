@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import checker from 'vite-plugin-checker';
+import { loadEnv, defineConfig } from 'vite';
 
 // ----------------------------------------------------------------------
 
@@ -91,8 +91,44 @@ const server = {
   },
 };
 
+/**
+ * Refuses to build without an asset bucket, rather than quietly shipping one.
+ *
+ * Vite inlines `import.meta.env.*` as string literals at build time, so a
+ * missing variable is not something the running app can notice or report — it
+ * is already baked in by then. Production shipped once with the local MinIO
+ * fallback compiled into the bundle: an https page asking for audio and card
+ * images from `http://localhost:9000`, blocked as mixed content, failing
+ * silently with nothing in any log to connect it to a missing variable.
+ *
+ * Checked only for `build`. Dev has one correct answer — the /bucket proxy
+ * above, true for every developer — whereas a production host cannot be
+ * guessed, which is exactly why guessing it was the bug.
+ */
+function requireBucketUrl(mode: string) {
+  // loadEnv, not process.env: the value normally comes from a .env file, and
+  // Vite has not populated process.env with it at this point.
+  const env = loadEnv(mode, process.cwd(), '');
+
+  if (!env.VITE_BUCKET_URL) {
+    throw new Error(
+      'VITE_BUCKET_URL is not set.\n\n' +
+        'It is the public base URL of the asset bucket, and it is baked into the\n' +
+        'bundle at build time — setting it after a deploy has no effect, so the\n' +
+        'build stops here instead of shipping broken images and audio.\n\n' +
+        '  Railway:    VITE_BUCKET_URL=https://s3-public-presigner-production-c74c.up.railway.app\n' +
+        '  Local:      VITE_BUCKET_URL=/bucket   (see .env.example)\n'
+    );
+  }
+}
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command, mode }) => {
+  if (command === 'build') {
+    requireBucketUrl(mode);
+  }
+
+  return {
   plugins: [
     react(),
     checker({
@@ -115,7 +151,8 @@ export default defineConfig({
     ],
   },
   server,
-  // Same origin/TLS/proxy shape for `yarn start`, so a production build can be
-  // smoke-tested against the registered OAuth redirect URI too.
-  preview: server,
+    // Same origin/TLS/proxy shape for `yarn start`, so a production build can be
+    // smoke-tested against the registered OAuth redirect URI too.
+    preview: server,
+  };
 });
