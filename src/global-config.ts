@@ -89,7 +89,14 @@ export const CONFIG: ConfigValue = {
   music: {
     trackUrl: `${BUCKET_URL}/music/main-theme.mp3`,
     // Background, not foreground: it has to sit under the pull effects, which
-    // play at full volume and are the sound the user actually asked for.
-    volume: 0.35,
+    // play at full volume and are the sound the user actually asked for. At
+    // 0.35 it did not — the loop was still competing with the moment it is
+    // supposed to be behind.
+    //
+    // This is linear amplitude, not perceived loudness, so halving the number
+    // is rather less than halving how loud it sounds. Worth knowing before
+    // reaching for a smaller one: the next useful step down is roughly another
+    // third off, not another half.
+    volume: 0.18,
   },
 };

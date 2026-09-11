@@ -36,6 +36,17 @@ const GESTURES = [
 let audio: HTMLAudioElement | null = null;
 let wanted = false;
 let armed = false;
+/**
+ * Held down by something other than the listener: a pull in progress, or a
+ * signed-out session.
+ *
+ * Kept separate from `wanted` on purpose. `wanted` is the listener's own
+ * choice and belongs to them; this is the app briefly overruling it. Folding
+ * the two together would mean a pull silently flipping the toggle off, so the
+ * icon would say "muted" and they would have to turn their own music back on
+ * after every card.
+ */
+let suspended = false;
 
 function element(): HTMLAudioElement | null {
   if (typeof Audio === 'undefined') return null;
@@ -98,9 +109,9 @@ function disarm() {
  */
 export function start(): void {
   const el = element();
-  if (!el || !wanted) {
+  if (!el || !wanted || suspended) {
     if (import.meta.env.DEV) {
-      console.info('[music] start() ignored', { hasElement: !!el, wanted });
+      console.info('[music] start() ignored', { hasElement: !!el, wanted, suspended });
     }
     return;
   }
@@ -143,5 +154,31 @@ export function setMusicEnabled(enabled: boolean): void {
   // Armed even when the immediate attempt is still in flight, so a page opened
   // cold — a refresh, where nothing has been interacted with yet — starts on
   // whatever the visitor touches first rather than never starting at all.
+  arm();
+}
+
+/**
+ * Silence the track without touching the preference.
+ *
+ * For moments where music is the wrong thing regardless of what the listener
+ * asked for: a pull, whose sound effects are the point and which a loop
+ * underneath simply buries, and a signed-out session.
+ *
+ * Disarms as well as pauses, so a click during a pull cannot restart it
+ * through the autoplay retry — that path exists to catch the first gesture,
+ * and during a pull every gesture is aimed at something else.
+ */
+export function suspend(): void {
+  suspended = true;
+  disarm();
+  element()?.pause();
+}
+
+/** Release a suspend. Does nothing if the listener has muted in the meantime. */
+export function resume(): void {
+  if (!suspended) return;
+  suspended = false;
+  if (!wanted) return;
+  start();
   arm();
 }
