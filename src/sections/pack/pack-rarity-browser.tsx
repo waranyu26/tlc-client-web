@@ -1,6 +1,7 @@
+import type { PackCardSortKey } from './pack-card-sort';
 import type { PackCardItem, PackRarityOdds } from 'src/api/types';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
@@ -15,6 +16,7 @@ import { CardFrame, SectionHeading, CARD_ASPECT_RATIO } from 'src/components/vau
 
 import { PackRarityTiles } from './pack-rarity-tiles';
 import { PackCardDetailDialog } from './pack-card-detail-dialog';
+import { PackCardSort, sortPackCards, DEFAULT_PACK_CARD_SORT } from './pack-card-sort';
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +39,12 @@ type Props = {
  * including cards someone has already pulled. There is deliberately no sold-out
  * marker and no surviving count: a buyer should see what they could win without
  * being handed a map of what is left to win.
+ *
+ * It opens on the dearest card, because that is the one a customer came to see;
+ * A–Z is there for the other reading, looking up whether a particular card is
+ * in the box. Either way a sold-out entry sorts to the end. The card's value is
+ * in its dialog rather than under its thumbnail — a grid of prices reads as a
+ * shop, and this is a manifest of what a pull can give you.
  */
 export function PackRarityBrowser({ packId, rarityOdds, selectedRarity, onSelectRarity }: Props) {
   const { t } = useTranslation('pack');
@@ -46,9 +54,15 @@ export function PackRarityBrowser({ packId, rarityOdds, selectedRarity, onSelect
   // the tree for a pack with a large pool.
   const [inspecting, setInspecting] = useState<PackCardItem | null>(null);
 
+  const [sortKey, setSortKey] = useState<PackCardSortKey>(DEFAULT_PACK_CARD_SORT);
+
   const tier = rarityOdds.find((odds) => odds.rarity_code === selectedRarity);
   const tierName = query.data?.display_name || tier?.display_name || selectedRarity;
-  const cards = query.data?.cards ?? [];
+
+  const cards = useMemo(
+    () => sortPackCards(query.data?.cards ?? [], sortKey),
+    [query.data?.cards, sortKey]
+  );
 
   return (
     <Box>
@@ -93,6 +107,12 @@ export function PackRarityBrowser({ packId, rarityOdds, selectedRarity, onSelect
             defaultValue: '{{tier}} · {{count}} cards',
           })}
         </Typography>
+
+        {/* Pushed to the end of the row so the heading keeps the left edge the
+            rest of the page is aligned to, and wraps under it on a phone. */}
+        <Box sx={{ ml: 'auto' }}>
+          <PackCardSort value={sortKey} onChange={setSortKey} />
+        </Box>
       </Box>
 
       <Box sx={{ display: 'grid', gap: gridGap, gridTemplateColumns: cardGridColumns }}>

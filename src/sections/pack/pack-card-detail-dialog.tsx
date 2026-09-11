@@ -8,6 +8,8 @@ import Dialog from '@mui/material/Dialog';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
+import { formatThb } from 'src/utils/format-currency';
+
 import { Iconify } from 'src/components/iconify';
 import { CardFrame, HdImageButton, getRarityColor, CardImageViewer } from 'src/components/vault';
 
@@ -63,9 +65,13 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 /**
  * A single card from a pack's manifest, opened from the rarity sheet.
  *
- * Shows only provenance — name, set, tier, PSA cert. Like the sheet it sits in,
- * it deliberately carries no availability or value figure: browsing a rarity
- * shows what could come out of it, never how much of it is left.
+ * Shows provenance — name, set, tier, PSA cert — and the card's buyback value.
+ *
+ * The value lives here rather than under the thumbnail: a grid of prices reads
+ * as a shop, while a customer who has tapped a specific card is asking what
+ * that card is worth. It is still the only figure disclosed. How much of the
+ * tier is left remains unpublished, here as in the grid — a buyback price is a
+ * standing offer, not an inventory fact.
  */
 export function PackCardDetailDialog({ card, rarityName, onClose }: Props) {
   const { t } = useTranslation('pack');
@@ -171,6 +177,15 @@ export function PackCardDetailDialog({ card, rarityName, onClose }: Props) {
             }}
           >
             <DetailRow label={t('rarity.set', { defaultValue: 'Set' })} value={card.set_name} />
+            {/* Omitted rather than shown as "฿0" when a card has no buyback
+                price set — a zero here would read as worthless instead of as
+                not yet priced. */}
+            {card.buyback_price_satang > 0 && (
+              <DetailRow
+                label={t('rarity.value', { defaultValue: 'Buyback value' })}
+                value={formatThb(card.buyback_price_satang)}
+              />
+            )}
             {/* Stated as a row rather than only as a grey wash, so it survives
                 a screen reader and a colour-blind reading of the grid. */}
             <DetailRow

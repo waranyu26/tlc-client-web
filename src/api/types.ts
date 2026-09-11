@@ -328,6 +328,14 @@ export type PackCardItem = {
   thumb_url: string;
   psa_cert_number: string | null;
   psa_grade: string;
+  /**
+   * What the card sells back for, in satang — the same standing offer the vault
+   * shows once it is owned, and the figure the manifest is ranked by.
+   *
+   * The one number published here. It is an offer rather than an inventory
+   * fact, so unlike a remaining count it gives nothing about the pack away.
+   */
+  buyback_price_satang: number;
 };
 
 /** The pack page: the box and its published odds, and nothing about stock. */

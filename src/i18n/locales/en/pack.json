@@ -47,7 +47,8 @@
     "kindLabel": "Type",
     "soldOut": "Sold out",
     "availability": "Availability",
-    "stillAvailable": "Still in the pack"
+    "stillAvailable": "Still in the pack",
+    "value": "Buyback value"
   },
   "fair": {
     "title": "Provably fair",
@@ -96,5 +97,10 @@
     "label": "Your seed",
     "reroll": "Generate a new seed",
     "hint": "Mixed into the commitment before the beacon exists. Change it to anything you like — it appears on your receipt."
+  },
+  "sort": {
+    "label": "Sort cards",
+    "value": "Value ↓",
+    "name": "A–Z"
   }
 }
