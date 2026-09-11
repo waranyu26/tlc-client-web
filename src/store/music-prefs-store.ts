@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { setMusicEnabled } from 'src/lib/music';
+
 // ----------------------------------------------------------------------
 // Background music preference, persisted across sessions.
 //
@@ -18,6 +20,12 @@ import { persist } from 'zustand/middleware';
 // Note this means "wants music", not "is playing": browsers refuse to start
 // audio before a user gesture, so a fresh tab with the flag on is still silent
 // until the visitor touches something.
+//
+// The player is driven from here rather than from a React effect. zustand
+// notifies subscribers synchronously inside the setState call, so a toggle
+// reaches play() in the same task as the click that caused it — which is the
+// only thing a mobile browser will accept. An effect runs after commit, by
+// which time the activation is gone.
 // ----------------------------------------------------------------------
 
 type MusicPrefsState = {
@@ -36,3 +44,9 @@ export const useMusicPrefsStore = create<MusicPrefsState>()(
     { name: 'tlc.music-prefs.v1' }
   )
 );
+
+// Wire the audio module to the stored preference, at boot (after rehydration)
+// and on every change. Mirrors how pull-prefs drives pull-sfx; music.ts has no
+// React dependency, so this is the one place the two meet.
+setMusicEnabled(useMusicPrefsStore.getState().musicEnabled);
+useMusicPrefsStore.subscribe((state) => setMusicEnabled(state.musicEnabled));
