@@ -1,6 +1,7 @@
 export * from './nav-items';
 
 export * from './app-shell';
+export * from './app-header';
 export * from './sidebar-nav';
 export * from './layout-config';
 export * from './mobile-top-bar';

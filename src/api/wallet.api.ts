@@ -6,6 +6,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import axiosInstance from 'src/lib/axios';
 import { queryClient } from 'src/lib/query-client';
 
+import { useAuthContext } from 'src/auth/hooks/use-auth-context';
+
 // ----------------------------------------------------------------------
 
 /**
@@ -50,10 +52,23 @@ export async function voidTopup(intentId: string): Promise<TopupStatus> {
 
 // ----------------------------------------------------------------------
 
+/**
+ * The signed-in customer's balance.
+ *
+ * Gated on the session rather than left to fail, because the shell asks for
+ * this on every route and the shop is browsable signed out: without the gate a
+ * guest reading the pack shelf fires a 401 per mount, retries it, and the
+ * sidebar sits on a spinner for a figure they cannot have. Callers render the
+ * balance only when authenticated, so a permanently pending query is the
+ * correct shape for a guest.
+ */
 export function useWalletBalance() {
+  const { authenticated } = useAuthContext();
+
   return useQuery({
     queryKey: ['wallet', 'balance'],
     queryFn: getWalletBalance,
+    enabled: authenticated,
   });
 }
 

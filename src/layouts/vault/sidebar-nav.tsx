@@ -16,6 +16,8 @@ import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
 import { ThbAmount, PrimaryButton } from 'src/components/vault';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_COMPACT } from './layout-config';
 import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './nav-items';
 
@@ -93,6 +95,7 @@ function NavRow({ item }: { item: NavItem }) {
 export function SidebarNav() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { authenticated } = useAuthContext();
   const balanceQuery = useWalletBalance();
 
   return (
@@ -157,11 +160,13 @@ export function SidebarNav() {
         ))}
       </Box>
 
-      {/* Balance + primary action stay reachable without scrolling */}
+      {/* Balance + primary action stay reachable without scrolling. The balance
+          card is for account holders only — the header carries the sign-in pair
+          a guest needs instead, and an empty wallet is not an invitation. */}
       <Box sx={{ mt: 'auto', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <Box
           sx={{
-            display: { md: 'none', lg: 'block' },
+            display: authenticated ? { md: 'none', lg: 'block' } : 'none',
             px: 1.75,
             py: 1.5,
             borderRadius: '12px',

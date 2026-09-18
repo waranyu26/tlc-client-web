@@ -17,8 +17,24 @@ export const SIDEBAR_WIDTH_COMPACT = 88;
 /** Fixed bottom tab bar, rendered below `md` only. */
 export const BOTTOM_NAV_HEIGHT = 54;
 
-/** Sticky mobile header (hamburger, language, music), rendered below `md` only. */
+/** Sticky mobile header (hamburger, language, music, session), below `md` only. */
 export const MOBILE_TOP_BAR_HEIGHT = 52;
+
+/**
+ * Sticky desktop header (language, music, session), `md` and up.
+ *
+ * Tall enough to seat a real button, which is the whole reason it exists: the
+ * ticker strip it sits above is 34px of scrolling text and can only host
+ * controls shorter than itself.
+ */
+export const APP_HEADER_HEIGHT = 56;
+
+/**
+ * Floor for the header's session cluster, so the language and music toggles
+ * beside it do not slide sideways when the session check resolves and
+ * "Sign in / Sign up" is replaced by the balance and account icons.
+ */
+export const AUTH_CLUSTER_MIN_WIDTH = 168;
 
 /** Content pane cap — beyond this the pane centers rather than stretching. */
 export const CONTENT_MAX_WIDTH = 1440;
@@ -34,6 +50,16 @@ export const READING_MAX_WIDTH = 880;
 
 /** Live ticker strip height, used to offset sticky headers beneath it. */
 export const TICKER_HEIGHT = 34;
+
+/**
+ * Where a page's own sticky column has to start on `md` and up, so it clears
+ * the chrome above it — the header and the ticker strip, plus a gutter.
+ *
+ * Derived rather than written down: the rail on Home used to carry a literal 88
+ * that was tuned against the ticker alone, and adding the header above it would
+ * have quietly slid the rail underneath.
+ */
+export const CONTENT_STICKY_TOP = APP_HEADER_HEIGHT + TICKER_HEIGHT + 16;
 
 // ----------------------------------------------------------------------
 

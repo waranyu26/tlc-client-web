@@ -2,6 +2,7 @@ import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { safeReturnUrl } from 'minimal-shared/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -15,6 +16,7 @@ import { RouterLink } from 'src/routes/components';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import { ApiError } from 'src/lib/axios';
+import { CONFIG } from 'src/global-config';
 import en from 'src/i18n/locales/en/auth.json';
 import th from 'src/i18n/locales/th/auth.json';
 import { typeScale } from 'src/theme/type-scale';
@@ -52,6 +54,12 @@ export function SignInView() {
     searchParams.get('error') === 'google' ? t('callback.error') : null
   );
 
+  // Where the customer was before the header's Sign in sent them here. Sanitised
+  // rather than trusted: `returnTo` arrives in the URL, so anyone can put an
+  // off-site address in it, and following one would make this page an open
+  // redirect worth phishing through.
+  const returnTo = safeReturnUrl(searchParams.get('returnTo'), CONFIG.auth.redirectPath);
+
   const methods = useForm<SignInSchemaType>({
     resolver: zodResolver(SignInSchema),
     defaultValues: { email: '', password: '' },
@@ -66,6 +74,7 @@ export function SignInView() {
   const handleGoogleError = useCallback(() => setErrorMessage(t('callback.error')), [t]);
   const { start: startGoogle, pending: googlePending } = useGoogleSignIn({
     onError: handleGoogleError,
+    returnTo,
   });
 
   const onSubmit = handleSubmit(async (data) => {
@@ -94,7 +103,7 @@ export function SignInView() {
       }
 
       await checkUserSession?.();
-      router.push(paths.home);
+      router.push(returnTo);
     } catch (error) {
       setErrorMessage(error instanceof ApiError ? error.message : t('errors.generic'));
     }
@@ -170,9 +179,10 @@ export function SignInView() {
 
         <Typography sx={{ textAlign: 'center', fontSize: 13, color: '#9A9285' }}>
           {t('signIn.noAccount')}{' '}
+          {/* Hand the destination on, or switching form loses the customer's place. */}
           <Link
             component={RouterLink}
-            href={paths.auth.signUp}
+            href={`${paths.auth.signUp}?${new URLSearchParams({ returnTo }).toString()}`}
             sx={{ color: '#E7CE92', fontWeight: 600 }}
           >
             {t('signIn.signUpLink')}

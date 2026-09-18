@@ -2,6 +2,7 @@ import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { safeReturnUrl } from 'minimal-shared/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -11,10 +12,11 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
+import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import { ApiError } from 'src/lib/axios';
+import { CONFIG } from 'src/global-config';
 import en from 'src/i18n/locales/en/auth.json';
 import th from 'src/i18n/locales/th/auth.json';
 import { typeScale } from 'src/theme/type-scale';
@@ -54,7 +56,11 @@ const FORM_FIELD_KEYS: Array<keyof SignUpSchemaType> = [
 export function SignUpView() {
   const { t } = useTranslation('auth');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { checkUserSession } = useAuthContext();
+
+  // Sanitised, not trusted — see the same line in sign-in-view.
+  const returnTo = safeReturnUrl(searchParams.get('returnTo'), CONFIG.auth.redirectPath);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -72,6 +78,7 @@ export function SignUpView() {
   const handleGoogleError = useCallback(() => setErrorMessage(t('callback.error')), [t]);
   const { start: startGoogle, pending: googlePending } = useGoogleSignIn({
     onError: handleGoogleError,
+    returnTo,
   });
 
   const onSubmit = handleSubmit(async (data) => {
@@ -97,7 +104,7 @@ export function SignUpView() {
       }
 
       await checkUserSession?.();
-      router.push(paths.home);
+      router.push(returnTo);
     } catch (error) {
       setErrorMessage(error instanceof ApiError ? error.message : t('errors.generic'));
     }
@@ -179,9 +186,10 @@ export function SignUpView() {
 
         <Typography sx={{ textAlign: 'center', fontSize: 13, color: '#9A9285' }}>
           {t('signUp.haveAccount')}{' '}
+          {/* Hand the destination on, or switching form loses the customer's place. */}
           <Link
             component={RouterLink}
-            href={paths.auth.signIn}
+            href={`${paths.auth.signIn}?${new URLSearchParams({ returnTo }).toString()}`}
             sx={{ color: '#E7CE92', fontWeight: 600 }}
           >
             {t('signUp.signInLink')}

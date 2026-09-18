@@ -13,6 +13,7 @@ import th from 'src/i18n/locales/th/auth.json';
 import { registerNamespace } from 'src/i18n/register';
 import { handleGoogleCallback } from 'src/api/auth.api';
 
+import { takeReturnTo } from 'src/auth/utils/return-to';
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
 import { AuthShell } from './auth-shell';
@@ -21,8 +22,10 @@ registerNamespace('auth', en, th);
 
 // ----------------------------------------------------------------------
 // Resolves the SuperTokens ThirdParty (Google) redirect. Runs once on mount;
-// success routes home, any failure bounces back to sign-in with an inline
-// error flag (this repo has no global toast provider — sign-in reads `?error`).
+// success routes to whatever the customer was aiming at before they were sent
+// to Google — the shop front if that was nothing — and any failure bounces back
+// to sign-in with an inline error flag (this repo has no global toast provider
+// — sign-in reads `?error`).
 // ----------------------------------------------------------------------
 
 export function AuthCallbackView() {
@@ -56,7 +59,7 @@ export function AuthCallbackView() {
         }
 
         await checkUserSession?.();
-        router.push(paths.home);
+        router.push(takeReturnTo() ?? paths.home);
       } catch {
         router.replace(`${paths.auth.signIn}?error=google`);
       }

@@ -5,19 +5,19 @@ import Box from '@mui/material/Box';
 
 import { subscribeTicker } from 'src/api/ticker.api';
 
-import { TickerStrip, MusicToggle, LanguageToggle } from 'src/components/vault';
+import { TickerStrip } from 'src/components/vault';
+
+import { APP_HEADER_HEIGHT } from './layout-config';
 
 // ----------------------------------------------------------------------
-// Live activity strip pinned to the top of the content pane on every
-// authenticated route. Previously this lived inside the Home view only; on a
-// desktop canvas it doubles as the pane header and reinforces the "live
-// platform" read, so it was promoted into the shell.
+// Live activity strip pinned to the top of the content pane on every route,
+// signed in or not — the stream is public, and a guest deciding whether this is
+// a real shop is exactly who it is for.
 //
-// Because it already is the desktop pane header, it is also the only thing at
-// the top of a desktop viewport — so language and music ride on its right-hand
-// end rather than justifying a second bar above it. They are hidden below `md`,
-// where MobileTopBar carries the same two controls; rendering both would put
-// two language switches on one screen.
+// It used to carry language and music on its right-hand end, because it was the
+// only thing at the top of a desktop viewport. AppHeader is now, and it has the
+// height for a real control, so the strip went back to being only the strip:
+// two bars each offering a language switch would have been one too many.
 // ----------------------------------------------------------------------
 
 const MAX_ITEMS = 12;
@@ -46,7 +46,9 @@ export function LiveTickerBar() {
     <Box
       sx={{
         position: { md: 'sticky' },
-        top: 0,
+        // Sticks *under* the header rather than at the viewport top, or the two
+        // would overlap the moment the page scrolls.
+        top: { md: `${APP_HEADER_HEIGHT}px` },
         zIndex: (theme) => theme.zIndex.appBar - 1,
         display: 'flex',
         alignItems: 'stretch',
@@ -55,30 +57,6 @@ export function LiveTickerBar() {
       }}
     >
       <TickerStrip items={items} sx={{ flex: 1, minWidth: 0 }} />
-
-      {/*
-        Matches the strip's own background and bottom border so the two read as
-        one bar rather than a strip with something bolted beside it.
-
-        Both controls are deliberately shorter than the strip's own 34px: the
-        parent stretches them to its height, so as long as they stay under it
-        the bar does not grow and nothing below shifts down a row.
-      */}
-      <Box
-        sx={{
-          display: { xs: 'none', md: 'flex' },
-          alignItems: 'center',
-          gap: 0.5,
-          flexShrink: 0,
-          pr: 1.5,
-          pl: 1,
-          bgcolor: '#111019',
-          borderBottom: '1px solid rgba(231,206,146,0.08)',
-        }}
-      >
-        <LanguageToggle />
-        <MusicToggle size="small" />
-      </Box>
     </Box>
   );
 }

@@ -75,7 +75,7 @@ export function AccountView() {
     try {
       await signOut();
       await checkUserSession?.();
-      router.push(paths.onboarding);
+      router.push(paths.home);
     } finally {
       setSigningOut(false);
     }
@@ -85,7 +85,7 @@ export function AccountView() {
     await deleteAccount();
     await signOut();
     await checkUserSession?.();
-    router.push(paths.onboarding);
+    router.push(paths.home);
   }, [checkUserSession, router]);
 
   return (

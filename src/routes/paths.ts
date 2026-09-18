@@ -7,10 +7,13 @@ const ROOTS = {
 // ----------------------------------------------------------------------
 
 export const paths = {
-  // Onboarding / marketing landing (shown to guests)
-  onboarding: '/',
-  // Authenticated home
-  home: '/home',
+  // The shop front, and the site's only landing page.
+  //
+  // Public on purpose: a guest arriving here browses the shelf, a pack's odds
+  // and its rarity manifest before being asked for anything. The sign-in wall
+  // used to sit in front of this, which meant the product could not be seen
+  // without an account — the header's Sign in / Sign up pair replaces it.
+  home: '/',
   // Catalog & discovery
   verify: (ticketId: string) => `/verify/${ticketId}`,
   pack: (id: string) => `/pack/${id}`,
@@ -48,9 +51,9 @@ export const paths = {
   faqs: '/faqs',
   minimalStore: 'https://mui.com/store/items/minimal-dashboard/',
   dashboard: {
-    root: '/home',
-    two: '/home',
-    three: '/home',
-    group: { root: '/home', five: '/home', six: '/home' },
+    root: '/',
+    two: '/',
+    three: '/',
+    group: { root: '/', five: '/', six: '/' },
   },
 };

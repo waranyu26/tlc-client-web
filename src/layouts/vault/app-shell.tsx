@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 
 import { BottomNav } from 'src/components/vault/bottom-nav';
 
+import { AppHeader } from './app-header';
 import { SidebarNav } from './sidebar-nav';
 import { MobileTopBar } from './mobile-top-bar';
 import { LiveTickerBar } from './live-ticker-bar';
@@ -12,9 +13,12 @@ import { gutter, CONTENT_MAX_WIDTH, BOTTOM_NAV_HEIGHT } from './layout-config';
 // ----------------------------------------------------------------------
 // Desktop-first application frame.
 //
-//   lg+  [ Sidebar 248 ][ ticker + content pane, inner cap 1440, centered ]
+//   lg+  [ Sidebar 248 ][ header + ticker + content pane, cap 1440, centered ]
 //   md   [ Rail 88     ][ same pane ]
 //   < md [ top bar + ticker + full-width column ] + fixed BottomNav
+//
+// Both headers are inside the content column rather than spanning the sidebar,
+// so "top right" lines up with the right edge of the pane the reader is in.
 //
 // The mobile top bar is the phone's only non-destination surface. Without it
 // there was nowhere to reach Delivery or Account — both are secondary nav items
@@ -44,6 +48,8 @@ export function AppShell({ children }: AppShellProps) {
       >
         <MobileTopBar />
 
+        <AppHeader />
+
         <LiveTickerBar />
 
         <Box
@@ -67,7 +73,6 @@ export function AppShell({ children }: AppShellProps) {
       </Box>
 
       <BottomNav />
-
     </Box>
   );
 }

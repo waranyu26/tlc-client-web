@@ -6,6 +6,8 @@ import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
+import { usePathname } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { usePacks } from 'src/api/pack.api';
 import en from 'src/i18n/locales/en/home.json';
@@ -13,9 +15,22 @@ import th from 'src/i18n/locales/th/home.json';
 import { typeScale } from 'src/theme/type-scale';
 import { registerNamespace } from 'src/i18n/register';
 import { useWalletBalance } from 'src/api/wallet.api';
-import { gridGap, sectionGap, RIGHT_RAIL_WIDTH } from 'src/layouts/vault/layout-config';
+import {
+  gridGap,
+  sectionGap,
+  RIGHT_RAIL_WIDTH,
+  CONTENT_STICKY_TOP,
+} from 'src/layouts/vault/layout-config';
 
-import { FadeUp, TrustBadge, PrimaryButton, SectionHeading } from 'src/components/vault';
+import {
+  FadeUp,
+  TrustBadge,
+  GhostButton,
+  PrimaryButton,
+  SectionHeading,
+} from 'src/components/vault';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import { WalletHero } from './wallet-hero';
 import { HowItWorks } from './how-it-works';
@@ -40,12 +55,60 @@ const SKELETON_ROWS = 2;
 export function HomeView() {
   const { t } = useTranslation('home');
   const navigate = useNavigate();
+  const pathname = usePathname();
 
+  const { authenticated, loading: sessionLoading } = useAuthContext();
   const balanceQuery = useWalletBalance();
   const packsQuery = usePacks({ pageSize: 20 });
 
   const packs = packsQuery.data?.data ?? [];
   const firstPack = packs[0];
+
+  // The rail's top card is the one thing on this page that depends on having an
+  // account. A guest gets the invitation in its place rather than a wallet
+  // reading ฿0.00, which would look like a balance they had spent.
+  const returnTo = `?${new URLSearchParams({ returnTo: pathname }).toString()}`;
+
+  const guestCard = (
+    <Box sx={{ p: 2.5, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+      <Typography sx={{ ...typeScale.cardTitle, color: '#F4ECDD' }}>
+        {t('guest.headline', { defaultValue: 'Start your collection' })}
+      </Typography>
+      <Typography sx={{ ...typeScale.body, color: '#9A9285', mb: 0.75 }}>
+        {t('guest.body', {
+          defaultValue:
+            'Browse every pack, its published odds and the cards behind them. You only need an account to pull.',
+        })}
+      </Typography>
+      <PrimaryButton fullWidth component={RouterLink} href={`${paths.auth.signUp}${returnTo}`}>
+        {t('guest.signUp', { defaultValue: 'Create an account' })}
+      </PrimaryButton>
+      <GhostButton fullWidth component={RouterLink} href={`${paths.auth.signIn}${returnTo}`}>
+        {t('guest.signIn', { defaultValue: 'I already have one' })}
+      </GhostButton>
+    </Box>
+  );
+
+  const walletCard = (
+    <>
+      <WalletHero
+        balanceSatang={balanceQuery.data?.balance_satang}
+        isLoading={balanceQuery.isPending}
+      />
+      {/* At `lg` the sidebar already carries this CTA — don't say it twice. */}
+      <Box sx={{ display: { xs: 'block', lg: 'none' }, px: 2.5, pb: 2.5 }}>
+        {/* Sends the customer into the first pack. It used to navigate to
+            `paths.home` — the page it is already on, so it did nothing. */}
+        <PrimaryButton
+          fullWidth
+          disabled={!firstPack}
+          onClick={() => firstPack && navigate(paths.pack(firstPack.id))}
+        >
+          {t('pullCta', { defaultValue: 'Pull a card' })}
+        </PrimaryButton>
+      </Box>
+    </>
+  );
 
   const rail = (
     <Box
@@ -54,34 +117,24 @@ export function HomeView() {
         flexDirection: 'column',
         gap: 2,
         position: { md: 'sticky' },
-        top: { md: 88 },
+        top: { md: CONTENT_STICKY_TOP },
       }}
     >
-      <Box
-        sx={{
-          borderRadius: '15px',
-          border: '1px solid rgba(231,206,146,0.16)',
-          backgroundColor: '#17161B',
-          overflow: 'hidden',
-        }}
-      >
-        <WalletHero
-          balanceSatang={balanceQuery.data?.balance_satang}
-          isLoading={balanceQuery.isPending}
-        />
-        {/* At `lg` the sidebar already carries this CTA — don't say it twice. */}
-        <Box sx={{ display: { xs: 'block', lg: 'none' }, px: 2.5, pb: 2.5 }}>
-          {/* Sends the customer into the first pack. It used to navigate to
-              `paths.home` — the page it is already on, so it did nothing. */}
-          <PrimaryButton
-            fullWidth
-            disabled={!firstPack}
-            onClick={() => firstPack && navigate(paths.pack(firstPack.id))}
-          >
-            {t('pullCta', { defaultValue: 'Pull a card' })}
-          </PrimaryButton>
+      {/* Held back until the session is known: showing the invitation and then
+          swapping it for a balance tells a returning customer they are signed
+          out on the first screen they see. */}
+      {!sessionLoading && (
+        <Box
+          sx={{
+            borderRadius: '15px',
+            border: '1px solid rgba(231,206,146,0.16)',
+            backgroundColor: '#17161B',
+            overflow: 'hidden',
+          }}
+        >
+          {authenticated ? walletCard : guestCard}
         </Box>
-      </Box>
+      )}
 
       <TrustBadge />
     </Box>
