@@ -101,7 +101,13 @@ export function ChangeEmailDialog({
   // move the address — and with it, the account.
   if (!hasPassword) {
     return (
-      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth slotProps={dialogPaperProps}>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="xs"
+        fullWidth
+        slotProps={dialogPaperProps}
+      >
         <DialogTitle sx={{ fontFamily: `'Cormorant Garamond', serif`, color: '#F4ECDD' }}>
           {t('security.changeEmailTitle')}
         </DialogTitle>
@@ -171,7 +177,9 @@ export function ChangeEmailDialog({
               sx={fieldSx}
             />
             {error && (
-              <DialogContentText sx={{ color: '#C9605B', fontSize: 12.5 }}>{error}</DialogContentText>
+              <DialogContentText sx={{ color: '#C9605B', fontSize: 12.5 }}>
+                {error}
+              </DialogContentText>
             )}
           </Box>
         )}
@@ -187,11 +195,7 @@ export function ChangeEmailDialog({
             <Button onClick={handleClose} disabled={submitting} sx={{ color: '#9A9285' }}>
               {t('security.close')}
             </Button>
-            <Button
-              onClick={handleCancelPending}
-              disabled={submitting}
-              sx={{ color: '#C9605B' }}
-            >
+            <Button onClick={handleCancelPending} disabled={submitting} sx={{ color: '#C9605B' }}>
               {t('security.cancelPending')}
             </Button>
           </>

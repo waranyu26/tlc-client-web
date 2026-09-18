@@ -172,7 +172,9 @@ type RowProps = {
 
 function Row({ label, value, action, onClick, badge, note }: RowProps) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
+    <Box
+      sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}
+    >
       <Box sx={{ minWidth: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
           <Typography sx={LABEL_SX}>{label}</Typography>

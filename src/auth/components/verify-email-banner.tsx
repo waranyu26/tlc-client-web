@@ -66,11 +66,7 @@ export function VerifyEmailBanner() {
         borderBottom: '1px solid rgba(201,143,91,0.28)',
       }}
     >
-      <Iconify
-        icon="solar:letter-bold"
-        width={18}
-        sx={{ color: '#C98F5B', flexShrink: 0 }}
-      />
+      <Iconify icon="solar:letter-bold" width={18} sx={{ color: '#C98F5B', flexShrink: 0 }} />
 
       <Box sx={{ minWidth: 0, flexGrow: 1 }}>
         <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#F4ECDD', lineHeight: 1.4 }}>
