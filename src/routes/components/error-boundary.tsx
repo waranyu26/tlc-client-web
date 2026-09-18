@@ -1,13 +1,24 @@
 import type { Theme, CSSObject } from '@mui/material/styles';
 
+import { useState, useEffect } from 'react';
 import { useRouteError, isRouteErrorResponse } from 'react-router';
 
 import GlobalStyles from '@mui/material/GlobalStyles';
+
+import { forceReload, isStaleChunkError, reloadForStaleDeploy } from 'src/lib/stale-deploy';
 
 // ----------------------------------------------------------------------
 
 export function ErrorBoundary() {
   const error = useRouteError();
+
+  // A chunk that didn't load is not an application error: the tab is running an
+  // index.html from before the last deploy, so it is asking for files that were
+  // replaced. Reloading is the whole fix, and showing a stack trace for it
+  // teaches the customer to distrust a working app.
+  if (isStaleChunkError(error)) {
+    return <StaleDeployRecovery />;
+  }
 
   return (
     <>
@@ -15,6 +26,61 @@ export function ErrorBoundary() {
 
       <div className={errorBoundaryClasses.root}>
         <div className={errorBoundaryClasses.container}>{renderErrorMessage(error)}</div>
+      </div>
+    </>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+function StaleDeployRecovery() {
+  // Optimistic: the reload succeeds in almost every case, and starting at
+  // `reloading` means the common path never flashes a manual screen on its way
+  // out. The effect downgrades it only if recovery was declined.
+  const [outcome, setOutcome] = useState<'reloading' | 'offline' | 'stale'>('reloading');
+
+  useEffect(() => {
+    if (reloadForStaleDeploy()) return;
+
+    // A dropped connection fails a chunk exactly the way a deploy does, and it
+    // is one of the two reasons a reload is declined. Telling someone whose
+    // signal just went that a new version was released would send them
+    // refreshing over and over against nothing.
+    setOutcome(navigator.onLine === false ? 'offline' : 'stale');
+  }, []);
+
+  if (outcome === 'reloading') {
+    return (
+      <>
+        {inputGlobalStyles()}
+
+        <div className={errorBoundaryClasses.root}>
+          <div className={errorBoundaryClasses.container}>
+            <h1 className={errorBoundaryClasses.title}>Updating to the latest version…</h1>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {inputGlobalStyles()}
+
+      <div className={errorBoundaryClasses.root}>
+        <div className={errorBoundaryClasses.container}>
+          <h1 className={errorBoundaryClasses.title}>
+            {outcome === 'offline' ? 'You appear to be offline' : 'Please refresh this page'}
+          </h1>
+          <p className={errorBoundaryClasses.notice}>
+            {outcome === 'offline'
+              ? 'Part of this page could not be downloaded. Check your connection and try again — nothing in your wallet or vault is affected.'
+              : 'A newer version of Tokyo Lucky Card has been released, so part of this page could no longer be loaded. Refreshing picks it up — nothing in your wallet or vault is affected.'}
+          </p>
+          <button type="button" className={errorBoundaryClasses.button} onClick={forceReload}>
+            {outcome === 'offline' ? 'Try again' : 'Refresh'}
+          </button>
+        </div>
       </div>
     </>
   );
@@ -76,6 +142,8 @@ const errorBoundaryClasses = {
   title: 'error-boundary-title',
   details: 'error-boundary-details',
   message: 'error-boundary-message',
+  notice: 'error-boundary-notice',
+  button: 'error-boundary-button',
   filePath: 'error-boundary-file-path',
 };
 
@@ -143,6 +211,30 @@ const detailsStyles = (): CSSObject => ({
   backgroundColor: 'var(--details-background)',
 });
 
+/**
+ * The stale-deploy screen is addressed to a customer, not a developer, so it
+ * drops the red "something exploded" treatment the message style carries.
+ */
+const noticeStyles = (theme: Theme): CSSObject => ({
+  margin: 0,
+  lineHeight: 1.6,
+  color: 'white',
+  fontSize: theme.typography.pxToRem(15),
+});
+
+const buttonStyles = (theme: Theme): CSSObject => ({
+  border: 0,
+  padding: '12px 24px',
+  borderRadius: 8,
+  cursor: 'pointer',
+  color: 'black',
+  alignSelf: 'flex-start',
+  backgroundColor: 'white',
+  fontFamily: 'inherit',
+  fontSize: theme.typography.pxToRem(15),
+  fontWeight: theme.typography.fontWeightBold,
+});
+
 const filePathStyles = (): CSSObject => ({
   marginTop: 0,
   color: 'var(--info-color)',
@@ -160,6 +252,8 @@ const inputGlobalStyles = () => (
         [`& .${errorBoundaryClasses.container}`]: contentStyles(),
         [`& .${errorBoundaryClasses.title}`]: titleStyles(theme),
         [`& .${errorBoundaryClasses.message}`]: messageStyles(theme),
+        [`& .${errorBoundaryClasses.notice}`]: noticeStyles(theme),
+        [`& .${errorBoundaryClasses.button}`]: buttonStyles(theme),
         [`& .${errorBoundaryClasses.filePath}`]: filePathStyles(),
         [`& .${errorBoundaryClasses.details}`]: detailsStyles(),
       },
