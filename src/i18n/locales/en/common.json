@@ -27,6 +27,8 @@
     "back": "Back",
     "retry": "Retry",
     "close": "Close",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
     "signOut": "Sign out"
   },
   "state": {

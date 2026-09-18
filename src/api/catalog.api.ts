@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import axiosInstance from 'src/lib/axios';
 
+import { useAuthContext } from 'src/auth/hooks/use-auth-context';
+
 // ----------------------------------------------------------------------
 
 export async function getCardBuyback(cardId: string): Promise<CardBuyback> {
@@ -28,9 +30,13 @@ export function useCardBuyback(cardId: string) {
   });
 }
 
+/** Gated on the session for the same reason as `useWalletBalance`. */
 export function useCollection() {
+  const { authenticated } = useAuthContext();
+
   return useQuery({
     queryKey: ['catalog', 'collection'],
     queryFn: getCollection,
+    enabled: authenticated,
   });
 }

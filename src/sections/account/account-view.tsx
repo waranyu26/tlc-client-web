@@ -75,7 +75,7 @@ export function AccountView() {
     try {
       await signOut();
       await checkUserSession?.();
-      router.push(paths.onboarding);
+      router.push(paths.home);
     } finally {
       setSigningOut(false);
     }
@@ -85,7 +85,7 @@ export function AccountView() {
     await deleteAccount();
     await signOut();
     await checkUserSession?.();
-    router.push(paths.onboarding);
+    router.push(paths.home);
   }, [checkUserSession, router]);
 
   return (
@@ -151,6 +151,36 @@ export function AccountView() {
           </Box>
         )}
       </Box>
+
+      {/* Addresses are settings, not part of a delivery request, and this is
+          where someone looks to correct one when they are not in the middle of
+          asking for a card to be shipped. */}
+      <ButtonBase
+        onClick={() => router.push(paths.addresses)}
+        sx={{
+          ...PANEL_SX,
+          p: 2,
+          mb: 2.5,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          textAlign: 'left',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+          <Iconify icon="mingcute:location-fill" width={20} sx={{ color: '#E7CE92' }} />
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ color: '#F4ECDD', fontSize: 13.5, fontWeight: 500 }}>
+              {t('addresses.label')}
+            </Typography>
+            <Typography sx={{ color: '#9A9285', fontSize: 12, lineHeight: 1.5, mt: 0.25 }}>
+              {t('addresses.description')}
+            </Typography>
+          </Box>
+        </Box>
+        <Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ color: '#6F6A60' }} />
+      </ButtonBase>
 
       <Box sx={{ ...PANEL_SX, p: 2, mb: 2.5 }}>
         <Typography sx={{ ...LABEL_SX, mb: 1.5 }}>{t('language.label')}</Typography>

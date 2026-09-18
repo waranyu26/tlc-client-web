@@ -20,7 +20,8 @@
     "warningPickup": "Requesting collection permanently removes this card from your digital collection — it can no longer be sold back or viewed in the Vault.",
     "submitPickup": "Reserve for collection",
     "successTitlePickup": "Reserved for collection",
-    "successSubtitlePickup": "We're getting your card ready. You'll be notified once it's waiting for you at the shop."
+    "successSubtitlePickup": "We're getting your card ready. You'll be notified once it's waiting for you at the shop.",
+    "manageAddresses": "Manage addresses"
   },
   "address": {
     "title": "Delivery Addresses",
@@ -50,7 +51,11 @@
       "districtRequired": "District is required",
       "provinceRequired": "Province is required",
       "postalCodeInvalid": "Enter a valid 5-digit postal code"
-    }
+    },
+    "backToDelivery": "Back to Delivery",
+    "editAria": "Edit address for {{name}}",
+    "deleteAria": "Delete address for {{name}}",
+    "setDefaultAria": "Set the address for {{name}} as default"
   },
   "history": {
     "title": "Your deliveries",
@@ -75,11 +80,12 @@
     }
   },
   "pickup": {
-    "shopName": "Tokyo Lucky Card — Bangkok",
-    "shopAddress": "Set your shop address in delivery.json (pickup.shopAddress).",
-    "shopHours": "Open daily, 11:00–20:00",
+    "shopName": "Vip Card and Toys",
+    "shopAddress": "417 Bang Na-Trat Frontage Rd, Bang Na Nuea, Bang Na, Bangkok 10260",
+    "shopHours": "Tue–Sat 10:00–19:00\nSun 10:00 – Mon 07:00\nClosed Monday daytime",
     "idNote": "Bring photo ID matching the name below. We'll only release the card to that person.",
     "recipientName": "Name of the person collecting",
-    "phone": "Contact phone number"
+    "phone": "Contact phone number",
+    "openInMaps": "Open in Google Maps"
   }
 }

@@ -24,7 +24,7 @@ export type AuthShellProps = {
 };
 
 export function AuthShell({ children, slotTop }: AuthShellProps) {
-  const { t } = useTranslation('onboarding');
+  const { t } = useTranslation('common');
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex' }}>
@@ -46,14 +46,14 @@ export function AuthShell({ children, slotTop }: AuthShellProps) {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, alignItems: 'flex-start' }}>
           <Logo variant="horizontal" sx={{ width: 260, height: 44 }} />
           <Typography sx={{ ...typeScale.body, color: '#9A9285', maxWidth: 380 }}>
-            {t('tagline', { ns: 'common' })}
+            {t('tagline')}
           </Typography>
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-start' }}>
           <TrustBadge />
           <Typography sx={{ ...typeScale.label, color: '#4A4844', maxWidth: 380 }}>
-            {t('trust.footer', { ns: 'common' })}
+            {t('trust.footer')}
           </Typography>
         </Box>
       </Box>

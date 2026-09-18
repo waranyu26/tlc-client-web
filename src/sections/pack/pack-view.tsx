@@ -17,6 +17,8 @@ import { CONTENT_MAX_WIDTH } from 'src/layouts/vault/layout-config';
 
 import { FadeUp, GhostButton } from 'src/components/vault';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import { PackShowcase } from './pack-showcase';
 import { PackBuyPanel } from './pack-buy-panel';
 import { PackRarityBrowser } from './pack-rarity-browser';
@@ -35,6 +37,7 @@ export function PackView() {
   const navigate = useNavigate();
   const { t } = useTranslation('pack');
 
+  const { authenticated } = useAuthContext();
   const packQuery = usePack(id);
   const walletQuery = useWalletBalance();
 
@@ -68,6 +71,18 @@ export function PackView() {
 
   const handlePull = () => {
     if (!pack) return;
+
+    // This page is public, so the tap can come from someone with no account at
+    // all. Hand them the sign-in page pointed back at the pull they asked for,
+    // rather than a CTA that does nothing or a wall they have to find their own
+    // way back from. The pull screen itself does not charge on arrival — it
+    // opens on its own confirm — so landing there is safe.
+    if (!authenticated) {
+      const returnTo = new URLSearchParams({ returnTo: paths.pull(pack.id) }).toString();
+      navigate(`${paths.auth.signIn}?${returnTo}`);
+      return;
+    }
+
     // Never block the tap — send them to top up instead of disabling the CTA.
     navigate(canAfford ? paths.pull(pack.id) : paths.wallet);
   };

@@ -4,6 +4,7 @@ import type { Address } from 'src/api/types';
 import type { AddressFormValues } from './schema';
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
@@ -14,6 +15,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import CircularProgress from '@mui/material/CircularProgress';
+
+import { paths } from 'src/routes/paths';
 
 import { ApiError } from 'src/lib/axios';
 import { READING_MAX_WIDTH } from 'src/layouts/vault/layout-config';
@@ -35,6 +38,7 @@ import { AddressFormDialog } from './address-form-dialog';
 export function AddressesView() {
   const { t } = useTranslation('delivery');
   const { t: tCommon } = useTranslation();
+  const navigate = useNavigate();
 
   const { data: addresses, isLoading, isError, refetch } = useAddresses();
   const createMutation = useCreateAddressMutation();
@@ -86,6 +90,16 @@ export function AddressesView() {
 
   return (
     <Box sx={{ width: '100%', maxWidth: READING_MAX_WIDTH, mx: { md: 'auto' } }}>
+      {/* This page is reached mid-delivery as often as from settings, so it
+          needs a way back that is not the browser button. */}
+      <GhostButton
+        onClick={() => navigate(paths.delivery)}
+        startIcon={<Iconify icon="carbon:chevron-left" width={14} />}
+        sx={{ padding: '4px 10px', fontSize: '12px', border: 'none', mb: '10px', ml: '-10px' }}
+      >
+        {t('address.backToDelivery')}
+      </GhostButton>
+
       <Stack
         direction="row"
         sx={{ alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: '18px' }}

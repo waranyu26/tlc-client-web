@@ -16,7 +16,40 @@ import type { PullTier } from 'src/utils/rarity-intensity';
 //      silent.
 // ----------------------------------------------------------------------
 
-const MASTER_LEVEL = 0.28;
+/**
+ * Level of the whole kit.
+ *
+ * This bus used to run at 0.28 and was reported as nearly inaudible. Nothing
+ * here is a mastered recording — every voice is a bare oscillator or noise
+ * burst with an exponential envelope, so a gain of 0.4 is a *peak* that lasts
+ * 40ms and carries almost no energy. The background track it is compared
+ * against is a mastered file sitting near full scale, played at 0.18, which is
+ * a sustained level rather than a transient one; the two numbers were never
+ * measuring the same thing, and the kit was left roughly 9dB down on music
+ * that is paused for the whole pull anyway.
+ *
+ * Raising this is safe because of LIMITER below, not because the sums were
+ * checked by hand.
+ */
+const MASTER_LEVEL = 0.8;
+
+/**
+ * Catches the one genuinely dense moment in the kit.
+ *
+ * A legendary `payoff` stacks five arpeggio notes, five sparkle partials and
+ * two pad tones whose 620ms decays overlap on a 75ms stagger. At the old level
+ * that sum had nowhere near enough energy to reach full scale; at this one it
+ * can, and a Web Audio destination hard-clips rather than politely distorting.
+ * Threshold and ratio make this a limiter rather than a compressor: it does
+ * nothing at all to a lone click, and only leans on the payoff.
+ */
+const LIMITER = {
+  threshold: -6,
+  knee: 0,
+  ratio: 20,
+  attack: 0.003,
+  release: 0.12,
+} as const;
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -40,7 +73,15 @@ export function unlockSfx() {
     }
     master = ctx.createGain();
     master.gain.value = enabled ? MASTER_LEVEL : 0;
-    master.connect(ctx.destination);
+
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = LIMITER.threshold;
+    limiter.knee.value = LIMITER.knee;
+    limiter.ratio.value = LIMITER.ratio;
+    limiter.attack.value = LIMITER.attack;
+    limiter.release.value = LIMITER.release;
+
+    master.connect(limiter).connect(ctx.destination);
   }
 
   if (ctx.state === 'suspended') {
@@ -198,7 +239,15 @@ export function whoosh(durationMs = 620) {
   noiseBurst({ durationMs, gain: 0.3, type: 'bandpass', fromHz: 420, toHz: 3200, q: 1.2 });
 }
 
-/** Rising suspense bed held for the whole charge window. Pitch ceiling scales with tier. */
+/**
+ * Rising suspense bed held for the whole charge window. Pitch ceiling scales
+ * with tier.
+ *
+ * This is the pull's headline sound — it plays alone for the three to six
+ * seconds the beacon takes to publish, with the music paused underneath it —
+ * and at 0.16 it was quieter than the riffle clicks that introduce it, so the
+ * moment the wait is supposed to dramatise was the moment the app went quiet.
+ */
 export function charge(durationMs: number, tier: PullTier) {
   const l = live();
   if (!l) return;
@@ -221,7 +270,7 @@ export function charge(durationMs: number, tier: PullTier) {
 
   const env = ac.createGain();
   env.gain.setValueAtTime(0.0001, at);
-  env.gain.exponentialRampToValueAtTime(0.16, at + dur * 0.75);
+  env.gain.exponentialRampToValueAtTime(0.3, at + dur * 0.75);
   env.gain.exponentialRampToValueAtTime(0.0001, at + dur);
 
   osc.connect(filter).connect(env).connect(out);
@@ -310,7 +359,7 @@ export function peelBed(): PeelBed | null {
       // rate, where overlapping ramps fight each other and stepped values
       // zipper. The exponent keeps the bed near-subliminal early and lets it
       // bloom late, so the swell tracks the drama rather than the distance.
-      env.gain.setTargetAtTime(0.13 * p ** 1.4, now, 0.05);
+      env.gain.setTargetAtTime(0.18 * p ** 1.4, now, 0.05);
       filter.frequency.setTargetAtTime(lerp(180, 1600, p), now, 0.05);
       oscs.forEach((osc) => osc.frequency.setTargetAtTime(lerp(55, 88, p), now, 0.05));
     },
@@ -330,18 +379,23 @@ export function peelBed(): PeelBed | null {
 
 /** The sleeve clearing the card. */
 export function peelRelease() {
-  noiseBurst({ durationMs: 420, gain: 0.34, type: 'lowpass', fromHz: 4200, toHz: 500 });
+  noiseBurst({ durationMs: 420, gain: 0.42, type: 'lowpass', fromHz: 4200, toHz: 500 });
 }
 
 /** The card turning over. */
 export function flipSnap() {
-  noiseBurst({ durationMs: 90, gain: 0.4, type: 'bandpass', fromHz: 3000, toHz: 900, q: 2 });
-  tone({ freq: 880, toFreq: 330, durationMs: 110, gain: 0.16, type: 'triangle' });
+  noiseBurst({ durationMs: 90, gain: 0.46, type: 'bandpass', fromHz: 3000, toHz: 900, q: 2 });
+  tone({ freq: 880, toFreq: 330, durationMs: 110, gain: 0.22, type: 'triangle' });
 }
 
 /**
  * The payoff. A rising arpeggio whose length and voicing scale with the tier —
  * legendary adds an octave and a sustained pad underneath.
+ *
+ * The single most important sound in the app: it is what the customer hears the
+ * instant they learn what they won. It used to be voiced below the shuffle
+ * clicks, so the reveal was the quietest beat of the sequence. It now sits at
+ * the top of the kit, which is the only ranking that makes sense.
  */
 export function payoff(tier: PullTier) {
   const NOTES = [523.25, 659.25, 783.99, 1046.5, 1318.5]; // C5 E5 G5 C6 E6
@@ -349,14 +403,14 @@ export function payoff(tier: PullTier) {
   const step = { standard: 0, rare: 90, epic: 80, legendary: 75 }[tier];
 
   NOTES.slice(0, count).forEach((freq, i) => {
-    tone({ freq, durationMs: 620, gain: 0.2, type: 'sine', delayMs: i * step });
+    tone({ freq, durationMs: 620, gain: 0.32, type: 'sine', delayMs: i * step });
     // A quiet triangle an octave up gives the chime some sparkle.
-    tone({ freq: freq * 2, durationMs: 380, gain: 0.05, type: 'triangle', delayMs: i * step });
+    tone({ freq: freq * 2, durationMs: 380, gain: 0.08, type: 'triangle', delayMs: i * step });
   });
 
   if (tier === 'legendary') {
-    tone({ freq: 130.81, durationMs: 2200, gain: 0.12, type: 'sine' }); // C3 pad
-    tone({ freq: 196, durationMs: 2000, gain: 0.08, type: 'sine', delayMs: 120 }); // G3
+    tone({ freq: 130.81, durationMs: 2200, gain: 0.16, type: 'sine' }); // C3 pad
+    tone({ freq: 196, durationMs: 2000, gain: 0.11, type: 'sine', delayMs: 120 }); // G3
   }
 }
 

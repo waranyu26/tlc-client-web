@@ -1,3 +1,5 @@
+import type { TopupLedgerStatus } from 'src/api/types';
+
 import { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { useTranslation } from 'react-i18next';
@@ -10,11 +12,12 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import { CONFIG } from 'src/global-config';
-import { useTopupMutation } from 'src/api/wallet.api';
+import { useTopupMutation, useVoidTopupMutation } from 'src/api/wallet.api';
 
 import { Iconify } from 'src/components/iconify';
 import { GhostButton, PrimaryButton } from 'src/components/vault';
 
+import { WalletTopupSettle } from './wallet-topup-settle';
 import { WalletTopupPaymentForm } from './wallet-topup-payment-form';
 
 // ----------------------------------------------------------------------
@@ -27,7 +30,7 @@ const stripePromise = CONFIG.stripe.publishableKey
 const PRESET_AMOUNTS_THB = [100, 300, 500, 1000, 2000];
 const MIN_AMOUNT_SATANG = 2000; // ฿20
 
-type Step = 'amount' | 'pay';
+type Step = 'amount' | 'pay' | 'settle';
 
 export type WalletTopupDialogProps = {
   open: boolean;
@@ -37,11 +40,16 @@ export type WalletTopupDialogProps = {
 export function WalletTopupDialog({ open, onClose }: WalletTopupDialogProps) {
   const { t } = useTranslation('wallet');
   const topupMutation = useTopupMutation();
+  const voidMutation = useVoidTopupMutation();
 
   const [step, setStep] = useState<Step>('amount');
   const [selectedThb, setSelectedThb] = useState<number | null>(PRESET_AMOUNTS_THB[1]);
   const [customThb, setCustomThb] = useState('');
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [intentId, setIntentId] = useState<string | null>(null);
+  // The server's verdict, once there is one. Null means "still open", which is
+  // exactly the condition under which leaving must void the top-up.
+  const [outcome, setOutcome] = useState<TopupLedgerStatus | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -49,6 +57,8 @@ export function WalletTopupDialog({ open, onClose }: WalletTopupDialogProps) {
       setSelectedThb(PRESET_AMOUNTS_THB[1]);
       setCustomThb('');
       setClientSecret(null);
+      setIntentId(null);
+      setOutcome(null);
       topupMutation.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,10 +76,41 @@ export function WalletTopupDialog({ open, onClose }: WalletTopupDialogProps) {
       {
         onSuccess: (result) => {
           setClientSecret(result.client_secret);
+          setIntentId(result.payment_intent_id);
+          setOutcome(null);
           setStep('pay');
         },
       }
     );
+  };
+
+  /**
+   * Ends an open top-up on the way out.
+   *
+   * Leaving with a top-up still open is the case that used to strand a row in
+   * Pending for ever, payable but unaccounted for. Fire-and-forget on purpose:
+   * the customer has already left, and the reconciler settles anything this
+   * request fails to. Deliberately not called once the server has settled the
+   * top-up — voiding a payment that went through is the one thing this must
+   * never do, which is also why the server re-reads the intent before obeying.
+   */
+  const abandonOpenTopup = () => {
+    if (intentId && outcome === null) {
+      voidMutation.mutate(intentId);
+    }
+  };
+
+  const handleClose = () => {
+    abandonOpenTopup();
+    onClose();
+  };
+
+  const handleBackToAmount = () => {
+    abandonOpenTopup();
+    setClientSecret(null);
+    setIntentId(null);
+    setOutcome(null);
+    setStep('amount');
   };
 
   const paymentsNotConfigured = !CONFIG.stripe.publishableKey;
@@ -77,7 +118,7 @@ export function WalletTopupDialog({ open, onClose }: WalletTopupDialogProps) {
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       fullWidth
       maxWidth="sm"
       slotProps={{
@@ -102,7 +143,7 @@ export function WalletTopupDialog({ open, onClose }: WalletTopupDialogProps) {
         >
           {t('topup.title', { defaultValue: 'Add Funds' })}
         </Typography>
-        <IconButton onClick={onClose} size="small" sx={{ color: '#9A9285' }}>
+        <IconButton onClick={handleClose} size="small" sx={{ color: '#9A9285' }}>
           <Iconify icon="carbon:close" width={18} />
         </IconButton>
       </Box>
@@ -213,17 +254,30 @@ export function WalletTopupDialog({ open, onClose }: WalletTopupDialogProps) {
                   },
                 }}
               >
-                <WalletTopupPaymentForm amountSatang={amountSatang} />
+                <WalletTopupPaymentForm
+                  amountSatang={amountSatang}
+                  onAttempted={() => setStep('settle')}
+                />
               </Elements>
 
               <GhostButton
                 fullWidth
-                onClick={() => setStep('amount')}
+                onClick={handleBackToAmount}
                 sx={{ marginTop: '10px', border: 'none' }}
               >
                 {t('topup.back', { defaultValue: 'Back' })}
               </GhostButton>
             </Box>
+          )}
+
+          {step === 'settle' && intentId && (
+            <WalletTopupSettle
+              intentId={intentId}
+              onSettled={setOutcome}
+              onRetry={handleBackToAmount}
+              onClose={onClose}
+              onCancel={handleClose}
+            />
           )}
         </>
       )}

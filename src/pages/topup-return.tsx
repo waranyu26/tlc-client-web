@@ -1,6 +1,5 @@
 import type { IconifyName } from 'src/components/iconify';
 
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
@@ -11,74 +10,49 @@ import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import en from 'src/i18n/locales/en/wallet.json';
 import th from 'src/i18n/locales/th/wallet.json';
-import { queryClient } from 'src/lib/query-client';
-import { useWalletBalance } from 'src/api/wallet.api';
+import { useTopupStatus } from 'src/api/wallet.api';
 import { registerNamespace } from 'src/i18n/register';
 
 import { Iconify } from 'src/components/iconify';
-import { GhostButton, PrimaryButton } from 'src/components/vault';
+import { ThbAmount, GhostButton, PrimaryButton } from 'src/components/vault';
 
 registerNamespace('wallet', en, th);
 
 // ----------------------------------------------------------------------
+// Where a redirect-based payment method comes back to.
+//
+// The page deliberately ignores Stripe's `redirect_status` parameter. That
+// parameter describes the browser navigation, not the money: it was the reason
+// this screen could congratulate someone who had just closed a QR code without
+// paying. What it uses instead is `payment_intent`, which names the top-up, and
+// then asks our own ledger — the only place that knows whether a wallet was
+// credited. While the answer is still pending the poll keeps running, so the
+// balance appears here by itself rather than after a manual reload.
+// ----------------------------------------------------------------------
 
-type ReturnState = 'success' | 'processing' | 'failed' | 'unknown';
+type ReturnState = 'success' | 'processing' | 'canceled' | 'expired' | 'failed' | 'unknown';
 
-const STATE_CONFIG: Record<
-  ReturnState,
-  { icon: IconifyName; color: string; titleKey: string; bodyKey: string }
-> = {
-  success: {
-    icon: 'solar:check-circle-bold',
-    color: '#6FBF8E',
-    titleKey: 'return.successTitle',
-    bodyKey: 'return.successBody',
-  },
-  processing: {
-    icon: 'solar:clock-circle-bold',
-    color: '#E7CE92',
-    titleKey: 'return.processingTitle',
-    bodyKey: 'return.processingBody',
-  },
-  failed: {
-    icon: 'solar:close-circle-bold',
-    color: '#C9605B',
-    titleKey: 'return.failedTitle',
-    bodyKey: 'return.failedBody',
-  },
-  unknown: {
-    icon: 'solar:danger-triangle-bold',
-    color: '#9A9285',
-    titleKey: 'return.unknownTitle',
-    bodyKey: 'return.unknownBody',
-  },
+const STATE_CONFIG: Record<ReturnState, { icon: IconifyName; color: string; key: string }> = {
+  success: { icon: 'solar:check-circle-bold', color: '#6FBF8E', key: 'success' },
+  processing: { icon: 'solar:clock-circle-bold', color: '#E7CE92', key: 'processing' },
+  // Nothing went wrong in these two, and nothing was charged, so they get the
+  // muted treatment rather than an alarming red one.
+  canceled: { icon: 'solar:clock-circle-bold', color: '#9A9285', key: 'canceled' },
+  expired: { icon: 'solar:clock-circle-bold', color: '#9A9285', key: 'expired' },
+  failed: { icon: 'solar:close-circle-bold', color: '#C9605B', key: 'failed' },
+  unknown: { icon: 'solar:danger-triangle-bold', color: '#9A9285', key: 'unknown' },
 };
-
-function resolveState(redirectStatus: string | null): ReturnState {
-  if (redirectStatus === 'succeeded') return 'success';
-  if (redirectStatus === 'processing') return 'processing';
-  if (redirectStatus === 'requires_payment_method' || redirectStatus === 'canceled')
-    return 'failed';
-  return 'unknown';
-}
 
 export default function Page() {
   const { t } = useTranslation('wallet');
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { refetch } = useWalletBalance();
 
-  const redirectStatus = searchParams.get('redirect_status');
-  const state = resolveState(redirectStatus);
+  const intentId = searchParams.get('payment_intent') ?? undefined;
+  const { data, isError } = useTopupStatus(intentId);
+
+  const state = resolveState(intentId, data?.status, data?.reason, isError);
   const config = STATE_CONFIG[state];
-
-  useEffect(() => {
-    // Refresh balance + history so the wallet/transactions screens reflect the new payment.
-    refetch();
-    queryClient.invalidateQueries({ queryKey: ['wallet', 'balance'] });
-    queryClient.invalidateQueries({ queryKey: ['transactions'] });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <Box
@@ -116,12 +90,21 @@ export default function Page() {
           color: '#F4ECDD',
         }}
       >
-        {t(config.titleKey, { defaultValue: 'Payment status' })}
+        {t(`return.${config.key}Title`, { defaultValue: 'Payment status' })}
       </Typography>
 
       <Typography sx={{ fontSize: '13.5px', color: '#9A9285', maxWidth: '300px', lineHeight: 1.6 }}>
-        {t(config.bodyKey, { defaultValue: '' })}
+        {t(`return.${config.key}Body`, { defaultValue: '' })}
       </Typography>
+
+      {state === 'success' && data && (
+        <ThbAmount
+          satang={data.amount_satang}
+          signed
+          tone="success"
+          sx={{ fontSize: '20px', fontWeight: 600 }}
+        />
+      )}
 
       <Box
         sx={{
@@ -142,4 +125,31 @@ export default function Page() {
       </Box>
     </Box>
   );
+}
+
+// ----------------------------------------------------------------------
+
+/**
+ * Turns the ledger's answer into a screen.
+ *
+ * An unknown state is reserved for the two cases where we genuinely cannot
+ * tell: a return with no intent to look up, and a top-up this account does not
+ * own. Everything else, including "still waiting", is something we can say
+ * honestly — and none of it claims success without the ledger saying so.
+ */
+function resolveState(
+  intentId: string | undefined,
+  status: string | undefined,
+  reason: string | undefined,
+  isError: boolean
+): ReturnState {
+  if (!intentId || isError) return 'unknown';
+  if (status === 'completed') return 'success';
+  if (status === 'failed') {
+    if (reason === 'canceled') return 'canceled';
+    if (reason === 'expired') return 'expired';
+    return 'failed';
+  }
+  // No answer yet, or a genuinely pending payment: both mean "we are checking".
+  return 'processing';
 }

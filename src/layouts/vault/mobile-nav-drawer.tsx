@@ -8,6 +8,8 @@ import Drawer from '@mui/material/Drawer';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
+import { usePathname } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { typeScale } from 'src/theme/type-scale';
 import { useWalletBalance } from 'src/api/wallet.api';
@@ -15,7 +17,9 @@ import { primaryFont } from 'src/theme/core/typography';
 
 import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
-import { ThbAmount } from 'src/components/vault';
+import { ThbAmount, GhostButton, PrimaryButton } from 'src/components/vault';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import { SIDEBAR_WIDTH } from './layout-config';
 import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './nav-items';
@@ -104,7 +108,11 @@ export type MobileNavDrawerProps = {
 
 export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
   const { t } = useTranslation();
+  const pathname = usePathname();
+  const { authenticated, loading } = useAuthContext();
   const balanceQuery = useWalletBalance();
+
+  const returnTo = `?${new URLSearchParams({ returnTo: pathname }).toString()}`;
 
   return (
     <Drawer
@@ -145,28 +153,54 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
         ))}
       </Box>
 
-      <Box
-        sx={{
-          mt: 'auto',
-          px: 1.75,
-          py: 1.5,
-          borderRadius: '12px',
-          border: '1px solid rgba(231,206,146,0.16)',
-          backgroundColor: '#17161B',
-        }}
-      >
-        <Typography sx={{ ...typeScale.micro, color: '#9A9285' }}>
-          {t('nav.balance', { defaultValue: 'Balance' })}
-        </Typography>
-        {balanceQuery.isPending ? (
-          <Typography sx={{ ...BALANCE_AMOUNT_SX, color: '#4A4844' }}>—</Typography>
-        ) : (
-          <ThbAmount
-            satang={balanceQuery.data?.balance_satang ?? 0}
-            sx={{ ...BALANCE_AMOUNT_SX, color: ACTIVE_COLOR, display: 'block' }}
-          />
-        )}
-      </Box>
+      {/* A guest has no balance to show, so the foot of the drawer carries the
+          way in instead — the same pair as the top bar, repeated here because
+          this menu is where a phone user goes looking for account actions. */}
+      {!loading && !authenticated && (
+        <Box sx={{ mt: 'auto', display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <PrimaryButton
+            fullWidth
+            component={RouterLink}
+            href={`${paths.auth.signUp}${returnTo}`}
+            onClick={onClose}
+          >
+            {t('actions.signUp', { defaultValue: 'Sign up' })}
+          </PrimaryButton>
+          <GhostButton
+            fullWidth
+            component={RouterLink}
+            href={`${paths.auth.signIn}${returnTo}`}
+            onClick={onClose}
+          >
+            {t('actions.signIn', { defaultValue: 'Sign in' })}
+          </GhostButton>
+        </Box>
+      )}
+
+      {authenticated && (
+        <Box
+          sx={{
+            mt: 'auto',
+            px: 1.75,
+            py: 1.5,
+            borderRadius: '12px',
+            border: '1px solid rgba(231,206,146,0.16)',
+            backgroundColor: '#17161B',
+          }}
+        >
+          <Typography sx={{ ...typeScale.micro, color: '#9A9285' }}>
+            {t('nav.balance', { defaultValue: 'Balance' })}
+          </Typography>
+          {balanceQuery.isPending ? (
+            <Typography sx={{ ...BALANCE_AMOUNT_SX, color: '#4A4844' }}>—</Typography>
+          ) : (
+            <ThbAmount
+              satang={balanceQuery.data?.balance_satang ?? 0}
+              sx={{ ...BALANCE_AMOUNT_SX, color: ACTIVE_COLOR, display: 'block' }}
+            />
+          )}
+        </Box>
+      )}
     </Drawer>
   );
 }

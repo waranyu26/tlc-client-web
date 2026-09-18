@@ -7,24 +7,44 @@
 	encode gzip zstd
 
 	# Vite emits content-hashed filenames under /assets, so those are safe to
-	# cache forever. Everything else — index.html above all — must revalidate:
+	# cache forever — and, just as importantly, they must never reach the SPA
+	# fallback below.
+	#
+	# A tab opened before a deploy still holds the previous index.html, so the
+	# next route it lazy-loads asks for a chunk the new build does not contain.
+	# Falling that through to index.html answers a missing script with
+	# `200 text/html`, which the browser refuses as a module and reports as
+	# "Failed to fetch dynamically imported module" — and then stores under the
+	# immutable rule below for a year. Reverting a commit reproduces its chunk
+	# hashes exactly, so such a poisoned entry can outlive the deploy that
+	# created it and break the app for that visitor with nothing they can do
+	# about it. Handled separately, a miss is a plain 404: honest, uncacheable,
+	# and recoverable by the client (see src/lib/stale-deploy.ts).
+	handle /assets/* {
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# Single-page app: any other path the filesystem does not have must return
+	# index.html so the client router can resolve it. Without this, a direct hit
+	# or a refresh on a client route 404s — including /auth/callback/google, the
+	# Google OAuth redirect target, which would break social sign-in on exactly
+	# the return leg.
+	#
+	# Everything served here — index.html above all — must revalidate:
 	# index.html is the document that names the current asset hashes, and a
 	# stale copy pins visitors to files that no longer exist after a deploy.
-	#
-	# This is expressed as "not /assets/*" rather than a rule on /index.html
-	# because `header` runs BEFORE `try_files` in Caddy's directive order, so a
-	# path matcher here only ever sees the request's original path — /vault,
-	# never the /index.html it is about to be rewritten to.
-	@hashed path /assets/*
-	header @hashed Cache-Control "public, max-age=31536000, immutable"
-	@dynamic not path /assets/*
-	header @dynamic Cache-Control "no-cache"
+	handle {
+		header Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
 
-	# Single-page app: any path the filesystem does not have must return
-	# index.html so the client router can resolve it. Without this, a direct
-	# hit or a refresh on a client route 404s — including
-	# /auth/callback/google, the Google OAuth redirect target, which would
-	# break social sign-in on exactly the return leg.
-	try_files {path} /index.html
-	file_server
+	handle_errors {
+		# Set rather than inherited: the /assets rule above has already put
+		# `immutable` on this response, and a 404 cached for a year is an asset
+		# URL that stays broken even once the file is back.
+		header Cache-Control "no-store"
+		respond "{err.status_code} {err.status_text}" {err.status_code}
+	}
 }

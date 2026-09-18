@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -21,6 +22,20 @@ import { Iconify } from 'src/components/iconify';
 // account: a User row has no phone number at all, and the person collecting is
 // not always the person who pulled the card.
 // ----------------------------------------------------------------------
+
+/**
+ * The shop's own Google Maps pin.
+ *
+ * Not a translated string: a URL is the same in every language, and a
+ * mistranslated one is a customer standing in the wrong place. The short form
+ * is the shop's canonical link — it survives Google re-writing its long URL
+ * format, which has happened before.
+ *
+ * Printed address and map both appear because they answer different questions:
+ * the text is what you read out to a taxi driver, the pin is what you follow on
+ * foot.
+ */
+const SHOP_MAPS_URL = 'https://maps.app.goo.gl/ejh1PDtKqjg2n4i1A';
 
 type Props = {
   recipientName: string;
@@ -76,16 +91,39 @@ export function PickupDetails({
           </Box>
         </Stack>
 
-        <Stack direction="row" spacing="11px" sx={{ alignItems: 'center', mt: '12px' }}>
+        <Stack direction="row" spacing="11px" sx={{ alignItems: 'flex-start', mt: '12px' }}>
           <Iconify
             icon="solar:clock-circle-bold"
             width={16}
-            sx={{ color: '#6F6A60', flexShrink: 0 }}
+            sx={{ color: '#6F6A60', flexShrink: 0, mt: '1px' }}
           />
-          <Typography sx={{ ...typeScale.label, color: '#9A9285' }}>
+          {/* Hours run across midnight on Sunday, so they are three lines of
+              copy rather than one — kept in the translation file as written
+              text so Thai reads as Thai days rather than translated English. */}
+          <Typography sx={{ ...typeScale.label, color: '#9A9285', whiteSpace: 'pre-line' }}>
             {t('pickup.shopHours')}
           </Typography>
         </Stack>
+
+        <Link
+          href={SHOP_MAPS_URL}
+          target="_blank"
+          rel="noopener"
+          underline="none"
+          sx={{
+            mt: '12px',
+            gap: '7px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            color: '#E7CE92',
+            ...typeScale.label,
+            fontWeight: 600,
+            '&:hover': { color: '#F4ECDD' },
+          }}
+        >
+          <Iconify icon="eva:external-link-fill" width={15} />
+          {t('pickup.openInMaps')}
+        </Link>
       </Box>
 
       <Stack direction="row" spacing="9px" sx={{ alignItems: 'flex-start' }}>

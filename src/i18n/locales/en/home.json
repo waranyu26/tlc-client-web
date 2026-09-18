@@ -14,6 +14,12 @@
     "heading": "Your collection",
     "viewAll": "View vault"
   },
+  "guest": {
+    "headline": "Start your collection",
+    "body": "Browse every pack, its published odds and the cards behind them. You only need an account to pull.",
+    "signUp": "Create an account",
+    "signIn": "I already have one"
+  },
   "how": {
     "heading": "How it works",
     "topUp": {
