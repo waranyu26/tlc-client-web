@@ -23,8 +23,8 @@ import {
 
 import { useAuthContext } from 'src/auth/hooks';
 
+import { APP_HEADER_HEIGHT } from './layout-config';
 import { ACTIVE_COLOR, INACTIVE_COLOR } from './nav-items';
-import { APP_HEADER_HEIGHT, AUTH_CLUSTER_MIN_WIDTH } from './layout-config';
 
 // ----------------------------------------------------------------------
 // Desktop chrome, `md` and up. The phone's equivalent is MobileTopBar.
@@ -163,17 +163,16 @@ export function AppHeader() {
       <LanguageToggle />
       <MusicToggle size="small" />
 
-      {/* Held open across the session check so the toggles beside it don't slide. */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          gap: 1,
-          ml: 1,
-          minWidth: AUTH_CLUSTER_MIN_WIDTH,
-        }}
-      >
+      {/*
+        Sizes to its contents, and must keep doing so. It used to hold a fixed
+        width open across the session check so the toggles beside it would not
+        slide — but the cluster's width is not knowable in advance: signed out it
+        is two buttons, and signed in at `lg` it is a single 36px icon, because
+        the sidebar is already showing the balance. Reserving the wider of the
+        two left a visible hole between the music toggle and the account icon on
+        every desktop page. A brief settle on first paint is the cheaper fault.
+      */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
         <SessionCluster />
       </Box>
     </Box>

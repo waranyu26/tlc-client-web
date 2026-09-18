@@ -29,13 +29,6 @@ export const MOBILE_TOP_BAR_HEIGHT = 52;
  */
 export const APP_HEADER_HEIGHT = 56;
 
-/**
- * Floor for the header's session cluster, so the language and music toggles
- * beside it do not slide sideways when the session check resolves and
- * "Sign in / Sign up" is replaced by the balance and account icons.
- */
-export const AUTH_CLUSTER_MIN_WIDTH = 168;
-
 /** Content pane cap — beyond this the pane centers rather than stretching. */
 export const CONTENT_MAX_WIDTH = 1440;
 
