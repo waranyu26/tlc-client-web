@@ -46,6 +46,35 @@ export type TopupResponse = {
   payment_intent_id: string;
 };
 
+/** Ledger state of a top-up. Only `completed` means money arrived. */
+export type TopupLedgerStatus = 'pending' | 'completed' | 'failed';
+
+/**
+ * Why a top-up ended with nothing charged.
+ *
+ * `canceled` is the customer closing the payment sheet, `expired` a PromptPay
+ * QR that timed out unscanned, `payment_failed` a refusal. Worth keeping apart
+ * because the useful next step differs: scan again, versus try another method.
+ */
+export type TopupFailureReason = 'canceled' | 'expired' | 'payment_failed';
+
+/**
+ * The server's verdict on one top-up.
+ *
+ * This — not Stripe's `redirect_status` query parameter — is what the UI
+ * believes. A redirect parameter describes a browser navigation; only the
+ * ledger knows whether the wallet was credited, which is why a success screen
+ * used to be reachable without paying.
+ */
+export type TopupStatus = {
+  payment_intent_id: string;
+  status: TopupLedgerStatus;
+  reason?: TopupFailureReason;
+  amount_satang: number;
+  /** The wallet balance as of this reply, so a settled poll can show it at once. */
+  balance_satang: number;
+};
+
 // ----------------------------------------------------------------------
 // Catalog
 // ----------------------------------------------------------------------

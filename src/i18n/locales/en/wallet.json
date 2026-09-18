@@ -22,19 +22,49 @@
     "processing": "Processing…",
     "notConfigured": "Payments aren't configured in this environment.",
     "genericError": "Something went wrong. Please try again.",
-    "minAmount": "Enter at least ฿20."
+    "minAmount": "Enter at least ฿20.",
+    "settle": {
+      "waiting": {
+        "title": "Waiting for your payment",
+        "body": "Open your banking app and pay the QR code. This page updates by itself — if you have already paid, it can take a few seconds to confirm."
+      },
+      "credited": {
+        "title": "Payment received",
+        "body": "Your wallet has been topped up."
+      },
+      "canceled": {
+        "title": "Top-up cancelled",
+        "body": "Nothing was charged. Start a new top-up whenever you like."
+      },
+      "expired": {
+        "title": "The QR code expired",
+        "body": "Nothing was charged. Start a new top-up to get a fresh QR code."
+      },
+      "failed": {
+        "title": "Payment failed",
+        "body": "Nothing was charged. Please try again, or use another payment method."
+      },
+      "cancelCta": "Cancel this top-up",
+      "doneCta": "Done",
+      "retryCta": "Try again",
+      "closeCta": "Close"
+    }
   },
   "return": {
     "successTitle": "Payment successful",
     "successBody": "Your wallet balance has been updated.",
     "processingTitle": "Payment processing",
-    "processingBody": "We're confirming your payment — this can take a moment. Your balance will update automatically.",
+    "processingBody": "We're confirming your payment — this can take a moment. Your balance will update here automatically.",
     "failedTitle": "Payment failed",
-    "failedBody": "Your card wasn't charged. Please try again.",
+    "failedBody": "Nothing was charged. Please try again, or use another payment method.",
     "unknownTitle": "Payment status unknown",
-    "unknownBody": "We couldn't confirm your payment status. Check your transaction history shortly.",
+    "unknownBody": "We couldn't find this payment on your account. Check your transaction history, or contact support if you were charged.",
     "goHome": "Go home",
-    "goWallet": "Back to wallet"
+    "goWallet": "Back to wallet",
+    "canceledTitle": "Top-up cancelled",
+    "canceledBody": "Nothing was charged. Your balance hasn't changed.",
+    "expiredTitle": "The QR code expired",
+    "expiredBody": "Nothing was charged. Start a new top-up to get a fresh QR code."
   },
   "transactions": {
     "title": "Transactions",
@@ -45,7 +75,10 @@
     "status": {
       "completed": "Completed",
       "pending": "Pending",
-      "failed": "Failed"
+      "failed": "Failed",
+      "canceled": "Cancelled",
+      "expired": "Expired",
+      "payment_failed": "Payment failed"
     },
     "type": {
       "topup": "Top-up",

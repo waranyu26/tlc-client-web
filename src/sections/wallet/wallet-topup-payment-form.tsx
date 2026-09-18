@@ -15,9 +15,14 @@ import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
 export type WalletTopupPaymentFormProps = {
   amountSatang: number;
+  /**
+   * Confirmation was attempted and control came back to us, so the server is
+   * now the only authority on the outcome.
+   */
+  onAttempted: () => void;
 };
 
-export function WalletTopupPaymentForm({ amountSatang }: WalletTopupPaymentFormProps) {
+export function WalletTopupPaymentForm({ amountSatang, onAttempted }: WalletTopupPaymentFormProps) {
   const { t } = useTranslation('wallet');
   const stripe = useStripe();
   const elements = useElements();
@@ -43,17 +48,32 @@ export function WalletTopupPaymentForm({ amountSatang }: WalletTopupPaymentFormP
         return_url: window.location.origin + paths.topupReturn,
         ...(email && { payment_method_data: { billing_details: { email } } }),
       },
+      // Keeps PromptPay in this dialog: Stripe.js shows its QR sheet and hands
+      // control back here rather than navigating away, so we can show the
+      // waiting and credited states in place. A method that genuinely needs a
+      // redirect — a card facing 3-D Secure — still goes to `return_url`,
+      // which reads the same server status this dialog does.
+      redirect: 'if_required',
     });
 
-    // Only reachable if confirmation failed synchronously (e.g. validation) —
-    // a successful confirmation redirects the browser to `return_url`.
-    if (error) {
+    setSubmitting(false);
+
+    // A form that is not filled in never reached the gateway, so the customer
+    // stays on it with the message.
+    if (error && (error.type === 'validation_error' || error.type === 'invalid_request_error')) {
       setErrorMessage(
         error.message ??
           t('topup.genericError', { defaultValue: 'Something went wrong. Please try again.' })
       );
-      setSubmitting(false);
+      return;
     }
+
+    // Anything else — confirmed, dismissed, or an error we cannot interpret —
+    // is a question only our ledger can answer. A customer who pays in their
+    // banking app and *then* closes the QR sheet arrives here with an error
+    // and a completed payment, so believing this error would be the old
+    // false-verdict bug wearing a different hat.
+    onAttempted();
   };
 
   return (
