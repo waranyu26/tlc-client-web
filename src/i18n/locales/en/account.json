@@ -22,5 +22,9 @@
     "cancel": "Cancel",
     "deleteError": "Something went wrong while deleting your account. Please try again."
   },
-  "privacyNote": "Tokyo Lucky Card processes your personal data in accordance with the Thai Personal Data Protection Act (PDPA). You may request access, correction, or deletion of your data at any time."
+  "privacyNote": "Tokyo Lucky Card processes your personal data in accordance with the Thai Personal Data Protection Act (PDPA). You may request access, correction, or deletion of your data at any time.",
+  "addresses": {
+    "label": "Delivery addresses",
+    "description": "Where your physical cards are shipped."
+  }
 }

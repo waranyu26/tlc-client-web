@@ -64,11 +64,25 @@ export function AddressCard({ address, onEdit, onDelete, onSetDefault }: Address
           )}
         </Stack>
 
+        {/* Named after the address they act on, not just "edit" and "delete":
+            a screen reader announcing these on a list of four addresses would
+            otherwise read the same two words eight times, with nothing to say
+            which one is about to be thrown away. */}
         <Stack direction="row" sx={{ gap: '2px', flexShrink: 0 }}>
-          <IconButton size="small" onClick={onEdit} sx={{ color: '#9A9285' }}>
+          <IconButton
+            size="small"
+            onClick={onEdit}
+            aria-label={t('address.editAria', { name: address.recipient_name })}
+            sx={{ color: '#9A9285' }}
+          >
             <Iconify icon="solar:pen-bold" width={16} />
           </IconButton>
-          <IconButton size="small" onClick={onDelete} sx={{ color: '#C9605B' }}>
+          <IconButton
+            size="small"
+            onClick={onDelete}
+            aria-label={t('address.deleteAria', { name: address.recipient_name })}
+            sx={{ color: '#C9605B' }}
+          >
             <Iconify icon="solar:trash-bin-trash-bold" width={16} />
           </IconButton>
         </Stack>
@@ -87,6 +101,7 @@ export function AddressCard({ address, onEdit, onDelete, onSetDefault }: Address
         <GhostButton
           size="small"
           onClick={onSetDefault}
+          aria-label={t('address.setDefaultAria', { name: address.recipient_name })}
           sx={{ alignSelf: 'flex-start', padding: '6px 12px', fontSize: '12px' }}
         >
           {t('address.setDefault')}

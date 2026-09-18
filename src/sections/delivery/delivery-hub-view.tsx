@@ -300,11 +300,29 @@ export function DeliveryHubView() {
             )}
 
             {!addressesLoading && !addressesError && (addresses?.length ?? 0) > 0 && (
-              <AddressPicker
-                items={addresses ?? []}
-                selectedId={selectedAddressId}
-                onSelect={setSelectedAddressId}
-              />
+              <>
+                <AddressPicker
+                  items={addresses ?? []}
+                  selectedId={selectedAddressId}
+                  onSelect={setSelectedAddressId}
+                />
+
+                {/* The way back to the address book, and the only one there is
+                    once an address exists. The link used to live solely in the
+                    empty state above, so saving a first address closed the door
+                    on editing it, deleting it, changing which is default, or
+                    adding a second — the page stayed routable but nothing in
+                    the app pointed at it. */}
+                <Box sx={{ mt: '10px' }}>
+                  <GhostButton
+                    onClick={() => navigate(paths.addresses)}
+                    startIcon={<Iconify icon="solar:pen-bold" width={14} />}
+                    sx={{ padding: '6px 12px', fontSize: '12px', border: 'none' }}
+                  >
+                    {t('hub.manageAddresses')}
+                  </GhostButton>
+                </Box>
+              </>
             )}
           </>
         )}
