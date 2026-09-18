@@ -41,6 +41,13 @@ export const paths = {
     // the console entry must stay identical), and to leave room for a second
     // provider without reusing one callback route for both.
     callback: `${ROOTS.AUTH}/callback/google`,
+    // Reached from an emailed link, so all three are public: the recipient is
+    // regularly in a different browser from the one that started the flow —
+    // mail on a phone, a desktop client's preview pane — and a guard that
+    // bounced them would break the one link that unblocks their account.
+    verifyEmail: `${ROOTS.AUTH}/verify-email`,
+    forgotPassword: `${ROOTS.AUTH}/forgot-password`,
+    resetPassword: `${ROOTS.AUTH}/reset-password`,
     // --- compat: consumed only by throwaway boilerplate; removed in cleanup ---
     jwt: {
       signIn: `${ROOTS.AUTH}/jwt/sign-in`,

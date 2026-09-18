@@ -18,6 +18,14 @@ const Page404 = lazy(() => import('src/pages/error/404'));
 const SignInPage = lazy(() => import('src/pages/auth/sign-in'));
 const SignUpPage = lazy(() => import('src/pages/auth/sign-up'));
 const AuthCallbackPage = lazy(() => import('src/pages/auth/callback'));
+const ForgotPasswordPage = lazy(() => import('src/pages/auth/forgot-password'));
+
+// Reached from an emailed link, so deliberately outside GuestGuard: the
+// recipient is regularly in a different browser from the one that started the
+// flow, and may well already be signed in. Bouncing them would break the one
+// link that unblocks their account.
+const VerifyEmailPage = lazy(() => import('src/pages/auth/verify-email'));
+const ResetPasswordPage = lazy(() => import('src/pages/auth/reset-password'));
 
 // Browsable without an account
 const HomePage = lazy(() => import('src/pages/home'));
@@ -55,6 +63,20 @@ export const routesSection: RouteObject[] = [
       { path: '/auth/sign-in', element: <SignInPage /> },
       { path: '/auth/sign-up', element: <SignUpPage /> },
       { path: '/auth/callback/google', element: <AuthCallbackPage /> },
+      { path: '/auth/forgot-password', element: <ForgotPasswordPage /> },
+    ],
+  },
+
+  // Emailed links — no shell, no guard. See the note above the lazy imports.
+  {
+    element: (
+      <Suspense fallback={<SplashScreen />}>
+        <Outlet />
+      </Suspense>
+    ),
+    children: [
+      { path: '/auth/verify-email', element: <VerifyEmailPage /> },
+      { path: '/auth/reset-password', element: <ResetPasswordPage /> },
     ],
   },
 

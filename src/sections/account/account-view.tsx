@@ -25,6 +25,7 @@ import { ThbAmount, GhostButton, SectionHeading } from 'src/components/vault';
 
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
+import { SecurityPanel } from './security-panel';
 import { DeleteAccountDialog } from './delete-account-dialog';
 
 registerNamespace('account', en, th);
@@ -151,6 +152,11 @@ export function AccountView() {
           </Box>
         )}
       </Box>
+
+      {/* Everything editable about the account sits together, directly under
+          the card that shows it — a customer correcting their name and one
+          changing their password are doing the same kind of thing. */}
+      {profile && <SecurityPanel profile={profile} />}
 
       {/* Addresses are settings, not part of a delivery request, and this is
           where someone looks to correct one when they are not in the middle of

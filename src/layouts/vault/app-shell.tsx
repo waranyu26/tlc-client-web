@@ -4,6 +4,8 @@ import Box from '@mui/material/Box';
 
 import { BottomNav } from 'src/components/vault/bottom-nav';
 
+import { VerifyEmailBanner } from 'src/auth/components/verify-email-banner';
+
 import { AppHeader } from './app-header';
 import { SidebarNav } from './sidebar-nav';
 import { MobileTopBar } from './mobile-top-bar';
@@ -51,6 +53,13 @@ export function AppShell({ children }: AppShellProps) {
         <AppHeader />
 
         <LiveTickerBar />
+
+        {/* Above the content rather than inside it, so it is the same
+            explanation on every page: a customer who hits a locked wallet on
+            /wallet and a locked pull on /pack/:id sees one reason, not two
+            unrelated errors. Renders nothing once the address is confirmed,
+            and nothing at all for a guest. */}
+        <VerifyEmailBanner />
 
         <Box
           component="main"

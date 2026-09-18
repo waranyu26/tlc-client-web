@@ -26,5 +26,42 @@
   "addresses": {
     "label": "Delivery addresses",
     "description": "Where your physical cards are shipped."
+  },
+  "security": {
+    "heading": "Sign-in & security",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "noPassword": "Not set",
+    "unverified": "Unverified",
+    "methods": "Sign in with",
+    "method": {
+      "emailpassword": "Password",
+      "google": "Google"
+    },
+    "edit": "Edit",
+    "change": "Change",
+    "setPassword": "Set",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "editNameTitle": "Edit your name",
+    "changeEmailTitle": "Change your email",
+    "changeEmailBody": "We will send a confirmation link to the new address. Your current address keeps working until you click it.",
+    "changeEmailSent": "Confirmation sent to {{email}}. Your email changes once you click the link in it.",
+    "newEmail": "New email",
+    "currentPassword": "Current password",
+    "sendConfirmation": "Send confirmation",
+    "pendingEmail": "Waiting on confirmation from {{email}}",
+    "pendingBody": "We are waiting for {{email}} to be confirmed. Until then your account stays on {{current}}.",
+    "cancelPending": "Cancel the change",
+    "needPasswordFirst": "This account signs in with Google. Set a password first — we ask for it to confirm a change of email, so that a forgotten open browser cannot be used to take the account.",
+    "changePasswordTitle": "Change your password",
+    "changePasswordBody": "You will be signed out everywhere, including on this device.",
+    "setPasswordTitle": "Set a password",
+    "setPasswordBody": "Adds email and password as a second way to sign in. Your Google sign-in keeps working.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "genericError": "Something went wrong. Please try again."
   }
 }
