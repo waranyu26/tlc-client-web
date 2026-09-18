@@ -11,6 +11,18 @@ export async function getMe(): Promise<UserProfile> {
   return data;
 }
 
+/**
+ * Changes the display name. Name is the only profile field editable here —
+ * the email moves through the auth module's confirm-first flow instead, and
+ * role, status and balance are not the account holder's to set.
+ */
+export async function updateProfile(fullName: string): Promise<UserProfile> {
+  const { data } = await axiosInstance.put<UserProfile>('/api/v1/users/me', {
+    full_name: fullName,
+  });
+  return data;
+}
+
 // ----------------------------------------------------------------------
 
 export function useMe() {

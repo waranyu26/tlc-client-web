@@ -25,8 +25,23 @@ export type UserProfile = {
   email: string;
   full_name: string;
   role: string;
+  /**
+   * False until the address is confirmed. The four money actions — top-up,
+   * pull, buyback and delivery — are refused by the service until it flips, so
+   * this is what the verification banner keys off rather than a guess made
+   * after a 403.
+   */
+  email_verified: boolean;
   status: string;
   balance_satang: number;
+};
+
+/** How this account can be signed in to, and any address change in flight. */
+export type AccountSecurity = {
+  auth_methods: ('emailpassword' | 'google')[];
+  has_password: boolean;
+  /** The address awaiting confirmation, or "" when none is. */
+  pending_email: string;
 };
 
 // ----------------------------------------------------------------------

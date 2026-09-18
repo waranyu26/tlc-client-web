@@ -157,6 +157,15 @@ export function SignInView() {
               type="password"
               autoComplete="current-password"
             />
+            {/* Directly under the password field, which is where somebody
+                realises they do not know it. */}
+            <Link
+              component={RouterLink}
+              href={paths.auth.forgotPassword}
+              sx={{ alignSelf: 'flex-end', fontSize: 12.5, color: '#9A9285', mt: -1 }}
+            >
+              {t('signIn.forgotPassword')}
+            </Link>
             <PrimaryButton type="submit" fullWidth size="large" disabled={isSubmitting}>
               {t('signIn.submit')}
             </PrimaryButton>

@@ -1,6 +1,10 @@
+import type { AccountSecurity } from './types';
+
+import { useQuery } from '@tanstack/react-query';
 import Session from 'supertokens-web-js/recipe/session';
 import ThirdParty from 'supertokens-web-js/recipe/thirdparty';
 import EmailPassword from 'supertokens-web-js/recipe/emailpassword';
+import EmailVerification from 'supertokens-web-js/recipe/emailverification';
 
 import { paths } from 'src/routes/paths';
 
@@ -84,4 +88,103 @@ export async function deleteAccount(): Promise<void> {
 
 export async function checkSessionExists(): Promise<boolean> {
   return Session.doesSessionExist();
+}
+
+// ----------------------------------------------------------------------
+// Email verification
+// ----------------------------------------------------------------------
+
+/**
+ * Consumes the token from a verification link.
+ *
+ * `EmailVerification.verifyEmail()` reads the token out of the URL itself, so
+ * the caller does not parse it — which also means this works when the link is
+ * opened in a browser with no session, the ordinary case for someone checking
+ * mail on their phone.
+ */
+export async function verifyEmailToken() {
+  return EmailVerification.verifyEmail();
+}
+
+/**
+ * Asks the service to re-send whichever confirmation is outstanding — a pending
+ * address change if there is one, otherwise the account's own address.
+ *
+ * Deliberately our endpoint rather than the recipe's
+ * `sendVerificationEmail()`: only the service knows a change is pending, and
+ * the recipe would cheerfully re-send to the old address instead.
+ */
+export async function resendVerificationEmail(): Promise<void> {
+  await axiosInstance.post('/api/v1/auth/me/verify-email/resend');
+}
+
+// ----------------------------------------------------------------------
+// Password reset
+// ----------------------------------------------------------------------
+
+/**
+ * Starts a reset. The response is OK whether or not the address exists —
+ * SuperTokens does not disclose it, and neither should the screen that calls
+ * this.
+ */
+export async function sendPasswordResetEmail(email: string) {
+  return EmailPassword.sendPasswordResetEmail({
+    formFields: [{ id: 'email', value: email }],
+  });
+}
+
+/** Completes a reset. The token is read from the URL by the SDK. */
+export async function submitNewPassword(password: string) {
+  return EmailPassword.submitNewPassword({
+    formFields: [{ id: 'password', value: password }],
+  });
+}
+
+// ----------------------------------------------------------------------
+// Account management
+// ----------------------------------------------------------------------
+
+export async function getAccountSecurity(): Promise<AccountSecurity> {
+  const { data } = await axiosInstance.get<AccountSecurity>('/api/v1/auth/me/security');
+  return data;
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await axiosInstance.put('/api/v1/auth/me/password', {
+    current_password: currentPassword,
+    new_password: newPassword,
+  });
+}
+
+/** Gives a Google-only account its first password. */
+export async function setPassword(newPassword: string): Promise<void> {
+  await axiosInstance.post('/api/v1/auth/me/password', { new_password: newPassword });
+}
+
+/**
+ * Requests an address change. Nothing moves until the link sent to the new
+ * address is clicked, so a success here means "check the new inbox", not
+ * "your email changed".
+ */
+export async function requestEmailChange(
+  newEmail: string,
+  currentPassword: string
+): Promise<void> {
+  await axiosInstance.post('/api/v1/auth/me/email', {
+    new_email: newEmail,
+    current_password: currentPassword,
+  });
+}
+
+export async function cancelEmailChange(): Promise<void> {
+  await axiosInstance.delete('/api/v1/auth/me/email');
+}
+
+// ----------------------------------------------------------------------
+
+export function useAccountSecurity() {
+  return useQuery({
+    queryKey: ['auth', 'security'],
+    queryFn: getAccountSecurity,
+  });
 }

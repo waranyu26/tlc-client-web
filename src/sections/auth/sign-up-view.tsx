@@ -1,9 +1,9 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { safeReturnUrl } from 'minimal-shared/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -30,6 +30,8 @@ import { Form, Field, schemaUtils } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 import { useGoogleSignIn } from 'src/auth/hooks/use-google-sign-in';
+import { passwordField, fullNameField } from 'src/auth/password-policy';
+import { PasswordStrength } from 'src/auth/components/password-strength';
 
 import { AuthShell } from './auth-shell';
 
@@ -37,14 +39,12 @@ registerNamespace('auth', en, th);
 
 // ----------------------------------------------------------------------
 
-const SignUpSchema = zod.object({
-  fullName: zod.string().min(1, { error: 'Full name is required' }),
-  email: schemaUtils.email(),
-  password: zod.string().min(8, { error: 'Password must be at least 8 characters' }),
-  pdpaConsent: schemaUtils.boolean({ error: 'You must accept the PDPA consent to continue' }),
-});
-
-type SignUpSchemaType = zod.infer<typeof SignUpSchema>;
+type SignUpSchemaType = {
+  fullName: string;
+  email: string;
+  password: string;
+  pdpaConsent: boolean;
+};
 
 const FORM_FIELD_KEYS: Array<keyof SignUpSchemaType> = [
   'fullName',
@@ -64,16 +64,36 @@ export function SignUpView() {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Built here rather than at module scope so the messages are translated, and
+  // so the password rule can be the shared one rather than a second, laxer
+  // copy. The old schema checked length alone while the service also required
+  // a digit, which meant the real rule only ever appeared as a server-side
+  // field error on an already-filled form.
+  const SignUpSchema = useMemo(
+    () =>
+      zod.object({
+        fullName: fullNameField(t),
+        email: schemaUtils.email(),
+        password: passwordField(t),
+        pdpaConsent: schemaUtils.boolean({ error: t('signUp.pdpaRequired') }),
+      }),
+    [t]
+  );
+
   const methods = useForm<SignUpSchemaType>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: { fullName: '', email: '', password: '', pdpaConsent: false },
+    mode: 'onChange',
   });
 
   const {
+    watch,
     setError,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  const password = watch('password');
 
   const handleGoogleError = useCallback(() => setErrorMessage(t('callback.error')), [t]);
   const { start: startGoogle, pending: googlePending } = useGoogleSignIn({
@@ -104,7 +124,12 @@ export function SignUpView() {
       }
 
       await checkUserSession?.();
-      router.push(returnTo);
+      // Straight to "check your inbox" rather than the shop. The account is
+      // live and browsable, but four things in it are locked, and the sign-up
+      // moment is the only one where we know the customer is watching — a
+      // banner discovered three screens later explains the lock after they
+      // have already hit it.
+      router.push(paths.auth.verifyEmail);
     } catch (error) {
       setErrorMessage(error instanceof ApiError ? error.message : t('errors.generic'));
     }
@@ -156,6 +181,7 @@ export function SignUpView() {
               type="password"
               autoComplete="new-password"
             />
+            <PasswordStrength password={password} />
             <Field.Checkbox
               name="pdpaConsent"
               label={
