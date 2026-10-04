@@ -23,11 +23,13 @@
     "confirmCta": "Confirm sale",
     "selling": "Selling…",
     "soldBody": "{{amount}} added to your wallet.",
-    "error": "Couldn't complete the sale. Please try again."
+    "error": "Couldn't complete the sale. Please try again.",
+    "storeFinal": "Bought in the store, so it can't be sold back."
   },
   "kind": {
     "unique": "PSA",
     "bulk": "RAW",
     "sealed_pack": "PACK"
-  }
+  },
+  "storeBadge": "Store"
 }

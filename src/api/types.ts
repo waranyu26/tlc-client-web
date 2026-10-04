@@ -107,6 +107,8 @@ export type TopupStatus = {
  */
 export type CardKind = 'unique' | 'bulk' | 'sealed_pack';
 
+export type CardAcquiredVia = 'pull' | 'store';
+
 export type CardBuyback = {
   card_id: string;
   buyback_price_satang: number;
@@ -119,8 +121,9 @@ export type CollectionItem = {
   kind: CardKind;
   /**
    * The display name of the tier this card was pulled from, resolved through
-   * its pack. Empty only if the card never belonged to a pack — rarity is a
-   * property of a card's place in a box, not of the card.
+   * its pack. Empty for a card bought in the store (`acquired_via === 'store'`)
+   * and for any card that never belonged to a pack — rarity is a property of a
+   * card's place in a box, not of the card.
    */
   rarity: string;
   rarity_color: string;
@@ -131,6 +134,17 @@ export type CollectionItem = {
   psa_cert_number: string | null;
   psa_grade: string;
   buyback_price_satang: number;
+  /**
+   * False for a card bought from the store: a store purchase is final and the
+   * server refuses to buy it back. Hide the sell-back action for it.
+   */
+  buyback_eligible: boolean;
+  /**
+   * Where the customer got the card: drawn from a pack, or bought outright in
+   * the store. A store card has no rarity tier — `rarity` and `rarity_color`
+   * are empty strings — so render a "Store" badge in place of one.
+   */
+  acquired_via: CardAcquiredVia;
 };
 
 // ----------------------------------------------------------------------
@@ -264,6 +278,50 @@ export type DrandInfo = {
   genesis_time: number;
   period_seconds: number;
   lead_rounds: number;
+};
+
+// ----------------------------------------------------------------------
+// Store
+// ----------------------------------------------------------------------
+
+/**
+ * A card on sale at a fixed price.
+ *
+ * Like every customer surface there is no stock figure — only whether it can
+ * be bought at all, which a listed card always can until the moment it cannot.
+ */
+export type StoreCard = {
+  id: string;
+  name: string;
+  set_name: string;
+  kind: CardKind;
+  image_url: string;
+  /** Grid-sized copy of image_url. Empty for CSV-imported art — fall back to image_url. */
+  thumb_url: string;
+  /** Null for an ungraded card. */
+  psa_cert_number: string | null;
+  psa_grade: string;
+  price_satang: number;
+};
+
+/** The copy of the card the customer now owns, as it appears in their vault. */
+export type StorePurchasedCard = {
+  card_id: string;
+  name: string;
+  set_name: string;
+  kind: CardKind;
+  image_url: string;
+  thumb_url: string;
+  psa_cert_number: string | null;
+  psa_grade: string;
+};
+
+export type StorePurchase = {
+  purchase_id: string;
+  price_satang: number;
+  /** The wallet balance after the charge. */
+  balance_satang: number;
+  card: StorePurchasedCard;
 };
 
 // ----------------------------------------------------------------------

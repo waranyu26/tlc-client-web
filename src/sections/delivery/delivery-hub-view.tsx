@@ -22,10 +22,11 @@ import { Iconify } from 'src/components/iconify';
 import {
   FadeUp,
   CardFrame,
-  RarityBadge,
+  frameRarity,
   GhostButton,
   PrimaryButton,
   SectionHeading,
+  CardOriginBadge,
 } from 'src/components/vault';
 
 import { CardPicker } from './card-picker';
@@ -235,7 +236,7 @@ export function DeliveryHubView() {
               <CardFrame
                 thumbUrl={selectedCard.thumb_url}
                 imageUrl={selectedCard.image_url}
-                rarity={selectedCard.rarity}
+                rarity={frameRarity(selectedCard)}
                 alt={selectedCard.name}
               />
             </Box>
@@ -243,7 +244,7 @@ export function DeliveryHubView() {
               <Typography sx={{ color: '#F4ECDD', fontWeight: 600, fontSize: '14px' }} noWrap>
                 {selectedCard.name}
               </Typography>
-              <RarityBadge rarity={selectedCard.rarity} sx={{ mt: '6px' }} />
+              <CardOriginBadge item={selectedCard} sx={{ mt: '6px' }} />
             </Box>
           </Box>
         </FadeUp>

@@ -1,0 +1,55 @@
+{
+  "title": "Store",
+  "subtitle": "Buy a card outright at a fixed price. No luck involved.",
+  "search": {
+    "placeholder": "Search cards or sets",
+    "label": "Search the store"
+  },
+  "sort": {
+    "label": "Sort by",
+    "newest": "Newest",
+    "price_asc": "Price: low to high",
+    "price_desc": "Price: high to low"
+  },
+  "kind": {
+    "unique": "PSA graded",
+    "bulk": "Raw card",
+    "sealed_pack": "Sealed pack"
+  },
+  "grade": "PSA {{grade}}",
+  "empty": {
+    "title": "Nothing on the shelf",
+    "subtitle": "No cards match right now. Try another search, or check back soon."
+  },
+  "error": {
+    "title": "Couldn't load the store",
+    "retry": "Retry"
+  },
+  "buy": {
+    "price": "Price",
+    "balance": "Your balance",
+    "cta": "Buy · {{price}}",
+    "buying": "Buying…",
+    "cancel": "Cancel",
+    "close": "Close",
+    "topUp": "Top up wallet",
+    "signIn": "Sign in to buy",
+    "needsTopUp": "Your balance is lower than the price. Top up your wallet to buy this card.",
+    "errors": {
+      "insufficient": "Not enough balance for this card. Top up your wallet and try again.",
+      "priceChanged": "The price changed to {{price}}. Have a look and confirm again if you still want it.",
+      "soldOut": "Sorry, someone else just bought this card. You have not been charged.",
+      "notFound": "This card is no longer for sale. You have not been charged.",
+      "emailNotVerified": "Verify your email before you buy. Use the link we sent you, or resend it from the banner at the top of the page.",
+      "generic": "Couldn't complete the purchase. Please try again."
+    },
+    "success": {
+      "title": "It's yours!",
+      "body": "{{name}} is now in your vault.",
+      "balanceAfter": "Balance now",
+      "viewVault": "View in vault",
+      "keepBrowsing": "Keep browsing"
+    },
+    "finalSale": "Store purchases are final — a card bought here can't be sold back."
+  }
+}

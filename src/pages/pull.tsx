@@ -16,12 +16,15 @@ import { getPull } from 'src/api/pull.api';
 import { usePack } from 'src/api/pack.api';
 import enPull from 'src/i18n/locales/en/pull.json';
 import thPull from 'src/i18n/locales/th/pull.json';
+import { useFeatures } from 'src/api/features.api';
 import { useCardBuyback } from 'src/api/catalog.api';
 import { registerNamespace } from 'src/i18n/register';
 import { useWalletBalance } from 'src/api/wallet.api';
 import { useBuybackMutation } from 'src/api/buyback.api';
 import { usePullPrefsStore } from 'src/store/pull-prefs-store';
 import { isStagePhase, usePullFlowStore } from 'src/store/pull-flow-store';
+
+import { FeatureDisabledView } from 'src/components/vault';
 
 import {
   PullIdleView,
@@ -58,6 +61,7 @@ export default function PullPage() {
   const reduceMotion = Boolean(useReducedMotion());
   const skipPick = usePullPrefsStore((state) => state.skipPick);
 
+  const { features } = useFeatures();
   const packQuery = usePack(packId);
   const walletQuery = useWalletBalance();
   const buybackMutation = useBuybackMutation();
@@ -337,7 +341,16 @@ export default function PullPage() {
     );
   }
 
-  // Idle
+  // Idle — the only state where nothing has been charged, and so the only one
+  // pulls being switched off may interrupt. Everything above this point is a
+  // pull that already exists (a ticket being revealed or reconciled, a card on
+  // screen), and none of that is ever gated: the switch refuses new commits,
+  // never the delivery of one the customer has paid for. A commit the service
+  // refuses lands here too, with the interrupted attempt dropped.
+  if (!features.pull) {
+    return <FeatureDisabledView feature="pull" />;
+  }
+
   if (packQuery.isPending) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>

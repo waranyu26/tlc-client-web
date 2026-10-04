@@ -22,14 +22,14 @@ import { ThbAmount, GhostButton, PrimaryButton } from 'src/components/vault';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { SIDEBAR_WIDTH } from './layout-config';
-import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './nav-items';
+import { ACTIVE_COLOR, INACTIVE_COLOR, usePrimaryNavItems, SECONDARY_NAV_ITEMS } from './nav-items';
 
 // ----------------------------------------------------------------------
 // The mobile drawer, opened from the hamburger in the top bar.
 //
 // This exists because Delivery and Account were unreachable on a phone. Both
 // are SECONDARY_NAV_ITEMS, which only the desktop sidebar rendered, and the
-// BottomNav is capped at the four primary tabs — so on mobile those two routes
+// BottomNav is capped at the primary tabs — so on mobile those two routes
 // could only be reached by typing the URL.
 //
 // The drawer carries the *whole* nav rather than only the two that were
@@ -111,6 +111,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
   const pathname = usePathname();
   const { authenticated, loading } = useAuthContext();
   const balanceQuery = useWalletBalance();
+  const primaryItems = usePrimaryNavItems();
 
   const returnTo = `?${new URLSearchParams({ returnTo: pathname }).toString()}`;
 
@@ -139,7 +140,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
       <Logo href={paths.home} variant="horizontal" sx={{ ml: 1, width: 190, height: 32 }} />
 
       <Box component="nav" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-        {PRIMARY_NAV_ITEMS.map((item) => (
+        {primaryItems.map((item) => (
           <DrawerNavRow key={item.key} item={item} onNavigate={onClose} />
         ))}
       </Box>

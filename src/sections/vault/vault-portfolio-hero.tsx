@@ -20,7 +20,12 @@ export type VaultPortfolioHeroProps = {
 export function VaultPortfolioHero({ items, loading = false }: VaultPortfolioHeroProps) {
   const { t } = useTranslation('vault');
 
-  const totalSatang = items.reduce((sum, item) => sum + item.buyback_price_satang, 0);
+  // Only what can actually be sold back counts: a store purchase has no buyback
+  // value to promise.
+  const totalSatang = items.reduce(
+    (sum, item) => sum + (item.buyback_eligible ? item.buyback_price_satang : 0),
+    0
+  );
 
   return (
     <FadeUp>

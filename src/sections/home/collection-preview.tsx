@@ -11,7 +11,7 @@ import { useCollection } from 'src/api/catalog.api';
 import { gridGap } from 'src/layouts/vault/layout-config';
 
 import { Iconify } from 'src/components/iconify';
-import { CardFrame, SectionHeading } from 'src/components/vault';
+import { CardFrame, frameRarity, SectionHeading } from 'src/components/vault';
 
 // ----------------------------------------------------------------------
 // What the customer already owns, on the page they land on.
@@ -89,7 +89,7 @@ export function CollectionPreview() {
             key={card.card_id}
             thumbUrl={card.thumb_url}
             imageUrl={card.image_url}
-            rarity={card.rarity}
+            rarity={frameRarity(card)}
             alt={card.name}
             onClick={() => navigate(paths.vault)}
             sx={{

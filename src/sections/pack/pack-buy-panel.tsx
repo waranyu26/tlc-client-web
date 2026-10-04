@@ -6,6 +6,8 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 
+import { useFeatures } from 'src/api/features.api';
+
 import { ThbAmount, TrustBadge, PrimaryButton } from 'src/components/vault';
 
 // ----------------------------------------------------------------------
@@ -26,6 +28,10 @@ type Props = {
  */
 export function PackBuyPanel({ pack, canAfford, onPull }: Props) {
   const { t } = useTranslation('pack');
+  const { t: tCommon } = useTranslation();
+  // Switching pulls off refuses *new* commits only, and this button is what
+  // leads into one.
+  const { features } = useFeatures();
 
   const soldOut = pack.sold_out;
   const cardCount = pack.rarity_odds.reduce((total, tier) => total + tier.card_count, 0);
@@ -128,7 +134,12 @@ export function PackBuyPanel({ pack, canAfford, onPull }: Props) {
         </Box>
       </Box>
 
-      <PrimaryButton fullWidth disabled={soldOut} onClick={onPull} sx={{ mt: '20px' }}>
+      <PrimaryButton
+        fullWidth
+        disabled={soldOut || !features.pull}
+        onClick={onPull}
+        sx={{ mt: '20px' }}
+      >
         {soldOut
           ? t('outOfStock', { defaultValue: 'Sold out' })
           : t('pullCta', {
@@ -137,7 +148,13 @@ export function PackBuyPanel({ pack, canAfford, onPull }: Props) {
             })}
       </PrimaryButton>
 
-      {!canAfford && !soldOut && (
+      {!features.pull && !soldOut && (
+        <Typography sx={{ mt: '8px', fontSize: '11px', color: '#9A9285', textAlign: 'center' }}>
+          {tCommon('featureDisabled.pull.notice')}
+        </Typography>
+      )}
+
+      {features.pull && !canAfford && !soldOut && (
         <Typography sx={{ mt: '8px', fontSize: '11px', color: '#9A9285', textAlign: 'center' }}>
           {t('topUpHint', { defaultValue: 'Not enough balance — tap to top up.' })}
         </Typography>

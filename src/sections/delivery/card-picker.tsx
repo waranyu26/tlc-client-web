@@ -5,7 +5,7 @@ import ButtonBase from '@mui/material/ButtonBase';
 
 import { pickerGridColumns } from 'src/layouts/vault/layout-config';
 
-import { CardFrame, RarityBadge } from 'src/components/vault';
+import { CardFrame, frameRarity, CardOriginBadge } from 'src/components/vault';
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ export function CardPicker({ items, selectedId, onSelect }: CardPickerProps) {
             <CardFrame
               thumbUrl={item.thumb_url}
               imageUrl={item.image_url}
-              rarity={item.rarity}
+              rarity={frameRarity(item)}
               alt={item.name}
               glow={selected}
               sx={{ width: '100%' }}
@@ -60,8 +60,8 @@ export function CardPicker({ items, selectedId, onSelect }: CardPickerProps) {
               >
                 {item.name}
               </Box>
-              <RarityBadge
-                rarity={item.rarity}
+              <CardOriginBadge
+                item={item}
                 sx={{ mt: '4px', fontSize: '8px', padding: '2px 8px' }}
               />
             </Box>

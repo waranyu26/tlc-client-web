@@ -31,6 +31,7 @@ const ResetPasswordPage = lazy(() => import('src/pages/auth/reset-password'));
 const HomePage = lazy(() => import('src/pages/home'));
 const PackPage = lazy(() => import('src/pages/pack'));
 const FeedPage = lazy(() => import('src/pages/feed'));
+const StorePage = lazy(() => import('src/pages/store'));
 const VerifyPage = lazy(() => import('src/pages/verify'));
 
 // Account-bound pages
@@ -83,10 +84,10 @@ export const routesSection: RouteObject[] = [
   // Public storefront — the same shell as the rest of the app, no guard.
   //
   // Everything here reads from endpoints the service already serves
-  // unauthenticated (`GET /v1/packs`, `/v1/packs/:id`, the rarity manifest and
-  // the ticker stream), so a guest sees a real shelf rather than a teaser. What
-  // the shell itself shows changes with the session, not what routes exist:
-  // see `AppHeader`.
+  // unauthenticated (`GET /v1/packs`, `/v1/packs/:id`, the rarity manifest, the
+  // store listing and the ticker stream), so a guest sees a real shelf rather
+  // than a teaser. What the shell itself shows changes with the session, not
+  // what routes exist: see `AppHeader`.
   {
     element: (
       <AppShell>
@@ -99,6 +100,7 @@ export const routesSection: RouteObject[] = [
       { path: '/', element: <HomePage /> },
       { path: '/pack/:id', element: <PackPage /> },
       { path: '/feed', element: <FeedPage /> },
+      { path: '/store', element: <StorePage /> },
     ],
   },
 

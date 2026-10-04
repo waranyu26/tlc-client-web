@@ -19,6 +19,8 @@ export const paths = {
   pack: (id: string) => `/pack/${id}`,
   // Gacha — always scoped to a pack; there is no global pull.
   pull: (id: string) => `/pack/${id}/pull`,
+  // Store — fixed-price card purchases, alongside the gacha
+  store: '/store',
   // Collection
   vault: '/vault',
   // Wallet & money

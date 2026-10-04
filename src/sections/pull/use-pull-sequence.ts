@@ -5,6 +5,7 @@ import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { calmIntensity, getPullIntensity } from 'src/utils/rarity-intensity';
 
 import { haptic } from 'src/lib/haptics';
+import { isFeatureDisabledError } from 'src/api/features.api';
 import { usePullTicket, useCommitPull } from 'src/api/pull.api';
 import { PICK_CARD_COUNT, usePullFlowStore } from 'src/store/pull-flow-store';
 import {
@@ -316,9 +317,12 @@ export function usePullSequence({
             // A replayed idempotency key can come back already resolved.
             setTicketId(ticket.ticket_id);
           },
-          onError: () => {
+          onError: (error) => {
             clearTimers();
             usePullFlowStore.getState().reset();
+            // A switched-off pull was refused before any charge, so there is
+            // no attempt to retry or reconcile — the page shows the notice.
+            if (isFeatureDisabledError(error)) return;
             setPending({ key, clientSeed: seed });
           },
         }
