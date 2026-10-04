@@ -7,6 +7,7 @@
     "wallet": "Wallet",
     "live": "Live",
     "delivery": "Delivery",
+    "store": "Store",
     "account": "Account",
     "more": "More",
     "menu": "Open menu",
@@ -35,6 +36,18 @@
     "loading": "Loading…",
     "empty": "Nothing here yet",
     "error": "Something went wrong"
+  },
+  "featureDisabled": {
+    "home": "Back to home",
+    "pull": {
+      "title": "Pulls are paused",
+      "body": "New pulls are switched off for now. Anything you have already pulled is safe, and you can still open the vault.",
+      "notice": "Pulls are paused right now. Please check back soon."
+    },
+    "store": {
+      "title": "The store is closed",
+      "body": "Direct card purchases are switched off for now. You can still pull packs and browse your vault."
+    }
   },
   "currency": {
     "symbol": "฿"

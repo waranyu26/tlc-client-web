@@ -131,6 +131,11 @@ export type CollectionItem = {
   psa_cert_number: string | null;
   psa_grade: string;
   buyback_price_satang: number;
+  /**
+   * False for a card bought from the store: a store purchase is final and the
+   * server refuses to buy it back. Hide the sell-back action for it.
+   */
+  buyback_eligible: boolean;
 };
 
 // ----------------------------------------------------------------------
@@ -264,6 +269,51 @@ export type DrandInfo = {
   genesis_time: number;
   period_seconds: number;
   lead_rounds: number;
+};
+
+// ----------------------------------------------------------------------
+// Store
+// ----------------------------------------------------------------------
+
+/**
+ * A card on sale at a fixed price.
+ *
+ * Like every customer surface there is no stock figure — only whether it can
+ * be bought at all, which a listed card always can until the moment it cannot.
+ */
+export type StoreCard = {
+  id: string;
+  name: string;
+  set_name: string;
+  kind: CardKind;
+  image_url: string;
+  /** Grid-sized copy of image_url. Empty for CSV-imported art — fall back to image_url. */
+  thumb_url: string;
+  /** Null for an ungraded card. */
+  psa_cert_number: string | null;
+  psa_grade: string;
+  price_satang: number;
+};
+
+/** The copy of the card the customer now owns, as it appears in their vault. */
+export type StorePurchasedCard = {
+  card_id: string;
+  name: string;
+  set_name: string;
+  kind: CardKind;
+  image_url: string;
+  thumb_url: string;
+  psa_cert_number: string | null;
+  psa_grade: string;
+  buyback_price_satang: number;
+};
+
+export type StorePurchase = {
+  purchase_id: string;
+  price_satang: number;
+  /** The wallet balance after the charge. */
+  balance_satang: number;
+  card: StorePurchasedCard;
 };
 
 // ----------------------------------------------------------------------

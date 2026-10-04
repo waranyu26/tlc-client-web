@@ -19,7 +19,7 @@ import { ThbAmount, PrimaryButton } from 'src/components/vault';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_COMPACT } from './layout-config';
-import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './nav-items';
+import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, useSecondaryNavItems } from './nav-items';
 
 // ----------------------------------------------------------------------
 // Persistent desktop navigation. Labelled rail at `lg`, icon-only rail at `md`,
@@ -97,6 +97,7 @@ export function SidebarNav() {
   const navigate = useNavigate();
   const { authenticated } = useAuthContext();
   const balanceQuery = useWalletBalance();
+  const secondaryItems = useSecondaryNavItems();
 
   return (
     <Box
@@ -155,7 +156,7 @@ export function SidebarNav() {
             display: { md: 'block', lg: 'none' },
           }}
         />
-        {SECONDARY_NAV_ITEMS.map((item) => (
+        {secondaryItems.map((item) => (
           <NavRow key={item.key} item={item} />
         ))}
       </Box>

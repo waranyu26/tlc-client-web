@@ -22,7 +22,7 @@ import { ThbAmount, GhostButton, PrimaryButton } from 'src/components/vault';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { SIDEBAR_WIDTH } from './layout-config';
-import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './nav-items';
+import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS, useSecondaryNavItems } from './nav-items';
 
 // ----------------------------------------------------------------------
 // The mobile drawer, opened from the hamburger in the top bar.
@@ -111,6 +111,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
   const pathname = usePathname();
   const { authenticated, loading } = useAuthContext();
   const balanceQuery = useWalletBalance();
+  const secondaryItems = useSecondaryNavItems();
 
   const returnTo = `?${new URLSearchParams({ returnTo: pathname }).toString()}`;
 
@@ -148,7 +149,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
         <Typography sx={{ ...typeScale.micro, color: INACTIVE_COLOR, px: 1.75, mb: 0.5 }}>
           {t('nav.more', { defaultValue: 'More' })}
         </Typography>
-        {SECONDARY_NAV_ITEMS.map((item) => (
+        {secondaryItems.map((item) => (
           <DrawerNavRow key={item.key} item={item} onNavigate={onClose} />
         ))}
       </Box>

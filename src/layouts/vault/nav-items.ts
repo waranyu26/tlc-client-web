@@ -1,6 +1,11 @@
+import type { Features } from 'src/api/features.api';
 import type { IconifyName } from 'src/components/iconify';
 
+import { useMemo } from 'react';
+
 import { paths } from 'src/routes/paths';
+
+import { useFeatures } from 'src/api/features.api';
 
 // ----------------------------------------------------------------------
 // Single source of navigation truth, read by both the desktop SidebarNav and
@@ -13,6 +18,8 @@ export type NavItem = {
   icon: IconifyName;
   /** Used when the `nav.<key>` translation is missing. */
   fallbackLabel: string;
+  /** Hidden while this operator switch is off. */
+  feature?: keyof Features;
 };
 
 /** Primary destinations — these are the four mobile tabs. */
@@ -49,6 +56,13 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
  */
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
   {
+    key: 'store',
+    href: paths.store,
+    icon: 'solar:shop-linear',
+    fallbackLabel: 'Store',
+    feature: 'store',
+  },
+  {
     key: 'delivery',
     href: paths.delivery,
     icon: 'solar:box-linear',
@@ -61,6 +75,21 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
     fallbackLabel: 'Account',
   },
 ];
+
+/**
+ * The secondary items the operator has not switched off.
+ *
+ * Only the secondary list is filtered: the four primary tabs are never behind a
+ * switch, and the mobile bottom bar reads them directly.
+ */
+export function useSecondaryNavItems(): NavItem[] {
+  const { features } = useFeatures();
+
+  return useMemo(
+    () => SECONDARY_NAV_ITEMS.filter((item) => !item.feature || features[item.feature]),
+    [features]
+  );
+}
 
 export const ACTIVE_COLOR = '#E7CE92';
 export const INACTIVE_COLOR = '#5A5550';

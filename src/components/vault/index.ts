@@ -15,3 +15,4 @@ export * from './language-toggle';
 export * from './hd-image-button';
 export * from './background-music';
 export * from './card-image-viewer';
+export * from './feature-disabled-view';

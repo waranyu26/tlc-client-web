@@ -5,6 +5,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import axiosInstance from 'src/lib/axios';
 import { queryClient } from 'src/lib/query-client';
 
+import { markFeatureDisabled, isFeatureDisabledError } from './features.api';
+
 // ----------------------------------------------------------------------
 
 /**
@@ -81,6 +83,13 @@ export function useCommitPull(packId: string | undefined) {
       queryClient.invalidateQueries({ queryKey: ['wallet', 'balance'] });
       queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    },
+    onError: (error) => {
+      // Pulling has been switched off, so nothing was charged. Only a *new*
+      // commit is refused: GET /pulls/:id and the reveal of a ticket that
+      // already exists keep working, which is why this touches nothing but the
+      // feature flag.
+      if (isFeatureDisabledError(error)) markFeatureDisabled('pull');
     },
   });
 }

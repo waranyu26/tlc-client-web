@@ -84,13 +84,21 @@ export function VaultCardItem({ item, index = 0, onSelect }: VaultCardItemProps)
           <RarityBadge rarity={item.rarity} sx={{ marginTop: '4px' }} />
 
           <Box sx={{ marginTop: '6px' }}>
-            <Typography sx={{ fontSize: '10px', color: '#9A9285' }}>
-              {t('buybackValue', { defaultValue: 'Buyback value' })}
-            </Typography>
-            <ThbAmount
-              satang={item.buyback_price_satang}
-              sx={{ fontSize: '14px', fontWeight: 600 }}
-            />
+            {item.buyback_eligible ? (
+              <>
+                <Typography sx={{ fontSize: '10px', color: '#9A9285' }}>
+                  {t('buybackValue', { defaultValue: 'Buyback value' })}
+                </Typography>
+                <ThbAmount
+                  satang={item.buyback_price_satang}
+                  sx={{ fontSize: '14px', fontWeight: 600 }}
+                />
+              </>
+            ) : (
+              <Typography sx={{ fontSize: '10px', color: '#9A9285' }}>
+                {t('storeBought', { defaultValue: 'Bought in store' })}
+              </Typography>
+            )}
           </Box>
         </Box>
       </ButtonBase>

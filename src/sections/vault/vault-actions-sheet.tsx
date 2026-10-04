@@ -149,13 +149,21 @@ export function VaultActionsSheet({ item, open, onClose, onSold }: VaultActionsS
 
       {step === 'menu' && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
-          <BuybackButton
-            startIcon={<Iconify icon="solar:wad-of-money-bold" width={18} />}
-            onClick={() => setStep('confirm')}
-          >
-            {t('sheet.sellBack', { defaultValue: 'Sell back' })} ·{' '}
-            <ThbAmount satang={item.buyback_price_satang} sx={{ marginLeft: '4px' }} />
-          </BuybackButton>
+          {item.buyback_eligible ? (
+            <BuybackButton
+              startIcon={<Iconify icon="solar:wad-of-money-bold" width={18} />}
+              onClick={() => setStep('confirm')}
+            >
+              {t('sheet.sellBack', { defaultValue: 'Sell back' })} ·{' '}
+              <ThbAmount satang={item.buyback_price_satang} sx={{ marginLeft: '4px' }} />
+            </BuybackButton>
+          ) : (
+            <Typography sx={{ fontSize: '12.5px', lineHeight: 1.6, color: '#9A9285' }}>
+              {t('sheet.storeFinal', {
+                defaultValue: 'Bought in the store, so it can’t be sold back.',
+              })}
+            </Typography>
+          )}
 
           <GhostButton
             startIcon={<Iconify icon="carbon:delivery" width={18} />}
