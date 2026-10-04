@@ -31,5 +31,5 @@
     "bulk": "RAW",
     "sealed_pack": "PACK"
   },
-  "storeBought": "Bought in store"
+  "storeBadge": "Store"
 }

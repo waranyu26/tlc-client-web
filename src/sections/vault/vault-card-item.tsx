@@ -6,7 +6,14 @@ import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Typography from '@mui/material/Typography';
 
-import { FadeUp, ThbAmount, CardFrame, RarityBadge, getRarityColor } from 'src/components/vault';
+import {
+  FadeUp,
+  ThbAmount,
+  CardFrame,
+  frameRarity,
+  getRarityColor,
+  CardOriginBadge,
+} from 'src/components/vault';
 
 // ----------------------------------------------------------------------
 
@@ -20,7 +27,8 @@ export type VaultCardItemProps = {
 
 export function VaultCardItem({ item, index = 0, onSelect }: VaultCardItemProps) {
   const { t } = useTranslation('vault');
-  const color = getRarityColor(item.rarity);
+  const tone = frameRarity(item);
+  const color = getRarityColor(tone);
 
   return (
     <FadeUp delay={Math.min(index, 8) * 0.04}>
@@ -37,7 +45,7 @@ export function VaultCardItem({ item, index = 0, onSelect }: VaultCardItemProps)
           <CardFrame
             thumbUrl={item.thumb_url}
             imageUrl={item.image_url}
-            rarity={item.rarity}
+            rarity={tone}
             alt={item.name}
           />
 
@@ -81,25 +89,21 @@ export function VaultCardItem({ item, index = 0, onSelect }: VaultCardItemProps)
             {item.name}
           </Typography>
 
-          <RarityBadge rarity={item.rarity} sx={{ marginTop: '4px' }} />
+          <CardOriginBadge item={item} sx={{ marginTop: '4px' }} />
 
-          <Box sx={{ marginTop: '6px' }}>
-            {item.buyback_eligible ? (
-              <>
-                <Typography sx={{ fontSize: '10px', color: '#9A9285' }}>
-                  {t('buybackValue', { defaultValue: 'Buyback value' })}
-                </Typography>
-                <ThbAmount
-                  satang={item.buyback_price_satang}
-                  sx={{ fontSize: '14px', fontWeight: 600 }}
-                />
-              </>
-            ) : (
+          {/* A store card has no buyback value; its badge already says where
+              it came from, so there is nothing to caption here. */}
+          {item.buyback_eligible && (
+            <Box sx={{ marginTop: '6px' }}>
               <Typography sx={{ fontSize: '10px', color: '#9A9285' }}>
-                {t('storeBought', { defaultValue: 'Bought in store' })}
+                {t('buybackValue', { defaultValue: 'Buyback value' })}
               </Typography>
-            )}
-          </Box>
+              <ThbAmount
+                satang={item.buyback_price_satang}
+                sx={{ fontSize: '14px', fontWeight: 600 }}
+              />
+            </Box>
+          )}
         </Box>
       </ButtonBase>
     </FadeUp>

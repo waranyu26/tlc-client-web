@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
-import Skeleton from '@mui/material/Skeleton';
 import TextField from '@mui/material/TextField';
 import Pagination from '@mui/material/Pagination';
 import Typography from '@mui/material/Typography';
@@ -21,8 +20,8 @@ import { GhostButton, SectionHeading, FeatureDisabledView } from 'src/components
 
 import { fieldSx } from 'src/sections/account/dialog-style';
 
-import { StoreCardItem } from './store-card-item';
 import { StoreBuyDialog } from './store-buy-dialog';
+import { StoreCardItem, StoreCardSkeleton } from './store-card-item';
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +31,16 @@ const SORTS: StoreSort[] = ['newest', 'price_asc', 'price_desc'];
 
 // Roughly a screen's worth of tiles, so the grid holds its shape while loading.
 const SKELETON_COUNT = 10;
+
+// Rows stretch to the tallest tile and each tile fills its cell, so a grid of
+// slabs, raw cards and sealed packs reads as one even shelf.
+const storeGridSx = {
+  display: 'grid',
+  gridTemplateColumns: cardGridColumns,
+  gridAutoRows: '1fr',
+  alignItems: 'stretch',
+  gap: gridGap,
+} as const;
 
 // ----------------------------------------------------------------------
 
@@ -133,13 +142,9 @@ export function StoreView() {
       )}
 
       {cardsQuery.isPending && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: cardGridColumns, gap: gridGap }}>
+        <Box sx={storeGridSx}>
           {Array.from({ length: SKELETON_COUNT }, (_, index) => (
-            <Skeleton
-              key={index}
-              variant="rectangular"
-              sx={{ width: '100%', aspectRatio: '52 / 105', borderRadius: '4px' }}
-            />
+            <StoreCardSkeleton key={index} />
           ))}
         </Box>
       )}
@@ -171,7 +176,7 @@ export function StoreView() {
       )}
 
       {cards.length > 0 && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: cardGridColumns, gap: gridGap }}>
+        <Box sx={storeGridSx}>
           {cards.map((card, index) => (
             <StoreCardItem key={card.id} card={card} index={index} onSelect={handleSelect} />
           ))}

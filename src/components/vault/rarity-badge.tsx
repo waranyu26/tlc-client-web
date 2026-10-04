@@ -21,10 +21,16 @@ export function getRarityColor(rarity?: string | null): string {
 
 export type RarityBadgeProps = BoxProps<'span'> & {
   rarity: string;
+  /** Colour key when the label is not itself a rarity name (e.g. "Store"). */
+  tone?: string;
 };
 
-export function RarityBadge({ rarity, sx, ...other }: RarityBadgeProps) {
-  const color = getRarityColor(rarity);
+export function RarityBadge({ rarity, tone, sx, ...other }: RarityBadgeProps) {
+  // A card outside any pack has no tier. An empty pill reads as a rendering
+  // bug, so say nothing rather than draw one.
+  if (!rarity) return null;
+
+  const color = getRarityColor(tone ?? rarity);
 
   return (
     <Box

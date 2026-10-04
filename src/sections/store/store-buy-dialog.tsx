@@ -20,13 +20,18 @@ import { useWalletBalance } from 'src/api/wallet.api';
 import { useBuyCard, STORE_ERROR, useStoreCard } from 'src/api/store.api';
 
 import { Iconify } from 'src/components/iconify';
-import { ThbAmount, CardFrame, GhostButton, PrimaryButton } from 'src/components/vault';
+import {
+  ThbAmount,
+  CardFrame,
+  GhostButton,
+  PrimaryButton,
+  STORE_FRAME_TONE,
+} from 'src/components/vault';
 
 import { dialogPaperProps } from 'src/sections/account/dialog-style';
 
 import { useAuthContext } from 'src/auth/hooks';
 
-import { STORE_FRAME_TONE } from './store-card-item';
 
 // ----------------------------------------------------------------------
 

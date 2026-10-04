@@ -19,9 +19,10 @@ import {
   CardFrame,
   ThbAmount,
   GhostButton,
-  RarityBadge,
+  frameRarity,
   HdImageButton,
   BuybackButton,
+  CardOriginBadge,
   CardImageViewer,
 } from 'src/components/vault';
 
@@ -114,7 +115,7 @@ export function VaultActionsSheet({ item, open, onClose, onSold }: VaultActionsS
           priority
           thumbUrl={item.thumb_url}
           imageUrl={item.image_url}
-          rarity={item.rarity}
+          rarity={frameRarity(item)}
           alt={item.name}
         />
         <HdImageButton compact onOpen={() => setViewerOpen(true)} />
@@ -139,7 +140,7 @@ export function VaultActionsSheet({ item, open, onClose, onSold }: VaultActionsS
           >
             {item.name}
           </Typography>
-          <RarityBadge rarity={item.rarity} sx={{ marginTop: '6px' }} />
+          <CardOriginBadge item={item} sx={{ marginTop: '6px' }} />
         </Box>
 
         <IconButton onClick={onClose} size="small" sx={{ color: '#9A9285' }}>

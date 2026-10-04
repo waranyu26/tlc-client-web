@@ -67,12 +67,19 @@ export const sectionGap = { xs: 2, md: 3, lg: 4 } as const;
 
 // ----------------------------------------------------------------------
 
-/** Dense card grid — vault and catalog tiles. */
+/**
+ * Dense card grid — vault, catalog and store tiles.
+ *
+ * `minmax(0, 1fr)` rather than `1fr`: a bare `1fr` track has an automatic
+ * minimum of its content, so one tile holding a long unbreakable name or price
+ * stretches its column and the others shrink to compensate — uneven tiles, and
+ * on a phone a grid wider than the screen.
+ */
 export const cardGridColumns = {
-  xs: 'repeat(2, 1fr)',
-  sm: 'repeat(3, 1fr)',
-  md: 'repeat(4, 1fr)',
-  lg: 'repeat(5, 1fr)',
+  xs: 'repeat(2, minmax(0, 1fr))',
+  sm: 'repeat(3, minmax(0, 1fr))',
+  md: 'repeat(4, minmax(0, 1fr))',
+  lg: 'repeat(5, minmax(0, 1fr))',
 } as const;
 
 // Home no longer tiles packs. The shop runs one to three boxes, and a grid

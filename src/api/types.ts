@@ -107,6 +107,8 @@ export type TopupStatus = {
  */
 export type CardKind = 'unique' | 'bulk' | 'sealed_pack';
 
+export type CardAcquiredVia = 'pull' | 'store';
+
 export type CardBuyback = {
   card_id: string;
   buyback_price_satang: number;
@@ -119,8 +121,9 @@ export type CollectionItem = {
   kind: CardKind;
   /**
    * The display name of the tier this card was pulled from, resolved through
-   * its pack. Empty only if the card never belonged to a pack — rarity is a
-   * property of a card's place in a box, not of the card.
+   * its pack. Empty for a card bought in the store (`acquired_via === 'store'`)
+   * and for any card that never belonged to a pack — rarity is a property of a
+   * card's place in a box, not of the card.
    */
   rarity: string;
   rarity_color: string;
@@ -136,6 +139,12 @@ export type CollectionItem = {
    * server refuses to buy it back. Hide the sell-back action for it.
    */
   buyback_eligible: boolean;
+  /**
+   * Where the customer got the card: drawn from a pack, or bought outright in
+   * the store. A store card has no rarity tier — `rarity` and `rarity_color`
+   * are empty strings — so render a "Store" badge in place of one.
+   */
+  acquired_via: CardAcquiredVia;
 };
 
 // ----------------------------------------------------------------------
@@ -305,7 +314,6 @@ export type StorePurchasedCard = {
   thumb_url: string;
   psa_cert_number: string | null;
   psa_grade: string;
-  buyback_price_satang: number;
 };
 
 export type StorePurchase = {
