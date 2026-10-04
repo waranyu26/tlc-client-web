@@ -22,13 +22,24 @@ export type NavItem = {
   feature?: keyof Features;
 };
 
-/** Primary destinations — these are the four mobile tabs. */
+/**
+ * Primary destinations — the mobile tabs. Four always, plus Store while the
+ * operator has it switched on (see usePrimaryNavItems), so the bar is five tabs
+ * when the store is open and four when it is not.
+ */
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
   {
     key: 'home',
     href: paths.home,
     icon: 'solar:home-smile-linear',
     fallbackLabel: 'Home',
+  },
+  {
+    key: 'store',
+    href: paths.store,
+    icon: 'solar:shop-linear',
+    fallbackLabel: 'Store',
+    feature: 'store',
   },
   {
     key: 'vault',
@@ -52,16 +63,10 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
 
 /**
  * Secondary destinations. These routes exist but had no nav entry at all while
- * the app was capped to four mobile tabs — the sidebar has room for them.
+ * the app was capped to four mobile tabs — the sidebar and the mobile drawer
+ * have room for them.
  */
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
-  {
-    key: 'store',
-    href: paths.store,
-    icon: 'solar:shop-linear',
-    fallbackLabel: 'Store',
-    feature: 'store',
-  },
   {
     key: 'delivery',
     href: paths.delivery,
@@ -77,16 +82,17 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
 ];
 
 /**
- * The secondary items the operator has not switched off.
+ * The primary items the operator has not switched off.
  *
- * Only the secondary list is filtered: the four primary tabs are never behind a
- * switch, and the mobile bottom bar reads them directly.
+ * Read by the bottom bar, the sidebar and the drawer alike, so a switched-off
+ * Store disappears from all three at once. Home, Vault, Wallet and Live are
+ * never behind a switch.
  */
-export function useSecondaryNavItems(): NavItem[] {
+export function usePrimaryNavItems(): NavItem[] {
   const { features } = useFeatures();
 
   return useMemo(
-    () => SECONDARY_NAV_ITEMS.filter((item) => !item.feature || features[item.feature]),
+    () => PRIMARY_NAV_ITEMS.filter((item) => !item.feature || features[item.feature]),
     [features]
   );
 }

@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
-import { ACTIVE_COLOR, INACTIVE_COLOR, PRIMARY_NAV_ITEMS } from 'src/layouts/vault/nav-items';
+import { ACTIVE_COLOR, INACTIVE_COLOR, usePrimaryNavItems } from 'src/layouts/vault/nav-items';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -19,6 +19,7 @@ import { Iconify } from 'src/components/iconify';
 
 export function BottomNav({ sx, ...other }: BoxProps) {
   const { t } = useTranslation();
+  const items = usePrimaryNavItems();
 
   return (
     <Box
@@ -42,7 +43,7 @@ export function BottomNav({ sx, ...other }: BoxProps) {
       ]}
       {...other}
     >
-      {PRIMARY_NAV_ITEMS.map((item) => (
+      {items.map((item) => (
         <Box
           key={item.key}
           component={NavLink}
