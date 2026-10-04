@@ -23,9 +23,9 @@ export type NavItem = {
 };
 
 /**
- * Primary destinations — the mobile tabs. Four always, plus Store while the
- * operator has it switched on (see usePrimaryNavItems), so the bar is five tabs
- * when the store is open and four when it is not.
+ * Primary destinations — the mobile tabs. Home and Store each follow their
+ * operator switch (see usePrimaryNavItems), so the bar shrinks and grows with
+ * them: Vault, Wallet and Live are always there.
  */
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
   {
@@ -33,6 +33,8 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
     href: paths.home,
     icon: 'solar:home-smile-linear',
     fallbackLabel: 'Home',
+    // Home is the shop window for random pulls, so it goes when pulling does.
+    feature: 'pull',
   },
   {
     key: 'store',
@@ -85,8 +87,8 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
  * The primary items the operator has not switched off.
  *
  * Read by the bottom bar, the sidebar and the drawer alike, so a switched-off
- * Store disappears from all three at once. Home, Vault, Wallet and Live are
- * never behind a switch.
+ * Home (pull) or Store disappears from all three at once. Vault, Wallet and
+ * Live are never behind a switch.
  */
 export function usePrimaryNavItems(): NavItem[] {
   const { features } = useFeatures();
