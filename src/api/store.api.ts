@@ -91,7 +91,7 @@ export async function getStoreCard(cardId: string): Promise<StoreCard> {
 /** The category → collection tree, counted over what is buyable right now. */
 export async function getStoreCategories(): Promise<StoreCategory[]> {
   const { data } = await guardStore(axiosInstance.get<StoreCategory[]>('/api/v1/store/categories'));
-  return data;
+  return data ?? [];
 }
 
 /**

@@ -21,7 +21,11 @@ export type CollectionParams = {
 // card in or out of the vault refresh the pages, the whole list and the tree.
 const COLLECTION_KEY = ['catalog', 'collection'] as const;
 
-/** The largest page the service will hand back; it caps anything bigger to this. */
+/**
+ * The page size `getWholeCollection` asks for: the service's cap today. The
+ * service answers with the size it actually used, which is what the walk pages
+ * by, so a lower cap later still reads every card.
+ */
 const COLLECTION_MAX_PAGE_SIZE = 100;
 
 // ----------------------------------------------------------------------
@@ -45,16 +49,18 @@ export async function getCollection(
 /**
  * Every card in the vault, unfiltered, for the places that need all of it at
  * once: the portfolio total and the delivery picker. Reads the first page at
- * the largest size the service allows, then the rest in parallel.
+ * the largest size the service allows, then the rest in parallel at the size
+ * the first page came back with.
  */
 export async function getWholeCollection(): Promise<CollectionItem[]> {
   const first = await getCollection({ page: 1, pageSize: COLLECTION_MAX_PAGE_SIZE });
-  const pageCount = Math.ceil(first.totalRecord / COLLECTION_MAX_PAGE_SIZE);
+  const pageSize = first.pageSize > 0 ? first.pageSize : COLLECTION_MAX_PAGE_SIZE;
+  const pageCount = Math.ceil(first.totalRecord / pageSize);
   if (pageCount <= 1) return first.data ?? [];
 
   const rest = await Promise.all(
     Array.from({ length: pageCount - 1 }, (_, index) =>
-      getCollection({ page: index + 2, pageSize: COLLECTION_MAX_PAGE_SIZE })
+      getCollection({ page: index + 2, pageSize })
     )
   );
   return [first, ...rest].flatMap((page) => page.data ?? []);

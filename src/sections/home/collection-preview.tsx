@@ -35,8 +35,6 @@ export function CollectionPreview() {
     return null;
   }
 
-  const preview = cards.slice(0, PREVIEW_COUNT);
-
   return (
     <Box>
       <Box
@@ -84,7 +82,7 @@ export function CollectionPreview() {
           },
         }}
       >
-        {preview.map((card, index) => (
+        {cards.map((card, index) => (
           <CardFrame
             key={card.card_id}
             thumbUrl={card.thumb_url}
