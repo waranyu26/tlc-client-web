@@ -1,10 +1,9 @@
 import type { PackCardItem } from 'src/api/types';
+import type { PillOption } from 'src/components/vault';
 
 import { useTranslation } from 'react-i18next';
 
-import Box from '@mui/material/Box';
-import ButtonBase from '@mui/material/ButtonBase';
-import Typography from '@mui/material/Typography';
+import { PillGroup } from 'src/components/vault';
 
 // ----------------------------------------------------------------------
 
@@ -48,50 +47,21 @@ type Props = {
 export function PackCardSort({ value, onChange }: Props) {
   const { t } = useTranslation('pack');
 
-  const options: { key: PackCardSortKey; label: string }[] = [
-    { key: 'value', label: t('sort.value', { defaultValue: 'Value ↓' }) },
-    { key: 'name', label: t('sort.name', { defaultValue: 'A–Z' }) },
+  const options: PillOption<PackCardSortKey>[] = [
+    { value: 'value', label: t('sort.value', { defaultValue: 'Value ↓' }) },
+    { value: 'name', label: t('sort.name', { defaultValue: 'A–Z' }) },
   ];
 
+  // Two short pills always fit, so the row stays a plain flex row and keeps
+  // its place on the heading's baseline.
   return (
-    <Box
-      role="group"
-      aria-label={t('sort.label', { defaultValue: 'Sort cards' })}
-      sx={{ display: 'flex', gap: '6px' }}
-    >
-      {options.map((option) => {
-        const selected = value === option.key;
-
-        return (
-          <ButtonBase
-            key={option.key}
-            onClick={() => onChange(option.key)}
-            aria-pressed={selected}
-            sx={{
-              px: '12px',
-              py: '5px',
-              borderRadius: '999px',
-              border: `1px solid ${selected ? '#E7CE92' : 'rgba(231,206,146,0.22)'}`,
-              backgroundColor: selected ? 'rgba(231,206,146,0.12)' : 'transparent',
-              transition: 'border-color 160ms ease, background-color 160ms ease',
-              '&:hover': { borderColor: 'rgba(231,206,146,0.55)' },
-            }}
-          >
-            <Typography
-              noWrap
-              sx={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.04em',
-                color: selected ? '#E7CE92' : '#9A9285',
-              }}
-            >
-              {option.label}
-            </Typography>
-          </ButtonBase>
-        );
-      })}
-    </Box>
+    <PillGroup
+      options={options}
+      value={value}
+      onChange={onChange}
+      label={t('sort.label', { defaultValue: 'Sort cards' })}
+      scroll={false}
+    />
   );
 }
 
