@@ -1,4 +1,11 @@
-import type { Balance, StoreCard, Pagination, StorePurchase } from './types';
+import type {
+  Balance,
+  CardKind,
+  StoreCard,
+  Pagination,
+  StoreCategory,
+  StorePurchase,
+} from './types';
 
 import { useQuery, useMutation, keepPreviousData } from '@tanstack/react-query';
 
@@ -30,6 +37,15 @@ export type StoreListParams = {
   set_name?: string;
   search?: string;
   sort?: StoreSort;
+  category_id?: string;
+  series_id?: string;
+  kind?: CardKind;
+  /** Only `true` filters (to PSA-graded cards); leave it out otherwise. */
+  graded?: true;
+  /** Satang, inclusive. */
+  min_price?: number;
+  /** Satang, inclusive. */
+  max_price?: number;
 };
 
 type BuyCardArgs = {
@@ -43,6 +59,7 @@ type BuyCardArgs = {
 };
 
 const STORE_KEY = ['store', 'cards'] as const;
+const STORE_CATEGORIES_KEY = ['store', 'categories'] as const;
 
 // ----------------------------------------------------------------------
 
@@ -68,6 +85,12 @@ export async function getStoreCards(params?: StoreListParams): Promise<Paginatio
 
 export async function getStoreCard(cardId: string): Promise<StoreCard> {
   const { data } = await guardStore(axiosInstance.get<StoreCard>(`/api/v1/store/cards/${cardId}`));
+  return data;
+}
+
+/** The category → collection tree, counted over what is buyable right now. */
+export async function getStoreCategories(): Promise<StoreCategory[]> {
+  const { data } = await guardStore(axiosInstance.get<StoreCategory[]>('/api/v1/store/categories'));
   return data;
 }
 
@@ -111,6 +134,19 @@ export function useStoreCards(params?: StoreListParams) {
 }
 
 /**
+ * The store's category tabs. Admins rarely reshuffle the tree, and a count a
+ * minute out of date only nudges a number on a pill, so a short cache is fine.
+ */
+export function useStoreCategories() {
+  return useQuery({
+    queryKey: STORE_CATEGORIES_KEY,
+    queryFn: getStoreCategories,
+    staleTime: 60_000,
+    retry: retryUnlessDisabled,
+  });
+}
+
+/**
  * One listing, seeded from the grid card the customer tapped.
  *
  * Seeding shows the dialog immediately; the default stale time of zero for
@@ -143,6 +179,7 @@ export function useBuyCard() {
       // The card is now in the vault, and off the shelf.
       queryClient.invalidateQueries({ queryKey: ['catalog', 'collection'] });
       queryClient.invalidateQueries({ queryKey: STORE_KEY });
+      queryClient.invalidateQueries({ queryKey: STORE_CATEGORIES_KEY });
     },
     onError: (error, { card }) => {
       if (!(error instanceof ApiError)) return;

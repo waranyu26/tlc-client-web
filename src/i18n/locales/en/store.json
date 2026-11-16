@@ -2,7 +2,7 @@
   "title": "Store",
   "subtitle": "Buy a card outright at a fixed price. No luck involved.",
   "search": {
-    "placeholder": "Search cards or sets",
+    "placeholder": "Search cards, sets or collections",
     "label": "Search the store"
   },
   "sort": {
@@ -10,6 +10,46 @@
     "newest": "Newest",
     "price_asc": "Price: low to high",
     "price_desc": "Price: high to low"
+  },
+  "category": {
+    "label": "Categories",
+    "all": "All"
+  },
+  "series": {
+    "label": "Collections",
+    "all": "All collections"
+  },
+  "filter": {
+    "button": "Filters",
+    "buttonActive": "Filters, {{count}} active",
+    "title": "Filters",
+    "close": "Close filters",
+    "kind": {
+      "label": "Type",
+      "any": "Any",
+      "unique": "Single",
+      "bulk": "Bulk",
+      "sealed_pack": "Sealed"
+    },
+    "graded": "PSA graded only",
+    "price": {
+      "label": "Price (฿)",
+      "min": "Min",
+      "max": "Max",
+      "invalid": "Enter an amount in baht, e.g. 250 or 99.50",
+      "minAboveMax": "Min can’t be higher than max"
+    },
+    "clear": "Clear",
+    "apply": "Apply",
+    "chips": {
+      "label": "Active filters",
+      "remove": "Remove filter: {{label}}",
+      "search": "“{{query}}”",
+      "priceRange": "{{min}} – {{max}}",
+      "priceMin": "From {{min}}",
+      "priceMax": "Up to {{max}}",
+      "clearAll": "Clear all"
+    }
   },
   "kind": {
     "unique": "PSA graded",
@@ -19,7 +59,10 @@
   "grade": "PSA {{grade}}",
   "empty": {
     "title": "Nothing on the shelf",
-    "subtitle": "No cards match right now. Try another search, or check back soon."
+    "subtitle": "No cards match right now. Try another search, or check back soon.",
+    "filteredTitle": "No cards match these filters",
+    "filteredSubtitle": "Try removing a filter or searching for something else.",
+    "filteredClear": "Clear filters"
   },
   "error": {
     "title": "Couldn't load the store",

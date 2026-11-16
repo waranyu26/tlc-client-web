@@ -302,6 +302,32 @@ export type StoreCard = {
   psa_cert_number: string | null;
   psa_grade: string;
   price_satang: number;
+  /** The shop collection the card is filed under, or null when it is in none. */
+  series_name: string | null;
+  /** That collection's category; null whenever series_name is. */
+  category_name: string | null;
+};
+
+/** A collection inside a store category, counted over what is buyable now. */
+export type StoreSeries = {
+  id: string;
+  name: string;
+  sort_order: number;
+  card_count: number;
+};
+
+/**
+ * A store category with its collections. Only collections holding a buyable
+ * card are listed, and only categories with such a collection; card_count is
+ * the sum of its collections'.
+ */
+export type StoreCategory = {
+  id: string;
+  name: string;
+  image_url: string | null;
+  sort_order: number;
+  card_count: number;
+  series: StoreSeries[];
 };
 
 /** The copy of the card the customer now owns, as it appears in their vault. */
