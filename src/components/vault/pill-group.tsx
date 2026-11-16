@@ -66,6 +66,7 @@ export function PillGroup<T extends string>({
               backgroundColor: selected ? 'rgba(231,206,146,0.12)' : 'transparent',
               transition: 'border-color 160ms ease, background-color 160ms ease',
               '&:hover': { borderColor: 'rgba(231,206,146,0.55)' },
+              '&.Mui-focusVisible': { outline: '2px solid #E7CE92', outlineOffset: 2 },
               ...(scroll && { flexShrink: 0 }),
             }}
           >
