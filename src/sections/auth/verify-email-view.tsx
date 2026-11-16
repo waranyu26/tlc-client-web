@@ -117,7 +117,7 @@ export function VerifyEmailView() {
   return (
     <AuthShell>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'center' }}>
-        <Logo sx={{ display: { md: 'none' }, width: 44, height: 44 }} />
+        <Logo sx={{ display: { md: 'none' }, width: 96, height: 66 }} />
 
         <Box
           sx={{

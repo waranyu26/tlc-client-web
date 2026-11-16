@@ -132,7 +132,7 @@ export function MobileTopBar() {
             the one thing here that is also everywhere else on the screen. */}
         <Logo
           href={paths.home}
-          sx={{ display: { xs: 'none', sm: 'flex' }, width: 30, height: 30, flexShrink: 0 }}
+          sx={{ display: { xs: 'none', sm: 'flex' }, width: 46, height: 32, flexShrink: 0 }}
         />
 
         <Box sx={{ flexGrow: 1, minWidth: 0 }} />

@@ -121,12 +121,12 @@ export function SidebarNav() {
       {/* Brand lockup — mark only on the compact rail */}
       <Logo
         href={paths.home}
-        sx={{ display: { md: 'flex', lg: 'none' }, alignSelf: 'center', width: 36, height: 36 }}
+        sx={{ display: { md: 'flex', lg: 'none' }, alignSelf: 'center', width: 72, height: 50 }}
       />
       <Logo
         href={paths.home}
         variant="horizontal"
-        sx={{ display: { md: 'none', lg: 'flex' }, ml: 1, width: 200, height: 34 }}
+        sx={{ display: { md: 'none', lg: 'flex' }, alignSelf: 'center', width: 180, height: 124 }}
       />
 
       <Box component="nav" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>

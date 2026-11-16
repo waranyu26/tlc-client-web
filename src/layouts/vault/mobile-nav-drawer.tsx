@@ -137,7 +137,11 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
         },
       }}
     >
-      <Logo href={paths.home} variant="horizontal" sx={{ ml: 1, width: 190, height: 32 }} />
+      <Logo
+        href={paths.home}
+        variant="horizontal"
+        sx={{ alignSelf: 'center', width: 180, height: 124 }}
+      />
 
       <Box component="nav" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {primaryItems.map((item) => (

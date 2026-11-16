@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import { typeScale } from 'src/theme/type-scale';
+import { primaryFont } from 'src/theme/core/typography';
 
 import { Logo } from 'src/components/logo';
 import { TrustBadge } from 'src/components/vault';
@@ -24,7 +25,10 @@ export type AuthShellProps = {
 };
 
 export function AuthShell({ children, slotTop }: AuthShellProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
+  // The display serif has no Thai glyphs — Thai falls back to an arbitrary system
+  // font at headline size. Thai gets the app's Thai body face, a step smaller.
+  const isThai = i18n.language?.startsWith('th');
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex' }}>
@@ -43,16 +47,75 @@ export function AuthShell({ children, slotTop }: AuthShellProps) {
             'radial-gradient(ellipse at 30% 20%, rgba(231,206,146,0.10) 0%, transparent 60%)',
         }}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, alignItems: 'flex-start' }}>
-          <Logo variant="horizontal" sx={{ width: 260, height: 44 }} />
-          <Typography sx={{ ...typeScale.body, color: '#9A9285', maxWidth: 380 }}>
+        {/* Centred: the logo is a symmetric illustration, so it anchors the
+            column better than a left-aligned wordmark would. */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: 3,
+            // lets the tagline size itself to the panel width (cqi units)
+            containerType: 'inline-size',
+          }}
+        >
+          <Logo
+            variant="horizontal"
+            sx={{
+              // height follows the artwork's ~1.45:1 ratio
+              width: { md: 320, lg: 440, xl: 520 },
+              height: { md: 221, lg: 304, xl: 359 },
+              maxWidth: '100%',
+            }}
+          />
+          {/* Always one line: the size tracks the panel width, capped at the
+              design size, so it shrinks before it would ever wrap. */}
+          <Typography
+            sx={{
+              ...(isThai
+                ? { fontFamily: primaryFont, fontWeight: 500, lineHeight: 1.5 }
+                : typeScale.sectionHeading),
+              fontSize: isThai ? 'min(26px, 5.6cqi)' : 'min(38px, 7.4cqi)',
+              whiteSpace: 'nowrap',
+              color: '#F4ECDD',
+            }}
+          >
             {t('tagline')}
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-start' }}>
-          <TrustBadge />
-          <Typography sx={{ ...typeScale.label, color: '#4A4844', maxWidth: 380 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: 1.5,
+          }}
+        >
+          <TrustBadge
+            sx={{
+              // Icon above the copy: balanced text doesn't shrink its box, so a
+              // side-by-side icon would sit stranded at the column's left edge.
+              maxWidth: 440,
+              flexDirection: 'column',
+              gap: 1,
+              '& svg': { width: 22, height: 22 },
+              '& .MuiTypography-root': {
+                fontSize: { md: '13px', lg: '14px' },
+                textWrap: 'balance',
+              },
+            }}
+          />
+          <Typography
+            sx={{
+              ...typeScale.body,
+              fontSize: { md: '13px', lg: '14px' },
+              color: '#7A7468',
+              textWrap: 'balance',
+            }}
+          >
             {t('trust.footer')}
           </Typography>
         </Box>

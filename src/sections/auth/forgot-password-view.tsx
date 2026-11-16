@@ -114,7 +114,7 @@ export function ForgotPasswordView() {
             textAlign: { xs: 'center', md: 'left' },
           }}
         >
-          <Logo sx={{ display: { md: 'none' }, width: 44, height: 44 }} />
+          <Logo sx={{ display: { md: 'none' }, width: 96, height: 66 }} />
           <Typography sx={{ ...typeScale.sectionHeading, color: '#F4ECDD' }}>
             {t('forgotPassword.title')}
           </Typography>

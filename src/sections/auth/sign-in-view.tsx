@@ -124,7 +124,7 @@ export function SignInView() {
         >
           <Logo
             variant="stacked"
-            sx={{ display: { md: 'none' }, alignSelf: 'center', width: 172, height: 110 }}
+            sx={{ display: { md: 'none' }, alignSelf: 'center', width: 172, height: 119 }}
           />
           <Typography sx={{ ...typeScale.sectionHeading, color: '#F4ECDD', mt: 1 }}>
             {t('signIn.title')}
