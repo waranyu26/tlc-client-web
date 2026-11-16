@@ -55,7 +55,7 @@ const BUCKET_URL = import.meta.env.VITE_BUCKET_URL ?? '/bucket';
 // ----------------------------------------------------------------------
 
 export const CONFIG: ConfigValue = {
-  appName: 'Tokyo Lucky Card',
+  appName: 'VIP Card & Toys',
   appVersion: packageJson.version,
   serverUrl: import.meta.env.VITE_SERVER_URL ?? 'http://localhost:3000',
   assetsDir: import.meta.env.VITE_ASSETS_DIR ?? '',

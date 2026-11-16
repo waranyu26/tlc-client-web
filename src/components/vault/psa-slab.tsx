@@ -60,8 +60,9 @@ export function PsaSlab({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '8px',
-          padding: '7px 12px',
+          // Tight enough that both labels fit the slab's 200px minimum width.
+          gap: '6px',
+          padding: '7px 10px',
           background: barGradient,
           borderBottom: '2px solid #3A3624',
         }}
@@ -71,12 +72,12 @@ export function PsaSlab({
             fontFamily: `'Space Grotesk Variable', sans-serif`,
             fontSize: '7.5px',
             fontWeight: 700,
-            letterSpacing: '0.22em',
+            letterSpacing: '0.14em',
             color: '#E7CE92',
             whiteSpace: 'nowrap',
           }}
         >
-          TOKYO LUCKY
+          VIP CARD &amp; TOYS
         </Typography>
 
         <Box sx={{ display: 'flex', gap: '2px', flexShrink: 0 }}>

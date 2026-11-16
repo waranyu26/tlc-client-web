@@ -75,7 +75,7 @@ function StaleDeployRecovery() {
           <p className={errorBoundaryClasses.notice}>
             {outcome === 'offline'
               ? 'Part of this page could not be downloaded. Check your connection and try again — nothing in your wallet or vault is affected.'
-              : 'A newer version of Tokyo Lucky Card has been released, so part of this page could no longer be loaded. Refreshing picks it up — nothing in your wallet or vault is affected.'}
+              : 'A newer version of VIP Card & Toys has been released, so part of this page could no longer be loaded. Refreshing picks it up — nothing in your wallet or vault is affected.'}
           </p>
           <button type="button" className={errorBoundaryClasses.button} onClick={forceReload}>
             {outcome === 'offline' ? 'Try again' : 'Refresh'}
