@@ -25,6 +25,13 @@ export type PillGroupProps<T extends string> = {
   scroll?: boolean;
 };
 
+/** Anything with a name and a card count: a category or a collection in a tree. */
+type CountedNode = {
+  id: string;
+  name: string;
+  card_count: number;
+};
+
 /**
  * A row of single-choice pills: the gold-outlined chips used wherever there are
  * few enough options that a dropdown would only hide them.
@@ -86,6 +93,30 @@ export function PillGroup<T extends string>({
       })}
     </Box>
   );
+}
+
+/**
+ * The options for a row that picks from a category tree: the given "All" pill,
+ * then one pill per node with its card count trailing in a dimmer tone.
+ */
+export function countedPillOptions(
+  all: PillOption<string>,
+  nodes: CountedNode[]
+): PillOption<string>[] {
+  return [
+    all,
+    ...nodes.map((node) => ({
+      value: node.id,
+      label: (
+        <>
+          {node.name}
+          <Box component="span" sx={{ ml: '6px', opacity: 0.65 }}>
+            {node.card_count}
+          </Box>
+        </>
+      ),
+    })),
+  ];
 }
 
 export default PillGroup;

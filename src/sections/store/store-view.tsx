@@ -2,7 +2,6 @@ import './i18n';
 
 import type { StoreCard } from 'src/api/types';
 import type { StoreSort } from 'src/api/store.api';
-import type { PillOption } from 'src/components/vault';
 import type { ActiveFilter } from './store-active-filters';
 import type { StoreParamKey, StoreSheetFilters } from './store-filters';
 
@@ -23,7 +22,13 @@ import { useStoreCards, useStoreCategories } from 'src/api/store.api';
 import { gridGap, sectionGap, cardGridColumns } from 'src/layouts/vault/layout-config';
 
 import { Iconify } from 'src/components/iconify';
-import { PillGroup, GhostButton, SectionHeading, FeatureDisabledView } from 'src/components/vault';
+import {
+  PillGroup,
+  GhostButton,
+  SectionHeading,
+  countedPillOptions,
+  FeatureDisabledView,
+} from 'src/components/vault';
 
 import { fieldSx } from 'src/sections/account/dialog-style';
 
@@ -76,19 +81,6 @@ const emptyTitleSx = {
 } as const;
 
 const priceLabel = (satang: number) => formatThb(satang, { decimals: satang % 100 !== 0 });
-
-function PillLabel({ name, count }: { name: string; count?: number }) {
-  return (
-    <>
-      {name}
-      {count !== undefined && (
-        <Box component="span" sx={{ ml: '6px', opacity: 0.65 }}>
-          {count}
-        </Box>
-      )}
-    </>
-  );
-}
 
 // ----------------------------------------------------------------------
 
@@ -296,21 +288,11 @@ export function StoreView() {
 
   const filtered = !!categoryId || !!seriesId || !!filters.q || sheetCount > 0;
 
-  const categoryOptions: PillOption<string>[] = [
-    { value: ALL, label: t('category.all') },
-    ...(tree ?? []).map((node) => ({
-      value: node.id,
-      label: <PillLabel name={node.name} count={node.card_count} />,
-    })),
-  ];
-
-  const seriesOptions: PillOption<string>[] = [
+  const categoryOptions = countedPillOptions({ value: ALL, label: t('category.all') }, tree ?? []);
+  const seriesOptions = countedPillOptions(
     { value: ALL, label: t('series.all') },
-    ...(category?.series ?? []).map((node) => ({
-      value: node.id,
-      label: <PillLabel name={node.name} count={node.card_count} />,
-    })),
-  ];
+    category?.series ?? []
+  );
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: sectionGap }}>
