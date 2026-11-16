@@ -28,8 +28,8 @@ export function CollectionPreview() {
   const { t } = useTranslation('home');
   const navigate = useNavigate();
 
-  const collectionQuery = useCollection();
-  const cards = collectionQuery.data ?? [];
+  const collectionQuery = useCollection({ page: 1, pageSize: PREVIEW_COUNT });
+  const cards = collectionQuery.data?.data ?? [];
 
   if (collectionQuery.isPending || cards.length === 0) {
     return null;

@@ -7,7 +7,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { Iconify } from 'src/components/iconify';
-import { FadeUp, PrimaryButton } from 'src/components/vault';
+import { FadeUp, GhostButton, PrimaryButton } from 'src/components/vault';
 
 // ----------------------------------------------------------------------
 
@@ -67,6 +67,45 @@ export function VaultEmptyState() {
         </PrimaryButton>
       </Box>
     </FadeUp>
+  );
+}
+
+/**
+ * The vault has cards, just none that match the category, collection or search
+ * — so the way out is clearing the filters, not buying a pack.
+ */
+export function VaultFilteredEmptyState({ onClear }: { onClear: () => void }) {
+  const { t } = useTranslation('vault');
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: '12px',
+        padding: '48px 18px',
+        borderRadius: '15px',
+        border: '1px solid rgba(231,206,146,0.16)',
+        background: '#17161B',
+      }}
+    >
+      <Typography
+        sx={{
+          fontFamily: `'Cormorant Garamond', serif`,
+          fontSize: '22px',
+          fontWeight: 600,
+          color: '#F4ECDD',
+        }}
+      >
+        {t('empty.filteredTitle', { defaultValue: 'No cards match these filters' })}
+      </Typography>
+
+      <GhostButton onClick={onClear} sx={{ marginTop: '4px', py: '9px' }}>
+        {t('empty.filteredClear', { defaultValue: 'Clear filters' })}
+      </GhostButton>
+    </Box>
   );
 }
 

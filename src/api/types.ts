@@ -145,7 +145,17 @@ export type CollectionItem = {
    * are empty strings — so render a "Store" badge in place of one.
    */
   acquired_via: CardAcquiredVia;
+  /** The shop collection the card is filed under, or null when it is in none. */
+  series_name: string | null;
+  /** That collection's category; null whenever series_name is. */
+  category_name: string | null;
 };
+
+/**
+ * The category → collection tree over the customer's own vault: the store's
+ * tree shape, but counted over the cards they own rather than what is for sale.
+ */
+export type CollectionCategory = StoreCategory;
 
 // ----------------------------------------------------------------------
 // Gacha

@@ -14,7 +14,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 
 import { ApiError } from 'src/lib/axios';
-import { useCollection } from 'src/api/catalog.api';
+import { useWholeCollection } from 'src/api/catalog.api';
 import { READING_MAX_WIDTH } from 'src/layouts/vault/layout-config';
 import { useAddresses, useCreateDeliveryRequestMutation } from 'src/api/delivery.api';
 
@@ -42,11 +42,12 @@ export function DeliveryHubView() {
   const { t: tCommon } = useTranslation();
   const navigate = useNavigate();
 
+  // The picker offers every card in the vault, not just the first page of it.
   const {
     data: collection,
     isLoading: collectionLoading,
     isError: collectionError,
-  } = useCollection();
+  } = useWholeCollection();
   const { data: addresses, isLoading: addressesLoading, isError: addressesError } = useAddresses();
   const requestMutation = useCreateDeliveryRequestMutation();
 

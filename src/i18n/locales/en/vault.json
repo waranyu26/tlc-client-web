@@ -8,7 +8,21 @@
   "empty": {
     "title": "Your vault is empty",
     "subtitle": "Pull a pack to start building your authenticated collection.",
-    "cta": "Browse packs"
+    "cta": "Browse packs",
+    "filteredTitle": "No cards match these filters",
+    "filteredClear": "Clear filters"
+  },
+  "category": {
+    "label": "Categories",
+    "all": "All"
+  },
+  "series": {
+    "label": "Collections",
+    "all": "All collections"
+  },
+  "search": {
+    "placeholder": "Search cards, sets or collections",
+    "label": "Search your vault"
   },
   "error": {
     "title": "Couldn't load your vault",
