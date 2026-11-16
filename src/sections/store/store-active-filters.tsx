@@ -60,7 +60,12 @@ export function StoreActiveFilters({ filters, onClearAll }: Props) {
             size="small"
             onClick={filter.onRemove}
             aria-label={t('filter.chips.remove', { label: filter.label })}
-            sx={{ color: '#9A9285', p: '4px', '&:hover': { color: '#E7CE92' } }}
+            sx={{
+              color: '#9A9285',
+              p: '4px',
+              '&:hover': { color: '#E7CE92' },
+              '&.Mui-focusVisible': { outline: '2px solid #E7CE92', outlineOffset: 2 },
+            }}
           >
             <Iconify icon="mingcute:close-line" width={14} />
           </IconButton>
@@ -77,6 +82,8 @@ export function StoreActiveFilters({ filters, onClearAll }: Props) {
           fontWeight: 600,
           color: '#E7CE92',
           '&:hover': { textDecoration: 'underline' },
+          // A bare ButtonBase draws no focus of its own.
+          '&.Mui-focusVisible': { outline: '2px solid #E7CE92', outlineOffset: 2 },
         }}
       >
         {t('filter.chips.clearAll')}
